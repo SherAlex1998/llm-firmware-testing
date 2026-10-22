@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_state PASS
+@TEST coil_pattern_table PASS
+@TEST apply_phase_sets_pins PASS
+@TEST step_half_forward_and_wrap PASS
+@TEST step_half_backward_and_wrap PASS
+@TEST step_full_forward_moves_two_positions PASS
+@TEST step_full_backward_moves_two_positions PASS
+@TEST release_clears_pins_without_changing_state PASS
+@RUN_END 8/8

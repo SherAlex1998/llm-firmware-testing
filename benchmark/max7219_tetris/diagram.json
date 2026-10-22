@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "author": "benchmark",
+  "editor": "wokwi",
+  "parts": [
+    {"type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {}},
+    {"type": "wokwi-max7219-matrix", "id": "matrix", "top": -140, "left": 0, "attrs": {"chain": "2"}},
+    {"type": "wokwi-analog-joystick", "id": "joy", "top": 250, "left": 300, "attrs": {}}
+  ],
+  "connections": [
+    ["uno:12", "matrix:DIN", "green", []],
+    ["uno:10", "matrix:CS", "orange", []],
+    ["uno:11", "matrix:CLK", "yellow", []],
+    ["uno:5V", "matrix:V+", "red", []],
+    ["uno:GND.1", "matrix:GND", "black", []],
+    ["uno:A0", "joy:HORZ", "purple", []],
+    ["uno:A1", "joy:VERT", "blue", []],
+    ["uno:3", "joy:SEL", "gray", []],
+    ["uno:5", "joy:VCC", "red", []],
+    ["uno:GND.2", "joy:GND", "black", []]
+  ]
+}

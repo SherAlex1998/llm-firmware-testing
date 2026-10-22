@@ -1,0 +1,87 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_all_off) {
+  chaser_init();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_EQ(chaser_count_on(), 0);
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(light_only_first) {
+  chaser_init();
+  ASSERT_TRUE(chaser_light_only(0));
+  ASSERT_EQ(chaser_position(), 0);
+  ASSERT_EQ(chaser_count_on(), 1);
+  ASSERT_PIN(CHASER_PINS[0], HIGH);
+  for (uint8_t i = 1; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(light_only_last) {
+  chaser_init();
+  ASSERT_TRUE(chaser_light_only(9));
+  ASSERT_EQ(chaser_position(), 9);
+  ASSERT_EQ(chaser_count_on(), 1);
+  ASSERT_PIN(CHASER_PINS[9], HIGH);
+  for (uint8_t i = 0; i < 9; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(light_only_out_of_range) {
+  chaser_init();
+  chaser_light_only(3);
+  ASSERT_FALSE(chaser_light_only(10));
+  // state unchanged: still lit at index 3
+  ASSERT_EQ(chaser_position(), 3);
+  ASSERT_EQ(chaser_count_on(), 1);
+  ASSERT_PIN(CHASER_PINS[3], HIGH);
+}
+
+TEST(all_off_clears_state) {
+  chaser_init();
+  chaser_light_only(5);
+  chaser_all_off();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_count_on(), 0);
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(step_moves_forward_from_start) {
+  chaser_init();
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_PIN(CHASER_PINS[1], HIGH);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+TEST(step_bounces_at_far_end) {
+  chaser_init();
+  chaser_light_only(9);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 8);
+  ASSERT_EQ(chaser_direction(), -1);
+  ASSERT_PIN(CHASER_PINS[8], HIGH);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+TEST(step_bounces_at_near_end) {
+  chaser_init();
+  chaser_light_only(0);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_PIN(CHASER_PINS[1], HIGH);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

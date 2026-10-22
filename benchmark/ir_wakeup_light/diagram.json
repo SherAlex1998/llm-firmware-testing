@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "author": "benchmark",
+  "editor": "wokwi",
+  "parts": [
+    {"type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {}},
+    {"type": "wokwi-lcd1602", "id": "lcd", "top": -150, "left": 0, "attrs": {"pins": "i2c", "i2cAddress": "0x3F"}},
+    {"type": "wokwi-ds1307", "id": "rtc", "top": -150, "left": 330, "attrs": {"initTime": "2030-03-11T06:29:50Z"}},
+    {"type": "wokwi-ir-receiver", "id": "ir", "top": 250, "left": 300, "attrs": {}}
+  ],
+  "connections": [
+    ["uno:GND.1", "lcd:GND", "black", []],
+    ["uno:5V", "lcd:VCC", "red", []],
+    ["uno:A4", "lcd:SDA", "green", []],
+    ["uno:A5", "lcd:SCL", "blue", []],
+    ["uno:A4", "rtc:SDA", "green", []],
+    ["uno:A5", "rtc:SCL", "blue", []],
+    ["uno:5V", "rtc:5V", "red", []],
+    ["uno:GND.2", "rtc:GND", "black", []],
+    ["uno:A0", "ir:DAT", "orange", []],
+    ["uno:5V", "ir:VCC", "red", []],
+    ["uno:GND.3", "ir:GND", "black", []]
+  ]
+}

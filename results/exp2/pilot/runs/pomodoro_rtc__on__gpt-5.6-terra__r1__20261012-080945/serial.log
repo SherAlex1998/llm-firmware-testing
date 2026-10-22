@@ -1,0 +1,16 @@
+@RUN_BEGIN 14
+@TEST init_sets_idle_defaults PASS
+@TEST idle_short_action_increases_time_and_redraws PASS
+@TEST long_action_enters_prepare_mode PASS
+@TEST prepare_countdown_starts_work_timer PASS
+@TEST work_pause_and_resume_restore_seconds PASS
+@TEST cancel_prepare_returns_to_idle PASS
+@TEST tick_requires_two_half_seconds PASS
+@TEST released_button_produces_no_click PASS
+@TEST calc_weekday_matches_known_dates PASS
+@TEST rollover_same_day_leaves_statistics_unchanged PASS
+@TEST rollover_next_day_moves_today_to_week PASS
+@TEST rollover_week_boundary_moves_week_to_month PASS
+@TEST rollover_month_boundary_moves_month_to_total PASS
+@TEST completing_work_enters_rest_and_records_statistic PASS
+@RUN_END 14/14

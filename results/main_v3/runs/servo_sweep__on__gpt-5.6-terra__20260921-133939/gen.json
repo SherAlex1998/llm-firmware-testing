@@ -1,0 +1,21 @@
+{
+ "module_id": "servo_sweep",
+ "model_id": "gpt-5.6-terra",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3663,
+ "tokens_out": 960,
+ "cost_usd": 0.018846,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3663,
+   "tokens_out": 960,
+   "latency_s": 13.87301516532898,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

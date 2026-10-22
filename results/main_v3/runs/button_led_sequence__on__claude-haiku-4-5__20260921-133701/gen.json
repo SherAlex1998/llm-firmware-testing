@@ -1,0 +1,21 @@
+{
+ "module_id": "button_led_sequence",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4365,
+ "tokens_out": 1045,
+ "cost_usd": 0.00959,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4365,
+   "tokens_out": 1045,
+   "latency_s": 7.082908391952515,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

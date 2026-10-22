@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_led_high PASS
+@TEST init_sets_debounce_default PASS
+@TEST button_press_toggles_led_after_debounce PASS
+@TEST button_release_does_not_toggle FAIL line 47: expected db_button_state() == LOW (got 1 vs 0)
+@TEST noise_does_not_toggle_during_debounce PASS
+@TEST set_custom_debounce_delay PASS
+@TEST multiple_presses_toggle_repeatedly PASS
+@TEST last_change_ms_tracked PASS
+@RUN_END 7/8

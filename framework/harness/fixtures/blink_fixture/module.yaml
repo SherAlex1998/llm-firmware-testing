@@ -1,0 +1,18 @@
+id: blink_fixture
+name: "Blink fixture (harness self-test)"
+source_url: https://github.com/arduino/arduino-examples
+license: CC0-1.0
+category: led
+complexity: simple
+pins:
+  - {pin: 13, mode: OUTPUT, role: "status LED"}
+entry_functions:
+  - "void led_init()"
+  - "void led_on()"
+  - "void led_off()"
+  - "void led_toggle()"
+  - "int led_state()"
+  - "void led_blink(uint8_t times, unsigned int half_period_ms)"
+  - "unsigned int led_on_count()"
+loc: 40
+notes: "Not part of the benchmark. Minimal module for the self-tests; based on the built-in Blink example."

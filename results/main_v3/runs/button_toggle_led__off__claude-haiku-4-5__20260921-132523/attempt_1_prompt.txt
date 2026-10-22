@@ -1,0 +1,73 @@
+Module: Push-button toggles an LED (id: button_toggle_led, category: led, complexity: simple)
+Pins:
+- 2 INPUT_PULLUP: push-button (LOW = pressed)
+- 13 OUTPUT: LED
+Functions to test:
+- void toggle_init()
+- bool toggle_button_pressed()
+- void toggle_update(bool pressed)
+- void toggle_poll()
+- bool toggle_led_state()
+- void toggle_set_led(bool on)
+
+### logic.h
+```cpp
+// button_toggle_led: a push-button (INPUT_PULLUP, active LOW) toggles an LED on each press/release.
+// Adapted from https://github.com/harsh-hw-dev/Embedded-Programming-Series ("LED WITH BUTTON", MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define TOGGLE_PIN_BUTTON 2   // INPUT_PULLUP: LOW = pressed
+#define TOGGLE_PIN_LED    13
+
+void toggle_init();                 // pins configured, LED off, no press remembered
+bool toggle_button_pressed();       // digitalRead(TOGGLE_PIN_BUTTON) == LOW
+void toggle_update(bool pressed);   // feed the current button level; LED toggles on the release edge
+void toggle_poll();                 // toggle_update(toggle_button_pressed())
+bool toggle_led_state();            // true = LED on
+void toggle_set_led(bool on);       // force LED state
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static bool g_led = false;
+static bool g_prev_pressed = false;
+
+void toggle_init() {
+  pinMode(TOGGLE_PIN_BUTTON, INPUT_PULLUP);
+  pinMode(TOGGLE_PIN_LED, OUTPUT);
+  g_prev_pressed = false;
+  toggle_set_led(false);
+}
+
+bool toggle_button_pressed() {
+  return digitalRead(TOGGLE_PIN_BUTTON) == LOW;
+}
+
+void toggle_set_led(bool on) {
+  g_led = on;
+  digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);
+}
+
+bool toggle_led_state() {
+  return g_led;
+}
+
+void toggle_update(bool pressed) {
+  if (g_prev_pressed && !pressed) {
+    toggle_set_led(!g_led);   // released after a press -> toggle
+  }
+  g_prev_pressed = pressed;
+}
+
+void toggle_poll() {
+  toggle_update(toggle_button_pressed());
+}
+```
+
+Write the test sketch for this module.

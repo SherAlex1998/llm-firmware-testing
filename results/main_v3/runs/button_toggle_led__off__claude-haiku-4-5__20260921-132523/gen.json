@@ -1,0 +1,21 @@
+{
+ "module_id": "button_toggle_led",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2691,
+ "tokens_out": 809,
+ "cost_usd": 0.006736,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2691,
+   "tokens_out": 809,
+   "latency_s": 5.944576025009155,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

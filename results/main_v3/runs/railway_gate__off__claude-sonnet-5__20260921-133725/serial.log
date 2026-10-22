@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_closed_defaults PASS
+@TEST open_sets_leds_and_angles PASS
+@TEST close_after_open_restores_state PASS
+@TEST update_sensor1_opens_and_marks_object_between PASS
+@TEST update_sensor2_after_object_between_closes_and_clears PASS
+@TEST update_sensor2_without_object_between_keeps_no_object PASS
+@TEST poll_reads_sensor_pins_and_opens_gate PASS
+@RUN_END 7/7

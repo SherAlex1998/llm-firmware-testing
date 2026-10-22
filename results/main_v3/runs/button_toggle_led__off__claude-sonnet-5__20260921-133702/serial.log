@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_state PASS
+@TEST set_led_direct PASS
+@TEST toggle_on_release_edge PASS
+@TEST no_toggle_while_held PASS
+@TEST no_toggle_without_press PASS
+@TEST multiple_toggles PASS
+@RUN_END 6/6

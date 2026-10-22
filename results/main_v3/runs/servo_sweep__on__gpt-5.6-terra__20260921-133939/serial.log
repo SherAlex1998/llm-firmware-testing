@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_moves_to_default_start PASS
+@TEST clamp_limits_angles_to_servo_range PASS
+@TEST write_clamps_and_tracks_commanded_angle PASS
+@TEST steps_per_cycle_calculates_valid_sweeps PASS
+@TEST steps_per_cycle_rejects_invalid_arguments PASS
+@TEST run_completes_cycles_and_returns_to_start PASS
+@TEST run_ignores_invalid_sweep PASS
+@RUN_END 7/7

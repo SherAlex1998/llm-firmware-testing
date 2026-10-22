@@ -1,0 +1,140 @@
+#include "logic.h"
+#include "test_runner.h"
+
+// ---------- park_init / reset ----------
+
+TEST(park_init_sets_purple_and_resets) {
+  park_init();
+  ASSERT_EQ(led.color(), 0xFF00FFUL);          // purple
+  ASSERT_EQ(sonar.getTargetDistance(), 30);
+  ASSERT_EQ(sonar.getDistance(), 0);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+// ---------- zone logic (setLedColor) ----------
+
+TEST(zone_in_target_sets_green) {
+  park_init();
+  sonar.applyReading(40);                      // target 30: [25,45] -> in zone
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x00FF00UL);
+}
+
+TEST(zone_away_sets_purple) {
+  park_init();
+  sonar.applyReading(50);                      // (45,130) -> away
+  setLedColor();
+  ASSERT_EQ(led.color(), 0xFF00FFUL);
+}
+
+TEST(zone_past_sets_yellow) {
+  park_init();
+  sonar.applyReading(20);                      // [15,25) only, past zone
+  setLedColor();
+  ASSERT_EQ(led.color(), 0xC83200UL);          // (200,50,0)
+}
+
+TEST(zone_too_close_sets_flash_red) {
+  park_init();
+  sonar.applyReading(10);                      // <15 -> too close
+  setLedColor();
+  ASSERT_EQ(led.color(), 0xFF0000UL);          // flashRed ends on red
+}
+
+TEST(zone_boundary_in_wins_over_past) {
+  park_init();
+  sonar.applyReading(25);                      // in-zone and past-zone both true
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x00FF00UL);          // in-zone checked first
+}
+
+TEST(target_distance_changes_zones) {
+  park_init();
+  sonar.setTargetDistance(100);
+  sonar.applyReading(100);
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x00FF00UL);          // now in target zone
+}
+
+// ---------- SonarController getters/out of range ----------
+
+TEST(sonar_distance_getters) {
+  park_init();
+  sonar.applyReading(77);
+  ASSERT_EQ(sonar.getDistance(), 77);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+  sonar.applyReading(80);
+  ASSERT_EQ(sonar.getDistance(), 80);
+  ASSERT_EQ(sonar.getLastDistance(), 77);
+}
+
+TEST(sonar_object_out_of_range) {
+  park_init();
+  sonar.applyReading(500);
+  ASSERT_TRUE(sonar.objectOutOfRange());
+  sonar.applyReading(499);
+  ASSERT_FALSE(sonar.objectOutOfRange());
+}
+
+// ---------- idle timeout ----------
+
+TEST(idle_timeout_reached_after_threshold) {
+  park_init();
+  sonar.applyReading(50);                      // distance 50, last 0 -> movement
+  ASSERT_FALSE(sonar.idleTimeoutReached(100));
+  sonar.applyReading(55);                      // within tolerance of 50 -> no movement reset
+  ASSERT_FALSE(sonar.idleTimeoutReached(100));
+  ASSERT_TRUE(sonar.idleTimeoutReached(40200)); // 40100ms since last movement
+}
+
+// ---------- ButtonController ----------
+
+TEST(button_not_pressed_when_always_released) {
+  ASSERT_FALSE(setupButton.wasPressed());
+}
+
+// ---------- park_loop_with ----------
+
+TEST(park_loop_with_button_pressed_sets_target_and_flashes_green) {
+  park_init();
+  park_loop_with(60, true, 500);
+  ASSERT_EQ(sonar.getTargetDistance(), 60);
+  ASSERT_EQ(led.color(), 0x00FF00UL);          // flashGreen ends on green
+}
+
+TEST(park_loop_with_idle_timeout_turns_led_off) {
+  park_init();
+  park_loop_with(40, false, 100);              // establishes movement baseline, led green
+  ASSERT_EQ(led.color(), 0x00FF00UL);
+  park_loop_with(40, false, 40200);            // far future, no movement -> idle
+  ASSERT_EQ(led.color(), 0UL);
+}
+
+// ---------- park_loop (real sensor fixed at 40cm) ----------
+
+TEST(park_loop_real_sensor_reads_40cm_in_target_zone) {
+  park_init();
+  park_loop();
+  ASSERT_EQ(sonar.getDistance(), 40);
+  ASSERT_EQ(led.color(), 0x00FF00UL);
+}
+
+// ---------- LedController direct API ----------
+
+TEST(led_rgb_and_basic_colors) {
+  led.rgb(10, 20, 30);
+  ASSERT_EQ(led.color(), 0x0A141EUL);
+  led.red();
+  ASSERT_EQ(led.color(), 0xFF0000UL);
+  led.green();
+  ASSERT_EQ(led.color(), 0x00FF00UL);
+  led.yellow();
+  ASSERT_EQ(led.color(), 0xC83200UL);
+  led.purple();
+  ASSERT_EQ(led.color(), 0xFF00FFUL);
+  led.off();
+  ASSERT_EQ(led.color(), 0UL);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

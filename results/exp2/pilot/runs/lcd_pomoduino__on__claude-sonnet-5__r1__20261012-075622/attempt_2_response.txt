@@ -1,0 +1,140 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(initial_state_after_setup) {
+  pomo2_setup();
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 0);
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 25);
+}
+
+TEST(b1_release_cycles_timer_type) {
+  pomo2_setup();
+  uint32_t t = 1000;
+  pomo2_step(t, true, false);   // press b1
+  t = 1100;
+  pomo2_step(t, false, false);  // release b1 -> cycle type
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 1);
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 5);
+}
+
+TEST(b2_short_click_starts_running) {
+  pomo2_setup();
+  uint32_t t = 1000;
+  pomo2_step(t, false, true);   // press b2
+  t = 1100;
+  pomo2_step(t, false, false);  // release quickly -> start running
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_RUNNING);
+}
+
+TEST(b2_release_while_running_pauses) {
+  pomo2_setup();
+  uint32_t t = 1000;
+  pomo2_step(t, false, true);
+  t = 1100;
+  pomo2_step(t, false, false);  // start running
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_RUNNING);
+
+  t = 1200;
+  pomo2_step(t, false, true);   // press b2 again
+  t = 1250;
+  pomo2_step(t, false, false);  // release -> pause
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_PAUSED);
+}
+
+TEST(resume_from_paused_with_short_click) {
+  pomo2_setup();
+  uint32_t t = 1000;
+  pomo2_step(t, false, true);
+  t = 1100;
+  pomo2_step(t, false, false);  // RUNNING
+  t = 1200;
+  pomo2_step(t, false, true);
+  t = 1250;
+  pomo2_step(t, false, false);  // PAUSED
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_PAUSED);
+
+  t = 1350;
+  pomo2_step(t, false, true);   // press
+  t = 1450;
+  pomo2_step(t, false, false);  // short release -> resume
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_RUNNING);
+}
+
+TEST(cancel_from_paused_with_long_press) {
+  pomo2_setup();
+  uint32_t t = 1000;
+  pomo2_step(t, false, true);
+  t = 1100;
+  pomo2_step(t, false, false);  // RUNNING
+  t = 1200;
+  pomo2_step(t, false, true);
+  t = 1250;
+  pomo2_step(t, false, false);  // PAUSED
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_PAUSED);
+
+  t = 1350;
+  pomo2_step(t, false, true);   // press again
+  t = 4600;
+  pomo2_step(t, false, true);   // held > 3000ms -> cancel
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+}
+
+TEST(pomodoro_completes_and_increments_count) {
+  pomo2_setup();
+  uint32_t t = 1000;
+
+  // reset pomodoros to 0 via long press in READY
+  pomo2_step(t, false, true);
+  t = 4200;
+  pomo2_step(t, false, true);   // duration > 3000 -> clear
+  t = 4300;
+  pomo2_step(t, false, false);  // release, last duration large -> stay READY
+
+  ASSERT_EQ(the_pomodoro.Get_Pomodoros(), 0);
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 0);
+
+  // start running
+  t = 4400;
+  pomo2_step(t, false, true);
+  t = 4500;
+  pomo2_step(t, false, false);
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_RUNNING);
+
+  // jump far ahead so the 25 min period elapses
+  t = 4500 + (uint32_t)25 * 60 * 1000 + 1000;
+  pomo2_step(t, false, false);
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_FINISHED);
+
+  // advance through beeper cycles until it returns to READY
+  for (int i = 0; i < 15; i++) {
+    t += 10;
+    pomo2_step(t, false, false);
+  }
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Pomodoros(), 1);
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 1);
+}
+
+TEST(lcd_shows_ready_text) {
+  pomo2_setup();
+  const char *line0 = pomo2_lcd_line(0);
+  ASSERT_TRUE(strstr(line0, "READY") != NULL);
+}
+
+TEST(lcd_shows_time_left_when_running) {
+  pomo2_setup();
+  uint32_t t = 1000;
+  pomo2_step(t, false, true);
+  t = 1100;
+  pomo2_step(t, false, false);  // start running, no time elapsed yet
+  const char *line0 = pomo2_lcd_line(0);
+  ASSERT_TRUE(strstr(line0, "25:00") != NULL);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

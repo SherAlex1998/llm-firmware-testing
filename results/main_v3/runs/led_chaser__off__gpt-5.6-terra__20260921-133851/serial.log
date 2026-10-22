@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_all_leds_off_and_forward PASS
+@TEST light_only_selects_requested_led PASS
+@TEST light_only_rejects_out_of_range_without_change PASS
+@TEST all_off_clears_selected_led_and_position PASS
+@TEST step_moves_forward_from_off_and_middle PASS
+@TEST step_bounces_at_both_ends PASS
+@RUN_END 6/6

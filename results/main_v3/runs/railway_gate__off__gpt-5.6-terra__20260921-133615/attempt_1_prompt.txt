@@ -1,0 +1,159 @@
+Module: Sensor-controlled railway gate (2 servos + LEDs) (id: railway_gate, category: led+motor, complexity: medium)
+Pins:
+- 14 INPUT: A0 sensor 1 (LOW = object)
+- 15 INPUT: A1 sensor 2 (LOW = object)
+- 2 OUTPUT: green LED
+- 4 OUTPUT: red LED
+- 11 OUTPUT: servo 1 signal
+- 10 OUTPUT: servo 2 signal
+Functions to test:
+- void gate_init()
+- void gate_open()
+- void gate_close()
+- bool gate_is_open()
+- bool gate_object_between()
+- int gate_servo1_angle()
+- int gate_servo2_angle()
+- void gate_update(bool sensor1_detected, bool sensor2_detected)
+- void gate_poll()
+- bool gate_sensor1_detected()
+- bool gate_sensor2_detected()
+
+### logic.h
+```cpp
+// railway_gate: two servo-driven gates plus red/green LEDs, controlled by two digital (IR) sensors.
+// Adapted from https://github.com/Venkatesh4707/Railway-Gate-Automation-Arduino (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+#include <Servo.h>
+
+#define GATE_PIN_SENSOR1   A0   // digital input, LOW = object detected
+#define GATE_PIN_SENSOR2   A1   // digital input, LOW = object detected
+#define GATE_PIN_LED_GREEN 2
+#define GATE_PIN_LED_RED   4
+#define GATE_PIN_SERVO1    11
+#define GATE_PIN_SERVO2    10
+#define GATE_SERVO1_CLOSED 180
+#define GATE_SERVO1_OPEN   90
+#define GATE_SERVO2_CLOSED 90
+#define GATE_SERVO2_OPEN   180
+#define GATE_SWEEP_STEP_DEG 5
+#define GATE_SWEEP_DELAY_MS 10
+
+void gate_init();                                          // attach servos, gates closed, red LED on
+void gate_open();                                          // sweep both servos to the open angles; green on, red off
+void gate_close();                                         // sweep both servos to the closed angles; red on, green off
+bool gate_is_open();
+bool gate_object_between();                                // an object entered via sensor 1 and has not left via sensor 2
+int gate_servo1_angle();                                   // Servo::read()
+int gate_servo2_angle();
+bool gate_sensor1_detected();                              // digitalRead(GATE_PIN_SENSOR1) == LOW
+bool gate_sensor2_detected();
+void gate_update(bool sensor1_detected, bool sensor2_detected); // state machine step with explicit sensor values
+void gate_poll();                                          // read sensors and call gate_update
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static Servo g_servo1;
+static Servo g_servo2;
+static bool g_open = false;
+static bool g_object_between = false;
+
+static void gate_sweep(Servo &servo, int from, int to) {
+  if (from <= to) {
+    for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {
+      servo.write(pos);
+      delay(GATE_SWEEP_DELAY_MS);
+    }
+  } else {
+    for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {
+      servo.write(pos);
+      delay(GATE_SWEEP_DELAY_MS);
+    }
+  }
+  servo.write(to);
+}
+
+void gate_init() {
+  pinMode(GATE_PIN_SENSOR1, INPUT);
+  pinMode(GATE_PIN_SENSOR2, INPUT);
+  pinMode(GATE_PIN_LED_GREEN, OUTPUT);
+  pinMode(GATE_PIN_LED_RED, OUTPUT);
+  g_servo1.attach(GATE_PIN_SERVO1);
+  g_servo2.attach(GATE_PIN_SERVO2);
+  g_servo1.write(GATE_SERVO1_CLOSED);
+  g_servo2.write(GATE_SERVO2_CLOSED);
+  digitalWrite(GATE_PIN_LED_RED, HIGH);
+  digitalWrite(GATE_PIN_LED_GREEN, LOW);
+  g_open = false;
+  g_object_between = false;
+}
+
+void gate_open() {
+  gate_sweep(g_servo1, GATE_SERVO1_CLOSED, GATE_SERVO1_OPEN);
+  gate_sweep(g_servo2, GATE_SERVO2_CLOSED, GATE_SERVO2_OPEN);
+  digitalWrite(GATE_PIN_LED_GREEN, HIGH);
+  digitalWrite(GATE_PIN_LED_RED, LOW);
+  g_open = true;
+}
+
+void gate_close() {
+  gate_sweep(g_servo2, GATE_SERVO2_OPEN, GATE_SERVO2_CLOSED);
+  gate_sweep(g_servo1, GATE_SERVO1_OPEN, GATE_SERVO1_CLOSED);
+  digitalWrite(GATE_PIN_LED_GREEN, LOW);
+  digitalWrite(GATE_PIN_LED_RED, HIGH);
+  g_open = false;
+}
+
+bool gate_is_open() {
+  return g_open;
+}
+
+bool gate_object_between() {
+  return g_object_between;
+}
+
+int gate_servo1_angle() {
+  return g_servo1.read();
+}
+
+int gate_servo2_angle() {
+  return g_servo2.read();
+}
+
+bool gate_sensor1_detected() {
+  return digitalRead(GATE_PIN_SENSOR1) == LOW;
+}
+
+bool gate_sensor2_detected() {
+  return digitalRead(GATE_PIN_SENSOR2) == LOW;
+}
+
+void gate_update(bool sensor1_detected, bool sensor2_detected) {
+  if (!g_object_between) {
+    if (sensor1_detected) {
+      gate_open();
+      g_object_between = true;
+    } else if (sensor2_detected) {
+      gate_close();
+    }
+  } else {
+    if (sensor2_detected) {
+      gate_close();
+      g_object_between = false;
+    }
+  }
+}
+
+void gate_poll() {
+  gate_update(gate_sensor1_detected(), gate_sensor2_detected());
+}
+```
+
+Write the test sketch for this module.

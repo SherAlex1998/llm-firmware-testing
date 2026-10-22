@@ -1,0 +1,41 @@
+id: pet_feeding_timer
+name: "Pet feeding timer: two interrupt buttons, status LEDs and a 16x2 LCD"
+source_url: https://github.com/hlgirard/PetFeedingTimer
+license: MIT
+repo_created: 2018-11-14
+experiment: 2
+category: mixed
+complexity: medium
+backend: avr8js
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal", version: "1.0.7"}
+interrupts: true
+pins:
+  - {pin: 2, mode: INPUT_PULLUP, role: "feeding button to GND, interrupt on FALLING (not connected in the test setup: reads HIGH)"}
+  - {pin: 3, mode: INPUT_PULLUP, role: "screen button to GND, interrupt on FALLING (not connected: reads HIGH)"}
+  - {pin: 14, mode: OUTPUT, role: "green LED (A0)"}
+  - {pin: 15, mode: OUTPUT, role: "yellow LED (A1)"}
+  - {pin: 16, mode: OUTPUT, role: "red LED (A2)"}
+  - {pin: 10, mode: OUTPUT, role: "LCD backlight switch"}
+  - {pin: 4, mode: OUTPUT, role: "LCD 16x2 RS (E 5, D4..D7 = 6..9)"}
+entry_functions:
+  - "void pet_reset_state()"
+  - "void pet_init()"
+  - "void pet_loop()"
+  - "void pet_loop_at(unsigned long currentTime)"
+  - "void resetTime()"
+  - "void resetTimeAt(unsigned long now)"
+  - "void screenON()"
+  - "void screenONAt(unsigned long now)"
+  - "void displayFeedingInfo(unsigned long deltaTime, unsigned long currentTime)"
+  - "void ledFeedingStatus(unsigned long deltaTime)"
+  - "const char *pet_lcd_line(uint8_t row)"
+loc: 183
+metrics: {nloc: 183, ccn_sum: 30, ccn_max: 5, functions: 13}
+notes: >-
+  Source: CatFeedingTime_Nano/CatFeedingTime_Nano.ino (single sketch for an Arduino Nano, 2019). Functions copied
+  into logic.cpp; pins became #defines, the time constants stay typed globals (extern in logic.h). Changes: setup()
+  -> pet_init() (also resets the globals); loop() -> pet_loop() = pet_loop_at(millis()) without its delay(500)
+  (kept in the sketch); each interrupt routine calls a twin with the time as argument (resetTimeAt, screenONAt);
+  LCD calls go through wrappers with a shadow of the 16x2 display. avr8js backend.

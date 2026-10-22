@@ -1,0 +1,21 @@
+{
+ "module_id": "debounce_toggle",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3100,
+ "tokens_out": 793,
+ "cost_usd": 0.007065,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3100,
+   "tokens_out": 793,
+   "latency_s": 8.59121823310852,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

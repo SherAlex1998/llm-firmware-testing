@@ -1,0 +1,112 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_all_pins_low) {
+  hb_init();
+  ASSERT_PIN(HB_PIN_IN1, LOW);
+  ASSERT_PIN(HB_PIN_IN2, LOW);
+  ASSERT_PIN(HB_PIN_IN3, LOW);
+  ASSERT_PIN(HB_PIN_IN4, LOW);
+  ASSERT_PIN(HB_PIN_ENA, LOW);
+  ASSERT_PIN(HB_PIN_ENB, LOW);
+}
+
+TEST(init_sets_motors_stopped) {
+  hb_init();
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 0);
+}
+
+TEST(forward_motor_a) {
+  hb_init();
+  bool result = hb_forward(HB_MOTOR_A, 200);
+  ASSERT_TRUE(result);
+  ASSERT_PIN(HB_PIN_IN1, HIGH);
+  ASSERT_PIN(HB_PIN_IN2, LOW);
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 200);
+}
+
+TEST(forward_motor_b) {
+  hb_init();
+  bool result = hb_forward(HB_MOTOR_B, 150);
+  ASSERT_TRUE(result);
+  ASSERT_PIN(HB_PIN_IN3, HIGH);
+  ASSERT_PIN(HB_PIN_IN4, LOW);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 150);
+}
+
+TEST(backward_motor_a) {
+  hb_init();
+  bool result = hb_backward(HB_MOTOR_A, 100);
+  ASSERT_TRUE(result);
+  ASSERT_PIN(HB_PIN_IN1, LOW);
+  ASSERT_PIN(HB_PIN_IN2, HIGH);
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), -1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 100);
+}
+
+TEST(backward_motor_b) {
+  hb_init();
+  bool result = hb_backward(HB_MOTOR_B, 75);
+  ASSERT_TRUE(result);
+  ASSERT_PIN(HB_PIN_IN3, LOW);
+  ASSERT_PIN(HB_PIN_IN4, HIGH);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), -1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 75);
+}
+
+TEST(stop_motor_a) {
+  hb_init();
+  hb_forward(HB_MOTOR_A, 200);
+  bool result = hb_stop(HB_MOTOR_A);
+  ASSERT_TRUE(result);
+  ASSERT_PIN(HB_PIN_IN1, LOW);
+  ASSERT_PIN(HB_PIN_IN2, LOW);
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 0);
+}
+
+TEST(stop_all_motors) {
+  hb_init();
+  hb_forward(HB_MOTOR_A, 200);
+  hb_backward(HB_MOTOR_B, 150);
+  hb_stop_all();
+  ASSERT_PIN(HB_PIN_IN1, LOW);
+  ASSERT_PIN(HB_PIN_IN2, LOW);
+  ASSERT_PIN(HB_PIN_IN3, LOW);
+  ASSERT_PIN(HB_PIN_IN4, LOW);
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 0);
+}
+
+TEST(invalid_motor_returns_false) {
+  hb_init();
+  ASSERT_FALSE(hb_forward(2, 100));
+  ASSERT_FALSE(hb_backward(99, 100));
+  ASSERT_FALSE(hb_stop(255));
+}
+
+TEST(invalid_motor_direction_returns_zero) {
+  hb_init();
+  ASSERT_EQ(hb_direction(2), 0);
+  ASSERT_EQ(hb_direction(255), 0);
+}
+
+TEST(invalid_motor_speed_returns_zero) {
+  hb_init();
+  ASSERT_EQ(hb_speed(2), 0);
+  ASSERT_EQ(hb_speed(255), 0);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}

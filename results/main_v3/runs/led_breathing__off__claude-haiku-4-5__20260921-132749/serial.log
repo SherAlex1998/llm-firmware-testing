@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_pin_and_brightness PASS
+@TEST reset_clears_state PASS
+@TEST step_advances_brightness_and_writes_pin FAIL line 25: pin 11 is LOW, expected HIGH
+@TEST step_bounces_at_max FAIL line 37: expected breath_brightness() == 255 (got 200 vs 255)
+@TEST step_bounces_at_min FAIL line 47: expected breath_brightness() == 0 (got 105 vs 0)
+@TEST set_velocity_changes_step_size PASS
+@TEST set_velocity_ignores_zero PASS
+@RUN_END 4/7

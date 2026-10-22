@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_enters_green_with_open_gate PASS
+@TEST set_yellow_and_red_drive_expected_outputs PASS
+@TEST off_turns_off_leds_and_preserves_gate PASS
+@TEST invalid_state_is_rejected_without_change PASS
+@TEST next_state_and_duration_are_correct PASS
+@TEST next_cycles_through_states PASS
+@RUN_END 6/6

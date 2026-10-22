@@ -1,0 +1,11 @@
+@RUN_BEGIN 9
+@TEST setup_initializes_ready_timer_and_pins PASS
+@TEST loop_at_uses_idle_pullup_buttons PASS
+@TEST button_logic_reports_edges_and_durations PASS
+@TEST timer_counter_and_period_values PASS
+@TEST beeper_toggles_requested_number_of_cycles PASS
+@TEST button_one_cycles_all_period_types PASS
+@TEST short_button_two_press_starts_pauses_and_resumes PASS
+@TEST long_ready_button_two_hold_clears_count_and_resets_work_period PASS
+@TEST completed_work_period_beeps_then_advances_to_short_break PASS
+@RUN_END 9/9

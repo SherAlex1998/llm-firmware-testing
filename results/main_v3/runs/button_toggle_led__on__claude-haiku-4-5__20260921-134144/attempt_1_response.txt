@@ -1,0 +1,107 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_pins_and_led_off) {
+  toggle_init();
+  ASSERT_PIN(TOGGLE_PIN_LED, LOW);
+  ASSERT_FALSE(toggle_led_state());
+}
+
+TEST(button_pressed_reads_pin) {
+  toggle_init();
+  // Button is INPUT_PULLUP, so unpressed reads HIGH
+  // We cannot control the physical pin, but we can verify the function reads it
+  bool state = toggle_button_pressed();
+  // state should be either true or false (pin is either HIGH or LOW)
+  ASSERT_TRUE(state == true || state == false);
+}
+
+TEST(set_led_on_and_off) {
+  toggle_init();
+  toggle_set_led(true);
+  ASSERT_PIN(TOGGLE_PIN_LED, HIGH);
+  ASSERT_TRUE(toggle_led_state());
+  
+  toggle_set_led(false);
+  ASSERT_PIN(TOGGLE_PIN_LED, LOW);
+  ASSERT_FALSE(toggle_led_state());
+}
+
+TEST(update_toggles_on_release_edge) {
+  toggle_init();
+  ASSERT_FALSE(toggle_led_state());
+  
+  // Simulate button press: pressed = true
+  toggle_update(true);
+  ASSERT_FALSE(toggle_led_state());  // No toggle on press
+  
+  // Simulate button release: pressed = false
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());   // Toggle on release
+  
+  // Press again
+  toggle_update(true);
+  ASSERT_TRUE(toggle_led_state());   // No change on press
+  
+  // Release again
+  toggle_update(false);
+  ASSERT_FALSE(toggle_led_state());  // Toggle on release
+}
+
+TEST(update_ignores_repeated_press_state) {
+  toggle_init();
+  
+  // Simulate press
+  toggle_update(true);
+  ASSERT_FALSE(toggle_led_state());
+  
+  // Stay pressed (repeated true)
+  toggle_update(true);
+  ASSERT_FALSE(toggle_led_state());  // No toggle while pressed
+  
+  // Release
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());   // Toggle on release edge
+}
+
+TEST(poll_reads_and_updates) {
+  toggle_init();
+  ASSERT_FALSE(toggle_led_state());
+  
+  // Poll several times (button state depends on physical pin which we don't control)
+  // Just verify that poll() doesn't crash and maintains consistency
+  toggle_poll();
+  bool state_after_poll = toggle_led_state();
+  
+  toggle_poll();
+  // State should remain consistent if button state hasn't changed
+  ASSERT_EQ(toggle_led_state(), state_after_poll);
+}
+
+TEST(multiple_presses_toggle_correctly) {
+  toggle_init();
+  
+  // First press-release cycle
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());
+  
+  // Second press-release cycle
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_FALSE(toggle_led_state());
+  
+  // Third press-release cycle
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```

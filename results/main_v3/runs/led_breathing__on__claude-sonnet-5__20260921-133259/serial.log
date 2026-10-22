@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_defaults PASS
+@TEST reset_restores_defaults PASS
+@TEST step_advances_brightness PASS
+@TEST set_velocity_ignores_zero PASS
+@TEST bounces_at_max FAIL line 48: pin 11 is LOW, expected HIGH
+@TEST bounces_at_min PASS
+@RUN_END 5/6

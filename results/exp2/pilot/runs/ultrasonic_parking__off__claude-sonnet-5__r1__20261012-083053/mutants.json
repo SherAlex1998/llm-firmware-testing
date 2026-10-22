@@ -1,0 +1,108 @@
+{
+ "mutants_total": 10,
+ "killed": 5,
+ "score": 0.5,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "swap_logic",
+   "line": 72,
+   "before": "if (!((distance >= lastDistance - INNER_TOLERANCE_CM) && (distance <= lastDistance + OUTER_TOLERANCE_CM))) {",
+   "after": "if (!((distance >= lastDistance - INNER_TOLERANCE_CM) || (distance <= lastDistance + OUTER_TOLERANCE_CM))) {",
+   "verdict": "pass",
+   "killed": false,
+   "file": "sonar_controller.h"
+  },
+  {
+   "id": 2,
+   "operator": "drop_call",
+   "line": 49,
+   "before": "green();",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true,
+   "file": "led_controller.h"
+  },
+  {
+   "id": 3,
+   "operator": "drop_call",
+   "line": 24,
+   "before": "led.flashGreen(50);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false,
+   "file": "logic.cpp"
+  },
+  {
+   "id": 4,
+   "operator": "swap_logic",
+   "line": 93,
+   "before": "return (distance > targetDistance + OUTER_TOLERANCE_CM) && (distance < targetDistance + PURPLE_ZONE_UPPER_BOUND_CM);",
+   "after": "return (distance > targetDistance + OUTER_TOLERANCE_CM) || (distance < targetDistance + PURPLE_ZONE_UPPER_BOUND_CM);",
+   "verdict": "fail",
+   "killed": true,
+   "file": "sonar_controller.h"
+  },
+  {
+   "id": 5,
+   "operator": "const_change",
+   "line": 28,
+   "before": "setColor(0 , 255 , 0);",
+   "after": "setColor(0 , 510 , 0);",
+   "verdict": "fail",
+   "killed": true,
+   "file": "led_controller.h"
+  },
+  {
+   "id": 6,
+   "operator": "const_change",
+   "line": 24,
+   "before": "setColor(255 , 0 , 0);",
+   "after": "setColor(510 , 0 , 0);",
+   "verdict": "fail",
+   "killed": true,
+   "file": "led_controller.h"
+  },
+  {
+   "id": 7,
+   "operator": "flip_cmp",
+   "line": 97,
+   "before": "return (distance >= targetDistance - INNER_TOLERANCE_CM) && (distance <= targetDistance + OUTER_TOLERANCE_CM);",
+   "after": "return (distance >= targetDistance - INNER_TOLERANCE_CM) && (distance > targetDistance + OUTER_TOLERANCE_CM);",
+   "verdict": "fail",
+   "killed": true,
+   "file": "sonar_controller.h"
+  },
+  {
+   "id": 8,
+   "operator": "swap_arith",
+   "line": 75,
+   "before": "return (nowMs - lastMovementMs) > POWER_SAVE_MODE_THRESHOLD_MS;",
+   "after": "return (nowMs + lastMovementMs) > POWER_SAVE_MODE_THRESHOLD_MS;",
+   "verdict": "pass",
+   "killed": false,
+   "file": "sonar_controller.h"
+  },
+  {
+   "id": 9,
+   "operator": "swap_arith",
+   "line": 29,
+   "before": "if (lastDistance > 0 && abs(distance - lastDistance) > ACCEPTABLE_CONSECUTIVE_READING_DIFF) {",
+   "after": "if (lastDistance > 0 && abs(distance + lastDistance) > ACCEPTABLE_CONSECUTIVE_READING_DIFF) {",
+   "verdict": "pass",
+   "killed": false,
+   "file": "sonar_controller.h"
+  },
+  {
+   "id": 10,
+   "operator": "off_by_one",
+   "line": 23,
+   "before": "for (int i = 0; i < 3; i++) {",
+   "after": "for (int i = 0; i < 4; i++) {",
+   "verdict": "pass",
+   "killed": false,
+   "file": "logic.cpp"
+  }
+ ],
+ "warnings": []
+}

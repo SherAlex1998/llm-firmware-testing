@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_servo_gate",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 5852,
+ "tokens_out": 1499,
+ "cost_usd": 0.040041,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 5852,
+   "tokens_out": 1499,
+   "latency_s": 10.789039611816406,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

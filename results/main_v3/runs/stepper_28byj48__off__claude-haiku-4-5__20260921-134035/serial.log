@@ -1,0 +1,11 @@
+@RUN_BEGIN 9
+@TEST init_state PASS
+@TEST coil_pattern_valid PASS
+@TEST coil_pattern_invalid PASS
+@TEST apply_phase_valid FAIL line 37: pin 8 is LOW, expected HIGH
+@TEST apply_phase_invalid PASS
+@TEST step_half_forward PASS
+@TEST step_half_backward PASS
+@TEST step_full_forward PASS
+@TEST step_full_backward PASS
+@RUN_END 8/9

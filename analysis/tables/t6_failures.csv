@@ -1,0 +1,33 @@
+module_id,model,rag,test,message
+button_led_sequence,claude-haiku-4-5,on,apply_valid_steps,"line 24: pin 7 is HIGH, expected LOW"
+dc_motor_pot,claude-haiku-4-5,on,power_from_reading_conversion,line 53: expected motor_power_from_reading(512) == 128 (got 127 vs 128)
+dc_motor_pot,gpt-5.6-terra,off,updates_power_from_potentiometer_input,line 76: expected motor_power() == 255 (got 0 vs 255)
+debounce_toggle,claude-haiku-4-5,off,last_change_ms_tracking,line 64: expected change1 == 100 (got 0 vs 100)
+debounce_toggle,claude-haiku-4-5,on,button_release_does_not_toggle,line 47: expected db_button_state() == LOW (got 1 vs 0)
+dual_hbridge,claude-haiku-4-5,on,motor_a_forward,"line 25: pin 6 is LOW, expected HIGH"
+dual_hbridge,claude-haiku-4-5,on,motor_b_forward,"line 40: pin 5 is LOW, expected HIGH"
+dual_hbridge,claude-haiku-4-5,on,motor_a_backward,"line 51: pin 6 is LOW, expected HIGH"
+joystick_motor,claude-haiku-4-5,off,apply_axis_direction_change,line 75: expected jm_speed() == 44 (got 56 vs 44)
+joystick_motor,claude-haiku-4-5,on,speed_from_axis_computation,line 59: expected speed_max_left == 255 (got 256 vs 255)
+led_breathing,claude-haiku-4-5,off,step_advances_brightness_and_writes_pin,"line 25: pin 11 is LOW, expected HIGH"
+led_breathing,claude-haiku-4-5,off,step_bounces_at_max,line 37: expected breath_brightness() == 255 (got 200 vs 255)
+led_breathing,claude-haiku-4-5,off,step_bounces_at_min,line 47: expected breath_brightness() == 0 (got 105 vs 0)
+led_breathing,claude-haiku-4-5,on,step_bounces_at_max,line 38: expected true: breath_is_rising()
+led_breathing,claude-haiku-4-5,on,step_bounces_at_min,line 49: expected false: breath_is_rising()
+led_breathing,claude-haiku-4-5,on,full_breathing_cycle,line 82: expected breath_brightness() == 255 (got 150 vs 255)
+led_breathing,claude-sonnet-5,on,bounces_at_max,"line 48: pin 11 is LOW, expected HIGH"
+led_chaser,claude-haiku-4-5,on,step_forward_and_bounce,line 83: expected chaser_position() == 8 (got 9 vs 8)
+led_chaser,claude-haiku-4-5,on,step_backward_and_bounce,line 111: expected chaser_position() == 1 (got 0 vs 1)
+led_chaser,claude-sonnet-5,on,step_moves_forward_from_start,line 60: expected chaser_position() == 1 (got 0 vs 1)
+railway_gate,claude-haiku-4-5,off,object_detection_sensor_values,line 46: expected true: gate_sensor1_detected()
+railway_gate,claude-haiku-4-5,on,sensor_detection_and_update,line 38: expected false: gate_sensor1_detected()
+railway_gate,claude-haiku-4-5,on,object_between_transitions,line 80: expected true: gate_object_between()
+servo_sweep,claude-sonnet-5,off,steps_per_cycle_valid,"line 26: expected sweep_steps_per_cycle(0, 9, 5) == 6 (got 4 vs 6)"
+servo_sweep,claude-sonnet-5,off,pin_reflects_last_write,"line 54: pin 9 is LOW, expected HIGH"
+stepper_28byj48,claude-haiku-4-5,off,apply_phase_valid,"line 37: pin 8 is LOW, expected HIGH"
+stepper_28byj48,claude-haiku-4-5,on,step_full_backward,line 87: expected stepper_phase() == 7 (got 5 vs 7)
+stepper_28byj48,claude-haiku-4-5,on,release_all_coils_off,"line 131: pin 11 is LOW, expected HIGH"
+traffic_intersection,claude-haiku-4-5,off,is_safe_conditions,line 127: expected true: ti_is_safe()
+traffic_intersection,gpt-5.6-terra,off,initialization_sets_all_yellow,line 11: expected true: ti_is_safe()
+traffic_intersection,gpt-5.6-terra,off,safety_detects_multiple_non_red_directions,line 121: expected true: ti_is_safe()
+two_color_crossfade,claude-sonnet-5,off,init_state,"line 10: pin 11 is LOW, expected HIGH"

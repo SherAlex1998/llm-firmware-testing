@@ -1,0 +1,218 @@
+Module: Sensor-controlled railway gate (2 servos + LEDs) (id: railway_gate, category: led+motor, complexity: medium)
+Pins:
+- 14 INPUT: A0 sensor 1 (LOW = object)
+- 15 INPUT: A1 sensor 2 (LOW = object)
+- 2 OUTPUT: green LED
+- 4 OUTPUT: red LED
+- 11 OUTPUT: servo 1 signal
+- 10 OUTPUT: servo 2 signal
+Functions to test:
+- void gate_init()
+- void gate_open()
+- void gate_close()
+- bool gate_is_open()
+- bool gate_object_between()
+- int gate_servo1_angle()
+- int gate_servo2_angle()
+- void gate_update(bool sensor1_detected, bool sensor2_detected)
+- void gate_poll()
+- bool gate_sensor1_detected()
+- bool gate_sensor2_detected()
+
+### logic.h
+```cpp
+// railway_gate: two servo-driven gates plus red/green LEDs, controlled by two digital (IR) sensors.
+// Adapted from https://github.com/Venkatesh4707/Railway-Gate-Automation-Arduino (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+#include <Servo.h>
+
+#define GATE_PIN_SENSOR1   A0   // digital input, LOW = object detected
+#define GATE_PIN_SENSOR2   A1   // digital input, LOW = object detected
+#define GATE_PIN_LED_GREEN 2
+#define GATE_PIN_LED_RED   4
+#define GATE_PIN_SERVO1    11
+#define GATE_PIN_SERVO2    10
+#define GATE_SERVO1_CLOSED 180
+#define GATE_SERVO1_OPEN   90
+#define GATE_SERVO2_CLOSED 90
+#define GATE_SERVO2_OPEN   180
+#define GATE_SWEEP_STEP_DEG 5
+#define GATE_SWEEP_DELAY_MS 10
+
+void gate_init();                                          // attach servos, gates closed, red LED on
+void gate_open();                                          // sweep both servos to the open angles; green on, red off
+void gate_close();                                         // sweep both servos to the closed angles; red on, green off
+bool gate_is_open();
+bool gate_object_between();                                // an object entered via sensor 1 and has not left via sensor 2
+int gate_servo1_angle();                                   // Servo::read()
+int gate_servo2_angle();
+bool gate_sensor1_detected();                              // digitalRead(GATE_PIN_SENSOR1) == LOW
+bool gate_sensor2_detected();
+void gate_update(bool sensor1_detected, bool sensor2_detected); // state machine step with explicit sensor values
+void gate_poll();                                          // read sensors and call gate_update
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static Servo g_servo1;
+static Servo g_servo2;
+static bool g_open = false;
+static bool g_object_between = false;
+
+static void gate_sweep(Servo &servo, int from, int to) {
+  if (from <= to) {
+    for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {
+      servo.write(pos);
+      delay(GATE_SWEEP_DELAY_MS);
+    }
+  } else {
+    for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {
+      servo.write(pos);
+      delay(GATE_SWEEP_DELAY_MS);
+    }
+  }
+  servo.write(to);
+}
+
+void gate_init() {
+  pinMode(GATE_PIN_SENSOR1, INPUT);
+  pinMode(GATE_PIN_SENSOR2, INPUT);
+  pinMode(GATE_PIN_LED_GREEN, OUTPUT);
+  pinMode(GATE_PIN_LED_RED, OUTPUT);
+  g_servo1.attach(GATE_PIN_SERVO1);
+  g_servo2.attach(GATE_PIN_SERVO2);
+  g_servo1.write(GATE_SERVO1_CLOSED);
+  g_servo2.write(GATE_SERVO2_CLOSED);
+  digitalWrite(GATE_PIN_LED_RED, HIGH);
+  digitalWrite(GATE_PIN_LED_GREEN, LOW);
+  g_open = false;
+  g_object_between = false;
+}
+
+void gate_open() {
+  gate_sweep(g_servo1, GATE_SERVO1_CLOSED, GATE_SERVO1_OPEN);
+  gate_sweep(g_servo2, GATE_SERVO2_CLOSED, GATE_SERVO2_OPEN);
+  digitalWrite(GATE_PIN_LED_GREEN, HIGH);
+  digitalWrite(GATE_PIN_LED_RED, LOW);
+  g_open = true;
+}
+
+void gate_close() {
+  gate_sweep(g_servo2, GATE_SERVO2_OPEN, GATE_SERVO2_CLOSED);
+  gate_sweep(g_servo1, GATE_SERVO1_OPEN, GATE_SERVO1_CLOSED);
+  digitalWrite(GATE_PIN_LED_GREEN, LOW);
+  digitalWrite(GATE_PIN_LED_RED, HIGH);
+  g_open = false;
+}
+
+bool gate_is_open() {
+  return g_open;
+}
+
+bool gate_object_between() {
+  return g_object_between;
+}
+
+int gate_servo1_angle() {
+  return g_servo1.read();
+}
+
+int gate_servo2_angle() {
+  return g_servo2.read();
+}
+
+bool gate_sensor1_detected() {
+  return digitalRead(GATE_PIN_SENSOR1) == LOW;
+}
+
+bool gate_sensor2_detected() {
+  return digitalRead(GATE_PIN_SENSOR2) == LOW;
+}
+
+void gate_update(bool sensor1_detected, bool sensor2_detected) {
+  if (!g_object_between) {
+    if (sensor1_detected) {
+      gate_open();
+      g_object_between = true;
+    } else if (sensor2_detected) {
+      gate_close();
+    }
+  } else {
+    if (sensor2_detected) {
+      gate_close();
+      g_object_between = false;
+    }
+  }
+}
+
+void gate_poll() {
+  gate_update(gate_sensor1_detected(), gate_sensor2_detected());
+}
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos / Servo library
+
+## Servo library
+- On the Uno the Servo library uses Timer1 and disables `analogWrite()` on pins 9 and 10, whether or not a servo
+  is attached to them.
+- `Servo::write(angle)` clamps angles below 0 to 0 and above 180 to 180; values of 544 and more are treated as
+  a pulse width in microseconds (Servo 1.3.0, `Servo.cpp`).
+- `Servo::read()` converts the last pulse width back to degrees, so it returns the last angle written; it does
+  not measure the position of the shaft. After `attach()` and before any `write()` the pulse is 1500 us.
+- A test for a servo module can call the function that moves the servo and check `read()` or the module's angle
+  getter; for a sweep, check the first, the last and one intermediate angle, and that the angle never leaves
+  the allowed range.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Pin numbers on the Uno
+
+## Pin numbers on the Uno
+- Digital pins 0 to 13. The analog inputs A0 to A5 are also digital pins 14 to 19.
+- Pins 0 and 1 are the Serial RX/TX lines; the test protocol uses Serial, so tests must not drive them.
+- PWM pins: 3, 5, 6, 9, 10, 11. `LED_BUILTIN` is pin 13.
+- Check outputs against the pin numbers in the module's specification (its pin table), not against constants
+  taken from the code under test: a wrong pin number in the code is only detected if the test uses the pin
+  number the hardware is actually wired to.
+
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos
+
+# Testing PWM, analog inputs and servos
+
+## analogWrite and what a test can observe
+`analogWrite(pin, value)` sets the pin to `OUTPUT`. `analogWrite(pin, 0)` is implemented as
+`digitalWrite(pin, LOW)` and `analogWrite(pin, 255)` as `digitalWrite(pin, HIGH)`; any other value starts the
+PWM timer (Arduino AVR core, `wiring_analog.c`). On the Uno the PWM frequency is 490 Hz, and 980 Hz on pins 5
+and 6.
+
+Only the two extreme values can be checked with `digitalRead()`. For values 1 to 254 the duty cycle cannot be
+read back, and `digitalRead()` would switch the PWM off. Check intermediate levels through the module's own
+state: a getter that returns the level it wrote, or the value returned by the function that computes the level.
+
+[kb/libraries/servo_readme.md]
+Servo library / Circuit
+
+## Circuit
+
+Servo motors have three wires: power, ground, and signal. The power wire is typically red, and should be connected to the 5V pin on the Arduino board. The ground wire is typically black or brown and should be connected to a ground pin on the Arduino board. The signal pin is typically yellow, orange or white and should be connected to a digital pin on the Arduino board. Note that servos draw considerable power, so if you need to drive more than one or two, you'll probably need to power them from a separate supply (i.e. not the 5V pin on your Arduino). Be sure to connect the grounds of the Arduino and external power supply together.
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

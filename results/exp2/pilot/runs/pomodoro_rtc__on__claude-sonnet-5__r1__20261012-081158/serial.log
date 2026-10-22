@@ -1,0 +1,18 @@
+@RUN_BEGIN 16
+@TEST init_defaults PASS
+@TEST calc_weekday_known_monday PASS
+@TEST apply_rollover_same_day_noop PASS
+@TEST apply_rollover_next_day_same_week PASS
+@TEST apply_rollover_next_day_new_week PASS
+@TEST apply_rollover_new_month PASS
+@TEST increase_time_wraps_at_max PASS
+@TEST long_click_idle_prepares PASS
+@TEST prepare_counts_down_to_running PASS
+@TEST pause_and_resume_work PASS
+@TEST long_click_work_cancels PASS
+@TEST display_shadow_after_init PASS
+@TEST read_click_none_when_button_released PASS
+@TEST user_data_index_wraps_mod_5 PASS
+@TEST load_user_data_keeps_stats_stable PASS
+@TEST start_timer_does_not_crash_or_change_state_immediately PASS
+@RUN_END 16/16

@@ -1,0 +1,17 @@
+@RUN_BEGIN 15
+@TEST park_init_sets_purple_and_resets PASS
+@TEST zone_in_target_sets_green PASS
+@TEST zone_away_sets_purple PASS
+@TEST zone_past_sets_yellow PASS
+@TEST zone_too_close_sets_flash_red PASS
+@TEST zone_boundary_in_wins_over_past PASS
+@TEST target_distance_changes_zones PASS
+@TEST sonar_distance_getters PASS
+@TEST sonar_object_out_of_range PASS
+@TEST idle_timeout_reached_after_threshold PASS
+@TEST button_not_pressed_when_always_released PASS
+@TEST park_loop_with_button_pressed_sets_target_and_flashes_green PASS
+@TEST park_loop_with_idle_timeout_turns_led_off PASS
+@TEST park_loop_real_sensor_reads_40cm_in_target_zone FAIL line 118: expected sonar.getDistance() == 40 (got 41 vs 40)
+@TEST led_rgb_and_basic_colors PASS
+@RUN_END 14/15

@@ -1,0 +1,30 @@
+{
+ "module_id": "lcd_pomoduino",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 2,
+ "tokens_in": 31904,
+ "tokens_out": 6920,
+ "cost_usd": 0.146848,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": false,
+   "tokens_in": 14893,
+   "tokens_out": 4355,
+   "latency_s": 46.92536473274231,
+   "cached": false,
+   "stop_reason": "completed"
+  },
+  {
+   "kind": "repair",
+   "compile_ok": true,
+   "tokens_in": 17011,
+   "tokens_out": 2565,
+   "latency_s": 20.646710634231567,
+   "cached": false,
+   "stop_reason": "completed"
+  }
+ ]
+}

@@ -1,0 +1,76 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_state) {
+  stepper_init();
+  ASSERT_EQ(stepper_phase(), 0);
+  ASSERT_EQ(stepper_position(), 0);
+  ASSERT_PIN(8, LOW);
+  ASSERT_PIN(9, LOW);
+  ASSERT_PIN(10, LOW);
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(coil_pattern_values) {
+  ASSERT_EQ(stepper_coil_pattern(0), 8);   // B1000
+  ASSERT_EQ(stepper_coil_pattern(1), 12);  // B1100
+  ASSERT_EQ(stepper_coil_pattern(3), 6);   // B0110
+  ASSERT_EQ(stepper_coil_pattern(5), 3);   // B0011
+  ASSERT_EQ(stepper_coil_pattern(7), 9);   // B1001
+  ASSERT_EQ(stepper_coil_pattern(8), 0);   // invalid phase
+}
+
+TEST(apply_phase_pins) {
+  stepper_init();
+  ASSERT_TRUE(stepper_apply_phase(5)); // pattern B0011 -> IN1,IN2 high
+  ASSERT_PIN(8, HIGH);
+  ASSERT_PIN(9, HIGH);
+  ASSERT_PIN(10, LOW);
+  ASSERT_PIN(11, LOW);
+  ASSERT_EQ(stepper_phase(), 5);
+
+  ASSERT_FALSE(stepper_apply_phase(8)); // out of range
+}
+
+TEST(step_full_forward) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_full(3);
+  ASSERT_EQ(stepper_phase(), 5);
+  ASSERT_EQ(stepper_position(), 6);
+  ASSERT_PIN(8, HIGH);  // phase5 -> B0011
+  ASSERT_PIN(9, HIGH);
+  ASSERT_PIN(10, LOW);
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(step_half_round_trip) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_half(5);
+  ASSERT_EQ(stepper_phase(), 5);
+  ASSERT_EQ(stepper_position(), 5);
+
+  stepper_step_half(-5);
+  ASSERT_EQ(stepper_phase(), 0);
+  ASSERT_EQ(stepper_position(), 0);
+}
+
+TEST(release_keeps_state) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_full(1);
+  long pos_before = stepper_position();
+  int8_t phase_before = stepper_phase();
+
+  stepper_release();
+  ASSERT_PIN(8, LOW);
+  ASSERT_PIN(9, LOW);
+  ASSERT_PIN(10, LOW);
+  ASSERT_PIN(11, LOW);
+  ASSERT_EQ(stepper_position(), pos_before);
+  ASSERT_EQ(stepper_phase(), phase_before);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

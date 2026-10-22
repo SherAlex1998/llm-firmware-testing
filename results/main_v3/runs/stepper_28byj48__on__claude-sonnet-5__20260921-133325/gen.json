@@ -1,0 +1,21 @@
+{
+ "module_id": "stepper_28byj48",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6480,
+ "tokens_out": 1400,
+ "cost_usd": 0.04044,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6480,
+   "tokens_out": 1400,
+   "latency_s": 10.361534118652344,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+operator,killed,runs,survived,kill_rate,kill_rate_rag_off,kill_rate_rag_on
+const_change,29,44,15,0.659,0.524,0.783
+drop_call,111,158,47,0.703,0.667,0.74
+flip_cmp,120,136,16,0.882,0.886,0.879
+negate_cond,126,130,4,0.969,0.97,0.969
+off_by_one,16,24,8,0.667,0.583,0.75
+swap_arith,67,67,0,1.0,1.0,1.0
+swap_hilo,93,97,4,0.959,0.98,0.936
+swap_logic,10,15,5,0.667,0.667,0.667

@@ -1,0 +1,50 @@
+id: washer_safety
+name: "Washing machine safety controller (fill, wash, spin, door interlock, alarms)"
+source_url: https://github.com/Lee-geonmu/arduino-washer-safety-system
+license: MIT
+repo_created: 2026-07-12
+experiment: 2
+category: mixed
+complexity: complex
+backend: avr8js
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal", version: "1.0.7"}
+interrupts: false
+pins:
+  - {pin: 2, mode: INPUT, role: "door reed switch, LOW = closed (not connected in the test setup: reads LOW)"}
+  - {pin: 3, mode: INPUT_PULLUP, role: "tilt switch to GND, HIGH = shaking (not connected in the test setup: reads HIGH)"}
+  - {pin: 10, mode: OUTPUT, role: "passive buzzer (tone)"}
+  - {pin: 11, mode: OUTPUT, role: "water valve relay"}
+  - {pin: 12, mode: OUTPUT, role: "red LED, door locked"}
+  - {pin: 13, mode: OUTPUT, role: "green LED, door open"}
+  - {pin: 14, mode: INPUT, role: "water level sensor A0 (not connected: reads 0)"}
+  - {pin: 15, mode: INPUT, role: "three buttons on a resistor ladder A1: ~1019 / ~509 / ~338 (not connected: reads 0 = none)"}
+  - {pin: 4, mode: OUTPUT, role: "LCD RS (16x2, pins 4..9 parallel)"}
+  - {pin: 16, mode: OUTPUT, role: "stepper IN1..IN4 on A2..A5 (28BYJ-48)"}
+entry_functions:
+  - "void washer_init()"
+  - "void washer_loop()"
+  - "void washer_loop_with(uint32_t now_ms, int btn_adc, bool door_closed, bool tilt_high, int water_adc)"
+  - "int washer_decode_button(int adc)"
+  - "int washer_water_percent(int adc)"
+  - "bool washer_is_running_state(State s)"
+  - "State washer_state()"
+  - "State washer_paused_from()"
+  - "bool washer_paused_by_door()"
+  - "bool washer_paused_by_imbalance()"
+  - "int washer_active_melody()"
+  - "bool washer_melody_playing()"
+  - "bool washer_lcd_on()"
+  - "const char* washer_lcd_line(uint8_t row)"
+loc: 420
+metrics: {nloc: 420, ccn_sum: 131, ccn_max: 35, functions: 34}
+notes: >-
+  Source: arduino_washer_safety_system.ino (single sketch, Korean comments kept). Repository created in 2026; judged
+  human-written (development notes on measured ADC values and failed approaches). All logic moved to logic.cpp with
+  the same state machine, melodies and LCD texts. Testability changes: one loop pass takes its time and sensor
+  values from washer_loop_with(now_ms, btn_adc, door_closed, tilt_high, water_adc), washer_loop() reads millis() and
+  the pins (the original read them in place; the LCD water display averaged five analogRead calls, now five copies
+  of the pass's reading); button decoding and the water percentage are separate pure functions; washer_init() also
+  resets the loop variables so tests are independent; LCD shadow buffer and getters added; Serial logs removed.
+  avr8js backend: no part needs a simulated device; unconnected inputs are listed in the pin roles.

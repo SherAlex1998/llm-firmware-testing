@@ -1,0 +1,4 @@
+model,outcome,n_pairs,off_only,on_only,p,p_holm,p_holm_significant
+claude-sonnet-5,valid test,15,2,2,1.0,1.0,False
+gpt-5.6-terra,valid test,15,0,2,0.5,1.0,False
+claude-haiku-4-5,valid test,15,4,1,0.375,1.0,False

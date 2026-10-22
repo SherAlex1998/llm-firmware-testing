@@ -1,0 +1,21 @@
+{
+ "module_id": "dual_hbridge",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4667,
+ "tokens_out": 1625,
+ "cost_usd": 0.038376,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4667,
+   "tokens_out": 1625,
+   "latency_s": 16.538137674331665,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

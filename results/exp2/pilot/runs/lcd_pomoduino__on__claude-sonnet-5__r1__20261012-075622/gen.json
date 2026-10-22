@@ -1,0 +1,30 @@
+{
+ "module_id": "lcd_pomoduino",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 2,
+ "tokens_in": 58315,
+ "tokens_out": 25106,
+ "cost_usd": 0.551535,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": false,
+   "tokens_in": 30319,
+   "tokens_out": 16000,
+   "latency_s": 167.89147305488586,
+   "cached": false,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "kind": "repair",
+   "compile_ok": true,
+   "tokens_in": 27996,
+   "tokens_out": 9106,
+   "latency_s": 93.46218419075012,
+   "cached": false,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

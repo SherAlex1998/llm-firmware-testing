@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_closes_gates PASS
+@TEST open_gates_and_leds PASS
+@TEST close_gates_and_leds PASS
+@TEST object_detection_sensor_values FAIL line 46: expected true: gate_sensor1_detected()
+@TEST state_machine_sensor1_opens_gate PASS
+@TEST state_machine_sensor2_closes_gate PASS
+@TEST servo_angles_after_operations PASS
+@RUN_END 6/7

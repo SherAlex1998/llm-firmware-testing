@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_initial_crossfade_state PASS
+@TEST apply_midpoint_sets_phase_zero_levels PASS
+@TEST apply_clamps_negative_value_to_zero PASS
+@TEST apply_clamps_high_value_to_maximum PASS
+@TEST step_advances_to_maximum_without_phase_change PASS
+@TEST step_wraps_and_switches_to_phase_one PASS
+@TEST phase_one_swaps_channel_levels PASS
+@RUN_END 7/7

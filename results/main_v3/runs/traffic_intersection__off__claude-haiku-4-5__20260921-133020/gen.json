@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_intersection",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3541,
+ "tokens_out": 1409,
+ "cost_usd": 0.010586,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3541,
+   "tokens_out": 1409,
+   "latency_s": 8.043925523757935,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

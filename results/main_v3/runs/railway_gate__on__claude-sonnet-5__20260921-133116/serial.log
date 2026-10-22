@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_state PASS
+@TEST open_moves_servos_and_leds PASS
+@TEST close_after_open_restores_state PASS
+@TEST update_object_enters_opens_gate PASS
+@TEST update_object_leaves_closes_gate PASS
+@TEST update_sensor2_only_keeps_closed PASS
+@TEST sensor_detected_reads_pin_level PASS
+@TEST poll_reads_sensors_and_opens_gate PASS
+@RUN_END 8/8

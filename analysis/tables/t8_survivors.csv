@@ -1,0 +1,16 @@
+module_id,mutant_id,operator,line,before,after,tests_that_missed_it,review,reason
+dc_motor_pot,6,drop_call,57,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,4,test_gap,"после init IN2 = HIGH, а motor_stop() его не гасит; IN2 не проверен"
+dc_motor_pot,9,off_by_one,49,if (raw > 1023) {,if (raw > 1024) {,4,equivalent,"raw = 1024: map() даёт те же 255, что и raw = 1023"
+dual_hbridge,4,drop_call,38,"digitalWrite(b, LOW);",;,5,test_gap,"переход назад -> вперёд не проверен, IN2 остаётся HIGH"
+dual_hbridge,8,const_change,3,"static int8_t g_dir[2] = {0, 0};","static int8_t g_dir[2] = {1, 0};",5,equivalent,hb_init() обнуляет g_dir через hb_stop_all()
+dual_hbridge,9,const_change,4,"static uint8_t g_speed[2] = {0, 0};","static uint8_t g_speed[2] = {1, 0};",5,equivalent,hb_init() обнуляет g_speed через hb_stop_all()
+joystick_motor,8,drop_call,68,jm_apply_axis(analogRead(JM_PIN_AXIS));,;,4,test_gap,"jm_update() проверен только на согласованность, не на значение (в avr8js analogRead = 0)"
+led_breathing,2,off_by_one,32,return g_velocity > 0;,return g_velocity > 1;,3,test_gap,"скорость 1 не проверена, по умолчанию она 2"
+led_chaser,1,const_change,3,"const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};","const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 14, 8, 9, 10, 11};",4,test_gap,"chaser_count_on() читает тот же массив пинов, что и мутант"
+railway_gate,6,flip_cmp,15,for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos < to; pos -= GATE_SWEEP_STEP_DEG) {,4,needs_signal,"цикл пропущен: угол тот же, но поворот мгновенный (millis())"
+railway_gate,8,flip_cmp,10,for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos > to; pos += GATE_SWEEP_STEP_DEG) {,4,needs_signal,то же для возрастающего цикла
+railway_gate,9,drop_call,11,servo.write(pos);,;,4,unobservable,нет промежуточных углов внутри блокирующего gate_sweep()
+traffic_light,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,6,unobservable,зелёный не мигает внутри блокирующего tl_blink_green()
+traffic_servo_gate,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",6,needs_signal,"другая ширина импульса, servo.read() её компенсирует (pulseIn())"
+two_color_crossfade,4,off_by_one,16,if (value < 0) {,if (value < 1) {,5,equivalent,value = 0: ветка присваивает тот же 0
+two_color_crossfade,6,drop_call,31,"analogWrite(XF_PIN_GREEN, g_green);",;,5,needs_signal,"геттер верный, а ШИМ на пине 10 не выставлен (pulseIn())"

@@ -1,0 +1,130 @@
+test_main.ino:1:1: error: stray '`' in program
+ ```cpp
+ ^
+test_main.ino:1:2: error: stray '`' in program
+ ```cpp
+  ^
+test_main.ino:1:3: error: stray '`' in program
+ ```cpp
+   ^
+test_main.ino:1:4: error: 'cpp' does not name a type
+ ```cpp
+    ^~~
+test_main.ino: In function 'void test_fn_init_sets_idle_state()':
+test_main.ino:14:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:14:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_init_display_shows_hello()':
+test_main.ino:22:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:22:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_init_user_data_from_rtc()':
+test_main.ino:34:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:34:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_read_click_none_when_released()':
+test_main.ino:44:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:44:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_increase_time_wraps_after_eight_clicks()':
+test_main.ino:50:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:50:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_long_click_enters_prepare()':
+test_main.ino:61:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:61:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_prepare_status_updates_prev_status()':
+test_main.ino:69:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:69:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_tick_decrements_second()':
+test_main.ino:77:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:77:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_seconds_event_after_full_minute()':
+test_main.ino:87:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:87:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_update_clears_seconds_event_in_idle()':
+test_main.ino:95:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:95:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_prepare_to_run_work_after_countdown()':
+test_main.ino:105:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:105:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_pause_toggles_status()':
+test_main.ino:114:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:114:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_cancel_from_run_work_returns_to_idle()':
+test_main.ino:124:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:124:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_display_updates_during_run_work()':
+test_main.ino:133:3: error: 'pomo_set_delay_scale' was not declared in this scope
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+test_main.ino:133:3: note: suggested alternative: 'pomo_user_data'
+   pomo_set_delay_scale(0);
+   ^~~~~~~~~~~~~~~~~~~~
+   pomo_user_data
+test_main.ino: In function 'void test_fn_calc_weekday_known_dates()':
+test_main.ino:178:47: error: expected '}' at end of input
+   ASSERT_EQ(pomo_calc_weekday(2030, 3, 11), 1); //
+                                               ^
+
+Error during build: exit status 1

@@ -1,0 +1,90 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_closed_gate_state) {
+  gate_init();
+
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_CLOSED);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_CLOSED);
+  ASSERT_PIN(GATE_PIN_LED_RED, HIGH);
+  ASSERT_PIN(GATE_PIN_LED_GREEN, LOW);
+}
+
+TEST(open_sets_angles_and_leds) {
+  gate_init();
+  gate_open();
+
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_OPEN);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_OPEN);
+  ASSERT_PIN(GATE_PIN_LED_GREEN, HIGH);
+  ASSERT_PIN(GATE_PIN_LED_RED, LOW);
+}
+
+TEST(close_sets_angles_and_leds) {
+  gate_init();
+  gate_close();
+
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_CLOSED);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_CLOSED);
+  ASSERT_PIN(GATE_PIN_LED_GREEN, LOW);
+  ASSERT_PIN(GATE_PIN_LED_RED, HIGH);
+}
+
+TEST(update_tracks_object_between_sensors) {
+  gate_init();
+
+  gate_update(true, false);
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_OPEN);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_OPEN);
+
+  gate_update(false, true);
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_CLOSED);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_CLOSED);
+  ASSERT_PIN(GATE_PIN_LED_RED, HIGH);
+}
+
+TEST(sensor_detection_reads_pin_levels) {
+  gate_init();
+
+  pinMode(GATE_PIN_SENSOR1, OUTPUT);
+  pinMode(GATE_PIN_SENSOR2, OUTPUT);
+
+  digitalWrite(GATE_PIN_SENSOR1, LOW);
+  digitalWrite(GATE_PIN_SENSOR2, HIGH);
+  ASSERT_TRUE(gate_sensor1_detected());
+  ASSERT_FALSE(gate_sensor2_detected());
+
+  digitalWrite(GATE_PIN_SENSOR1, HIGH);
+  digitalWrite(GATE_PIN_SENSOR2, LOW);
+  ASSERT_FALSE(gate_sensor1_detected());
+  ASSERT_TRUE(gate_sensor2_detected());
+}
+
+TEST(poll_opens_when_sensor1_detects_object) {
+  gate_init();
+
+  pinMode(GATE_PIN_SENSOR1, OUTPUT);
+  pinMode(GATE_PIN_SENSOR2, OUTPUT);
+  digitalWrite(GATE_PIN_SENSOR1, LOW);
+  digitalWrite(GATE_PIN_SENSOR2, HIGH);
+
+  gate_poll();
+
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_OPEN);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_OPEN);
+  ASSERT_PIN(GATE_PIN_LED_GREEN, HIGH);
+  ASSERT_PIN(GATE_PIN_LED_RED, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

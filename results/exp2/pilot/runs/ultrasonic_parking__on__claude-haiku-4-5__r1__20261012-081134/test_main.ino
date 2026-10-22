@@ -1,0 +1,196 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(park_init_sets_purple) {
+  park_init();
+  ASSERT_EQ(led.color(), 0x00FF00FF);  // purple (255, 0, 255)
+}
+
+TEST(park_init_resets_sonar) {
+  sonar.setTargetDistance(50);
+  sonar.applyReading(100);
+  park_init();
+  ASSERT_EQ(sonar.getTargetDistance(), 30);
+  ASSERT_EQ(sonar.getDistance(), 0);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+TEST(setLedColor_away_from_target_purple) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(60);  // 60 is away from target (30 + 15 < 60 < 100)
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x00FF00FF);  // purple
+}
+
+TEST(setLedColor_in_target_zone_green) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(30);  // 30 is in target zone [25, 45]
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x0000FF00);  // green
+}
+
+TEST(setLedColor_in_target_zone_lower_bound) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(25);  // 25 is at lower bound of target zone
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x0000FF00);  // green
+}
+
+TEST(setLedColor_in_target_zone_upper_bound) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(45);  // 45 is at upper bound of target zone
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x0000FF00);  // green
+}
+
+TEST(setLedColor_past_target_zone_yellow) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(20);  // 20 is past target zone [15, 25]
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x00C83200);  // yellow (200, 50, 0)
+}
+
+TEST(setLedColor_too_close_red) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(10);  // 10 is too close (< 15)
+  setLedColor();
+  ASSERT_EQ(led.color(), 0x00FF0000);  // red (flashed red)
+}
+
+TEST(park_loop_with_idle_timeout_turns_off) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(40);
+  unsigned long now = 35000;  // 35 seconds > 30 second timeout
+  park_loop_with(40, false, now);
+  ASSERT_EQ(led.color(), 0x00000000);  // off
+}
+
+TEST(park_loop_with_no_idle_timeout_sets_color) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(35);  // in target zone
+  unsigned long now = 5000;  // 5 seconds < 30 second timeout
+  park_loop_with(35, false, now);
+  ASSERT_EQ(led.color(), 0x0000FF00);  // green
+}
+
+TEST(park_loop_with_button_pressed_sets_target) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(40);
+  park_loop_with(40, true, 1000);
+  ASSERT_EQ(sonar.getTargetDistance(), 40);
+}
+
+TEST(sonar_object_away_from_target_zone) {
+  sonar.reset();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(80);  // 80 is in range (45, 100)
+  ASSERT_TRUE(sonar.objectAwayFromTargetZone());
+}
+
+TEST(sonar_object_in_target_zone) {
+  sonar.reset();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(32);  // 32 is in range [25, 45]
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(sonar_object_past_target_zone) {
+  sonar.reset();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(22);  // 22 is in range [15, 25]
+  ASSERT_TRUE(sonar.objectPastTargetZone());
+}
+
+TEST(sonar_object_too_close) {
+  sonar.reset();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(10);  // 10 < 15
+  ASSERT_TRUE(sonar.objectTooCloseToSensor());
+}
+
+TEST(sonar_getters) {
+  sonar.reset();
+  sonar.setTargetDistance(50);
+  sonar.applyReading(45);
+  ASSERT_EQ(sonar.getTargetDistance(), 50);
+  ASSERT_EQ(sonar.getDistance(), 45);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+TEST(sonar_apply_reading_updates_last_distance) {
+  sonar.reset();
+  sonar.applyReading(40);
+  ASSERT_EQ(sonar.getDistance(), 40);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+  sonar.applyReading(45);
+  ASSERT_EQ(sonar.getDistance(), 45);
+  ASSERT_EQ(sonar.getLastDistance(), 40);
+}
+
+TEST(sonar_idle_timeout_not_reached_initially) {
+  sonar.reset();
+  sonar.applyReading(40);
+  ASSERT_FALSE(sonar.idleTimeoutReached(1000));
+}
+
+TEST(sonar_idle_timeout_reached_after_30_seconds) {
+  sonar.reset();
+  sonar.applyReading(40);
+  unsigned long now = 35000;
+  ASSERT_TRUE(sonar.idleTimeoutReached(now));
+}
+
+TEST(sonar_idle_timeout_reset_on_movement) {
+  sonar.reset();
+  sonar.applyReading(40);
+  sonar.idleTimeoutReached(5000);  // no timeout yet
+  sonar.applyReading(50);  // movement detected
+  ASSERT_FALSE(sonar.idleTimeoutReached(6000));  // timeout counter reset
+}
+
+TEST(led_rgb_custom_color) {
+  led.rgb(100, 150, 200);
+  ASSERT_EQ(led.color(), 0x006496C8);  // 100, 150, 200
+}
+
+TEST(led_red) {
+  led.red();
+  ASSERT_EQ(led.color(), 0x00FF0000);  // red
+}
+
+TEST(led_green) {
+  led.green();
+  ASSERT_EQ(led.color(), 0x0000FF00);  // green
+}
+
+TEST(led_yellow) {
+  led.yellow();
+  ASSERT_EQ(led.color(), 0x00C83200);  // yellow (200, 50, 0)
+}
+
+TEST(led_purple) {
+  led.purple();
+  ASSERT_EQ(led.color(), 0x00FF00FF);  // purple
+}
+
+TEST(led_off) {
+  led.red();
+  led.off();
+  ASSERT_EQ(led.color(), 0x00000000);  // off
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}

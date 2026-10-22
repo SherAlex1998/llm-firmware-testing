@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_configures_led_off PASS
+@TEST button_pressed_reads_active_low PASS
+@TEST set_led_updates_state_and_pin PASS
+@TEST update_toggles_on_release_only PASS
+@TEST update_toggles_each_press_release_cycle PASS
+@TEST poll_reads_button_and_toggles_on_release PASS
+@RUN_END 6/6

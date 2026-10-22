@@ -1,0 +1,21 @@
+{
+ "module_id": "pomodoro_rtc",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 20177,
+ "tokens_out": 14890,
+ "cost_usd": 0.283881,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 20177,
+   "tokens_out": 14890,
+   "latency_s": 135.0865023136139,
+   "cached": false,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

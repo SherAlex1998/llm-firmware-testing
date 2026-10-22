@@ -1,0 +1,202 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(initializes_idle_state_and_display) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  ASSERT_EQ(pomo_status(), STATUS_IDLE);
+  ASSERT_EQ(pomo_prev_status(), STATUS_IDLE);
+  ASSERT_EQ(pomo_minute(), DEFAULT_TIME);
+  ASSERT_EQ(pomo_second(), 59);
+  ASSERT_EQ(pomo_completed(), 0);
+  ASSERT_FALSE(pomo_seconds_event());
+  ASSERT_EQ(pomo_user_data(0), 11);
+  ASSERT_EQ(pomo_user_data(1), 0);
+  ASSERT_EQ(pomo_user_data(2), 0);
+  ASSERT_EQ(pomo_user_data(3), 0);
+  ASSERT_EQ(pomo_user_data(4), 0);
+  ASSERT_PIN(BTN_BUZZER, LOW);
+
+  pomo_update();
+  const int8_t* digits = pomo_display_digits();
+  ASSERT_EQ(digits[0], 2);
+  ASSERT_EQ(digits[1], 5);
+  ASSERT_EQ(digits[2], 0x40);
+  ASSERT_EQ(digits[3], 0);
+  ASSERT_FALSE(pomo_display_dot());
+  ASSERT_EQ(pomo_display_text()[0], 'H');
+}
+
+TEST(released_button_reports_no_click) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  ASSERT_EQ(pomo_read_click(), CLICK_NONE);
+  ASSERT_EQ(pomo_read_click(), CLICK_NONE);
+}
+
+TEST(short_action_increases_idle_duration) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  pomo_handle_action(CLICK_SHORT_ACTION);
+  ASSERT_EQ(pomo_status(), STATUS_IDLE);
+  ASSERT_EQ(pomo_minute(), 30);
+
+  pomo_handle_action(CLICK_SHORT_ACTION);
+  ASSERT_EQ(pomo_minute(), 35);
+}
+
+TEST(long_action_enters_prepare_and_updates_display) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  pomo_handle_action(CLICK_LONG_ACTION);
+  ASSERT_EQ(pomo_status(), STATUS_PREPARE);
+  ASSERT_EQ(pomo_prev_status(), STATUS_IDLE);
+  ASSERT_EQ(pomo_minute(), DEFAULT_TIME);
+  ASSERT_EQ(pomo_second(), 10);
+
+  pomo_update();
+  const int8_t* digits = pomo_display_digits();
+  ASSERT_EQ(digits[0], 0x40);
+  ASSERT_EQ(digits[1], 0x40);
+  ASSERT_EQ(digits[2], 1);
+  ASSERT_EQ(digits[3], 0);
+  ASSERT_TRUE(pomo_display_dot());
+}
+
+TEST(ticks_count_down_and_raise_seconds_event) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  pomo_tick();
+  ASSERT_EQ(pomo_second(), 59);
+  ASSERT_FALSE(pomo_seconds_event());
+
+  pomo_tick();
+  ASSERT_EQ(pomo_second(), 58);
+  ASSERT_FALSE(pomo_seconds_event());
+
+  for (uint8_t i = 0; i < 118; i++) {
+    pomo_tick();
+  }
+  ASSERT_EQ(pomo_second(), 59);
+  ASSERT_TRUE(pomo_seconds_event());
+
+  pomo_update();
+  ASSERT_FALSE(pomo_seconds_event());
+  ASSERT_EQ(pomo_status(), STATUS_IDLE);
+}
+
+TEST(prepare_expiry_starts_work_timer) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  pomo_handle_action(CLICK_LONG_ACTION);
+  for (uint8_t i = 0; i < 22; i++) {
+    pomo_tick();
+  }
+
+  ASSERT_TRUE(pomo_seconds_event());
+  pomo_update();
+
+  ASSERT_EQ(pomo_status(), STATUS_RUN_WORK);
+  ASSERT_EQ(pomo_prev_status(), STATUS_PREPARE);
+  ASSERT_EQ(pomo_minute(), DEFAULT_TIME - 1);
+  ASSERT_EQ(pomo_second(), 59);
+  ASSERT_FALSE(pomo_display_dot());
+}
+
+TEST(work_short_action_pauses_and_resumes) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  pomo_handle_action(CLICK_LONG_ACTION);
+  for (uint8_t i = 0; i < 22; i++) {
+    pomo_tick();
+  }
+  pomo_update();
+
+  pomo_handle_action(CLICK_SHORT_ACTION);
+  ASSERT_EQ(pomo_status(), STATUS_RUN_PAUSE);
+  ASSERT_EQ(pomo_prev_status(), STATUS_RUN_WORK);
+  ASSERT_EQ(pomo_second(), 59);
+  ASSERT_FALSE(pomo_display_dot());
+
+  pomo_handle_action(CLICK_SHORT_ACTION);
+  ASSERT_EQ(pomo_status(), STATUS_RUN_WORK);
+  ASSERT_EQ(pomo_prev_status(), STATUS_RUN_PAUSE);
+  ASSERT_EQ(pomo_second(), 59);
+}
+
+TEST(work_long_action_cancels_to_idle) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  pomo_handle_action(CLICK_LONG_ACTION);
+  for (uint8_t i = 0; i < 22; i++) {
+    pomo_tick();
+  }
+  pomo_update();
+
+  ASSERT_EQ(pomo_status(), STATUS_RUN_WORK);
+  pomo_handle_action(CLICK_LONG_ACTION);
+
+  ASSERT_EQ(pomo_status(), STATUS_IDLE);
+  ASSERT_EQ(pomo_prev_status(), STATUS_RUN_WORK);
+  ASSERT_EQ(pomo_minute(), DEFAULT_TIME);
+  ASSERT_EQ(pomo_completed(), 0);
+  ASSERT_FALSE(pomo_display_dot());
+}
+
+TEST(rollover_rules_preserve_and_transfer_statistics) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  uint16_t same_day[5] = {11, 2, 3, 4, 5};
+  pomo_apply_rollover(same_day, 2030, 3, 11, 1);
+  ASSERT_EQ(same_day[0], 11);
+  ASSERT_EQ(same_day[1], 2);
+  ASSERT_EQ(same_day[2], 3);
+  ASSERT_EQ(same_day[3], 4);
+  ASSERT_EQ(same_day[4], 5);
+
+  uint16_t next_day[5] = {10, 2, 3, 4, 5};
+  pomo_apply_rollover(next_day, 2030, 3, 11, 1);
+  ASSERT_EQ(next_day[0], 11);
+  ASSERT_EQ(next_day[1], 0);
+  ASSERT_EQ(next_day[2], 5);
+  ASSERT_EQ(next_day[3], 4);
+  ASSERT_EQ(next_day[4], 5);
+
+  uint16_t new_week[5] = {16, 2, 3, 4, 5};
+  pomo_apply_rollover(new_week, 2030, 3, 17, 0);
+  ASSERT_EQ(new_week[0], 17);
+  ASSERT_EQ(new_week[1], 0);
+  ASSERT_EQ(new_week[2], 0);
+  ASSERT_EQ(new_week[3], 9);
+  ASSERT_EQ(new_week[4], 5);
+
+  uint16_t new_month[5] = {31, 2, 3, 4, 5};
+  pomo_apply_rollover(new_month, 2030, 4, 1, 1);
+  ASSERT_EQ(new_month[0], 1);
+  ASSERT_EQ(new_month[1], 0);
+  ASSERT_EQ(new_month[2], 0);
+  ASSERT_EQ(new_month[3], 0);
+  ASSERT_EQ(new_month[4], 14);
+}
+
+TEST(calculates_gregorian_weekdays) {
+  pomo_set_delay_scale(0);
+  pomo_init();
+
+  ASSERT_EQ(pomo_calc_weekday(2030, 3, 11), 1);
+  ASSERT_EQ(pomo_calc_weekday(2024, 2, 29), 4);
+  ASSERT_EQ(pomo_calc_weekday(2000, 1, 1), 6);
+  ASSERT_EQ(pomo_calc_weekday(30, 3, 11), 1);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

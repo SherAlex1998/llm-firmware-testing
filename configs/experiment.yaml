@@ -1,0 +1,70 @@
+# Tool versions, models, conditions and timeouts of both experiments.
+# API keys are read from the environment or from a .env file in the repository root (see .env.example).
+
+arduino_cli:
+  version: "1.5.1"
+  path: tools/arduino-cli/arduino-cli.exe # relative to the repository root; falls back to PATH
+  fqbn: arduino:avr:uno
+  core: "arduino:avr@1.8.8"
+  libraries: ["Servo@1.3.0", "Stepper@1.1.3", "LiquidCrystal I2C@1.1.2", "RotaryEncoder@1.6.0", "Rtc by Makuna@2.5.0", "Grove 4-Digit Display@2.0.0", "TimerOne@1.1.1", "LiquidCrystal@1.0.7", "LedControl@1.0.6", "Adafruit NeoPixel@1.15.5", "NewPing@1.9.7", "Button@1.2.0", "OneWire@2.3.8", "IRremote@2.8.0", "MD_MAX72XX@2.10.0"]
+
+wokwi_cli:
+  version: "0.26.1"
+  path: tools/wokwi-cli/wokwi-cli.exe
+
+serial:
+  baud: 9600
+  timeout_s: 15                           # no @RUN_END within this time -> timeout
+
+avr8js:
+  version: "0.21.1"                       # pinned in framework/harness/avr8js/package.json
+  node: null                              # path to node; null = PATH
+
+board:
+  port: COM3                              # only used by the "board" backend
+
+backends:
+  default: avr8js                         # avr8js | wokwi | board
+  force: null                             # overrides the `backend` of every module.yaml
+
+wokwi:
+  retries: 2                              # after a cloud failure, not after a firmware timeout
+  retry_pause_s: 20
+
+models:
+  - {provider: anthropic, id: claude-sonnet-5, max_tokens: 16000, price_in_per_mtok: 3.0, price_out_per_mtok: 15.0}
+  - {provider: openai, id: gpt-5.6-terra, max_tokens: 16000, price_in_per_mtok: 2.0, price_out_per_mtok: 12.0}
+  - {provider: anthropic, id: claude-haiku-4-5, max_tokens: 16000, price_in_per_mtok: 1.0, price_out_per_mtok: 5.0}
+  # optional per-model `effort: low|medium|high`
+
+rag:
+  chroma_path: kb/.chroma
+  embedding_model: text-embedding-3-small
+  top_k: 5
+  max_context_tokens: 4000
+
+generation:
+  max_repair_attempts: 2
+  llm_cache_dir: results/.llm_cache
+
+mutation:
+  seed: 42
+  mutants_per_module: 10
+  operators: [flip_cmp, swap_hilo, off_by_one, const_change, drop_call, negate_cond, swap_logic, swap_arith]
+  reps: null                              # experiment 2: repetitions that run the mutants (null = all)
+
+experiment:
+  seed: 42                                # run order
+  conditions:
+    rag: ["off", "on"]                    # quoted: bare off/on are booleans in YAML
+  results_dir: results
+
+experiment2:
+  modules: [lcd_param_menu, pomodoro_rtc, max7219_snake, washer_safety, max7219_tetris, lcd_morse_writer, neopixel_pomodoro, lcd_pomoduino, lcd_kitchen_timer, ultrasonic_parking, ds18b20_thermostat, pedestrian_traffic_light, ir_wakeup_light, pet_feeding_timer, lcd_murasaki_dice, max7219_scoreboard, pcd8544_2048, lcd_endless_runner, led_cube_8x8x8]
+  reps: 3
+  block_by_rep: true                      # all of rep 1 first, then rep 2, then rep 3
+  results_dir: results/exp2
+  max_tokens: 32000                       # output limit for every model; part of the LLM cache key
+  pruned_mutation: true                   # also score the test with its failed checks disabled
+  mutants_catalog: results/exp2/mutants_catalog
+  kb_chroma: kb/.chroma_exp2              # kb/ + kb/exp2/

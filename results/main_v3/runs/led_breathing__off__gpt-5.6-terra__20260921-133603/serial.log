@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_default_state PASS
+@TEST reset_restores_default_state PASS
+@TEST positive_velocity_advances_brightness PASS
+@TEST zero_velocity_is_ignored PASS
+@TEST upper_boundary_clamps_and_reverses PASS
+@TEST lower_boundary_reverses_negative_velocity PASS
+@RUN_END 6/6

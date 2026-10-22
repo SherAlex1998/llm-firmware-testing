@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_pins_and_led_off PASS
+@TEST button_pressed_reads_pin PASS
+@TEST set_led_on_and_off PASS
+@TEST update_toggles_on_release_edge PASS
+@TEST update_ignores_repeated_press_state PASS
+@TEST poll_reads_and_updates PASS
+@TEST multiple_presses_toggle_correctly PASS
+@RUN_END 7/7

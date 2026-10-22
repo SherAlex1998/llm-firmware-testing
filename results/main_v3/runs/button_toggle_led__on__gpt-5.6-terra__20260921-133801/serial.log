@@ -1,0 +1,7 @@
+@RUN_BEGIN 5
+@TEST init_sets_led_off_and_button_idle PASS
+@TEST set_led_controls_state_and_pin PASS
+@TEST update_toggles_only_on_release_after_press PASS
+@TEST successive_press_release_cycles_toggle_led PASS
+@TEST poll_idle_does_not_change_led PASS
+@RUN_END 5/5

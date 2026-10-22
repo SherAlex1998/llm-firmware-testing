@@ -1,0 +1,26 @@
+test_main.ino: In function 'void test_fn_utils_formats_minutes_and_seconds()':
+test_main.ino:106:22: error: 'Utils' has not been declared
+   const char *text = Utils::ms_to_m_s(125000UL);
+                      ^~~~~
+In file included from test_main.ino:2:0:
+test_main.ino: In function 'void test_fn_button_one_cycles_all_period_types()':
+test_main.ino:163:26: error: 'class MO::Pomodoro' has no member named 'GetTime_Max_Ms'; did you mean 'Get_Time_Max_Ms'?
+   ASSERT_EQ(the_pomodoro.GetTime_Max_Ms(), 900000UL);
+                          ^
+test_runner.h:99:25: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                         ^
+test_runner.h:100:18: error: 'b_' was not declared in this scope
+        if (a_ != b_) { test_fail_values_(F("expected " #a " == " #b), a_, b_, __LINE__); return; } } while (0)
+                  ^
+test_main.ino:163:3: note: in expansion of macro 'ASSERT_EQ'
+   ASSERT_EQ(the_pomodoro.GetTime_Max_Ms(), 900000UL);
+   ^~~~~~~~~
+test_runner.h:100:18: note: suggested alternative: 'a_'
+        if (a_ != b_) { test_fail_values_(F("expected " #a " == " #b), a_, b_, __LINE__); return; } } while (0)
+                  ^
+test_main.ino:163:3: note: in expansion of macro 'ASSERT_EQ'
+   ASSERT_EQ(the_pomodoro.GetTime_Max_Ms(), 900000UL);
+   ^~~~~~~~~
+
+Error during build: exit status 1

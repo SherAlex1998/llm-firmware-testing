@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_forward_and_zero_power PASS
+@TEST set_direction_forward_and_reverse PASS
+@TEST set_power_clamps_range PASS
+@TEST power_from_reading_maps_correctly PASS
+@TEST stop_resets_direction_pins_and_power PASS
+@TEST update_applies_power_from_pot PASS
+@RUN_END 6/6

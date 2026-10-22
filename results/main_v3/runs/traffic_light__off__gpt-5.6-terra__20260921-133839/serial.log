@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_enters_red_state PASS
+@TEST set_state_drives_each_led_combination PASS
+@TEST invalid_set_state_is_ignored PASS
+@TEST next_state_follows_cycle_and_handles_invalid PASS
+@TEST advance_updates_state_and_leds PASS
+@TEST state_durations_match_specification PASS
+@TEST blink_green_ends_with_green_off PASS
+@RUN_END 7/7

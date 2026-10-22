@@ -1,0 +1,21 @@
+{
+ "module_id": "railway_gate",
+ "model_id": "gpt-5.6-terra",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3766,
+ "tokens_out": 1235,
+ "cost_usd": 0.022352,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3766,
+   "tokens_out": 1235,
+   "latency_s": 20.4700825214386,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

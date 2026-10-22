@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_state PASS
+@TEST press_toggles_led_after_debounce PASS
+@TEST bounce_does_not_toggle PASS
+@TEST release_does_not_toggle_led PASS
+@TEST custom_debounce_delay PASS
+@TEST last_change_ms_tracks_raw_change PASS
+@RUN_END 6/6

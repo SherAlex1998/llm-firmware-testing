@@ -1,0 +1,6 @@
+C:\Users\<user>\AppData\Local\Temp\ccAgevdy.ltrans0.ltrans.o: In function `main':
+C:\Users\<user>\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.8\cores\arduino/main.cpp:43: undefined reference to `setup'
+C:\Users\<user>\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.8\cores\arduino/main.cpp:46: undefined reference to `loop'
+collect2.exe: error: ld returned 1 exit status
+
+Error during build: exit status 1

@@ -1,0 +1,59 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_start_angle) {
+  sweep_init();
+  ASSERT_EQ(sweep_angle(), SWEEP_START);
+}
+
+TEST(clamp_angle_bounds) {
+  ASSERT_EQ(sweep_clamp_angle(-10), 0);
+  ASSERT_EQ(sweep_clamp_angle(200), 180);
+  ASSERT_EQ(sweep_clamp_angle(90), 90);
+}
+
+TEST(write_clamps_and_updates_angle) {
+  sweep_init();
+  sweep_write(300);
+  ASSERT_EQ(sweep_angle(), 180);
+  sweep_write(-50);
+  ASSERT_EQ(sweep_angle(), 0);
+  sweep_write(45);
+  ASSERT_EQ(sweep_angle(), 45);
+}
+
+TEST(write_count_increments) {
+  sweep_init();
+  unsigned long start_count = sweep_write_count();
+  sweep_write(10);
+  sweep_write(20);
+  ASSERT_EQ(sweep_write_count(), start_count + 2);
+}
+
+TEST(steps_per_cycle_valid_and_invalid) {
+  ASSERT_EQ(sweep_steps_per_cycle(0, 10, 5), 6);
+  ASSERT_EQ(sweep_steps_per_cycle(10, 0, 5), 0);
+  ASSERT_EQ(sweep_steps_per_cycle(0, 10, 0), 0);
+  ASSERT_EQ(sweep_steps_per_cycle(0, 10, -1), 0);
+}
+
+TEST(run_sweep_reaches_endpoints_and_stays_in_range) {
+  sweep_init();
+  unsigned long before = sweep_write_count();
+  sweep_run(20, 30, 5, 1, 0);
+  unsigned int expected_steps = sweep_steps_per_cycle(20, 30, 5);
+  ASSERT_EQ(sweep_write_count() - before, expected_steps);
+  ASSERT_TRUE(sweep_angle() >= 20);
+  ASSERT_TRUE(sweep_angle() <= 30);
+  ASSERT_EQ(sweep_angle(), 20);
+}
+
+TEST(run_sweep_invalid_args_no_writes) {
+  sweep_init();
+  unsigned long before = sweep_write_count();
+  sweep_run(30, 20, 5, 2, 0);
+  ASSERT_EQ(sweep_write_count(), before);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

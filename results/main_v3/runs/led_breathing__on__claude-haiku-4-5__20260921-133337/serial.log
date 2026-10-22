@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_output PASS
+@TEST reset_returns_to_min PASS
+@TEST step_increments_brightness PASS
+@TEST step_bounces_at_max FAIL line 38: expected true: breath_is_rising()
+@TEST step_bounces_at_min FAIL line 49: expected false: breath_is_rising()
+@TEST set_velocity_changes_step_size PASS
+@TEST set_velocity_zero_ignored PASS
+@TEST full_breathing_cycle FAIL line 82: expected breath_brightness() == 255 (got 150 vs 255)
+@RUN_END 5/8

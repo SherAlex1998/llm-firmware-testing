@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_defaults_to_green PASS
+@TEST set_state_yellow_closes_gate PASS
+@TEST set_state_red_closes_gate PASS
+@TEST set_state_off_turns_off_leds PASS
+@TEST invalid_state_rejected PASS
+@TEST next_state_cycles PASS
+@TEST next_advances_current_state PASS
+@TEST state_duration_values PASS
+@RUN_END 8/8

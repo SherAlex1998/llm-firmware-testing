@@ -1,0 +1,39 @@
+{
+ "module_id": "lcd_pomoduino",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": false,
+ "gen_attempts": 3,
+ "tokens_in": 63295,
+ "tokens_out": 8662,
+ "cost_usd": 0.106605,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": false,
+   "tokens_in": 20427,
+   "tokens_out": 2907,
+   "latency_s": 25.043701887130737,
+   "cached": false,
+   "stop_reason": "end_turn"
+  },
+  {
+   "kind": "repair",
+   "compile_ok": false,
+   "tokens_in": 21448,
+   "tokens_out": 2878,
+   "latency_s": 22.254481554031372,
+   "cached": false,
+   "stop_reason": "end_turn"
+  },
+  {
+   "kind": "repair",
+   "compile_ok": false,
+   "tokens_in": 21420,
+   "tokens_out": 2877,
+   "latency_s": 21.929967403411865,
+   "cached": false,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

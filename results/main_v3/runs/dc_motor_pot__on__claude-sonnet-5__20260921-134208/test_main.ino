@@ -1,0 +1,72 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_forward_and_zero_power) {
+  motor_init();
+  ASSERT_TRUE(motor_direction());
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, HIGH);
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(set_direction_forward_and_reverse) {
+  motor_init();
+  motor_set_direction(true);
+  ASSERT_TRUE(motor_direction());
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, HIGH);
+
+  motor_set_direction(false);
+  ASSERT_FALSE(motor_direction());
+  ASSERT_PIN(12, HIGH);
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(set_power_clamps_range) {
+  motor_init();
+  motor_set_power(-10);
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(11, LOW);
+
+  motor_set_power(300);
+  ASSERT_EQ(motor_power(), 255);
+  ASSERT_PIN(11, HIGH);
+
+  motor_set_power(128);
+  ASSERT_EQ(motor_power(), 128);
+}
+
+TEST(power_from_reading_maps_correctly) {
+  motor_init();
+  ASSERT_EQ(motor_power_from_reading(0), 0);
+  ASSERT_EQ(motor_power_from_reading(1023), 255);
+  ASSERT_EQ(motor_power_from_reading(511), 127);
+  ASSERT_EQ(motor_power_from_reading(-50), 0);
+  ASSERT_EQ(motor_power_from_reading(2000), 255);
+}
+
+TEST(stop_resets_direction_pins_and_power) {
+  motor_init();
+  motor_set_direction(false);
+  motor_set_power(200);
+  motor_stop();
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, LOW);
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(direction_persists_after_power_changes) {
+  motor_init();
+  motor_set_direction(false);
+  motor_set_power(50);
+  ASSERT_FALSE(motor_direction());
+  motor_set_power(200);
+  ASSERT_FALSE(motor_direction());
+  ASSERT_PIN(12, HIGH);
+  ASSERT_PIN(13, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

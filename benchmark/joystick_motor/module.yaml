@@ -1,0 +1,24 @@
+id: joystick_motor
+name: "Joystick axis drives a DC motor (L293D)"
+source_url: https://github.com/vchervanev/arduino-joystick-to-motor
+license: MIT
+category: motor
+complexity: simple
+pins:
+  - {pin: 14, mode: INPUT, role: "A0 joystick X axis"}
+  - {pin: 5, mode: OUTPUT, role: "L293D enable (PWM speed)"}
+  - {pin: 3, mode: OUTPUT, role: "L293D input A"}
+  - {pin: 4, mode: OUTPUT, role: "L293D input B"}
+entry_functions:
+  - "void jm_init()"
+  - "void jm_set_direction(bool clockwise)"
+  - "bool jm_direction()"
+  - "void jm_set_speed(int speed)"
+  - "int jm_speed()"
+  - "void jm_stop()"
+  - "int jm_speed_from_axis(int dx)"
+  - "bool jm_clockwise_from_axis(int dx)"
+  - "void jm_apply_axis(int dx)"
+  - "void jm_update()"
+loc: 78
+notes: "Original already had setDirection/setSpeed/stopMotor; axis-to-speed and axis-to-direction math extracted into pure functions and the dead-zone rule into jm_apply_axis(dx). Direction pins are now written on every call (original skipped the write when direction was unchanged)."

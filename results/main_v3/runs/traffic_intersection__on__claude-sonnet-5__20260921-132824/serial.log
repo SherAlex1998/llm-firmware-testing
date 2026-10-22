@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_all_yellow PASS
+@TEST set_direction_valid_and_invalid PASS
+@TEST apply_phase_zero_green_a PASS
+@TEST apply_phase_last_yellow_d PASS
+@TEST next_phase_wraps_around PASS
+@TEST is_safe_true_for_single_active PASS
+@TEST is_safe_false_for_conflicting_directions PASS
+@RUN_END 7/7

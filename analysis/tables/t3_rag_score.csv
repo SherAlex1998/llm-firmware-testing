@@ -1,0 +1,4 @@
+model,outcome,mean_off,mean_on,n_pairs,n_changed,mean_diff,median_diff,p,p_holm,p_holm_significant
+claude-sonnet-5,mutation score,0.782,0.8,11,4,0.0182,0.0,0.625,1.0,False
+gpt-5.6-terra,mutation score,0.846,0.877,13,7,0.0308,0.0,0.3594,1.0,False
+claude-haiku-4-5,mutation score,0.84,0.8,5,1,-0.04,0.0,1.0,1.0,False

@@ -1,0 +1,93 @@
+In file included from test_main.ino:2:0:
+test_main.ino: In function 'void test_fn_init_sets_purple()':
+test_main.ino:6:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_away_from_target_zone_is_purple()':
+test_main.ino:23:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_in_target_zone_is_green()':
+test_main.ino:31:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_past_target_zone_is_yellow()':
+test_main.ino:39:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_too_close_is_red()':
+test_main.ino:47:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_idle_timeout_turns_off()':
+test_main.ino:55:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino:58:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_rgb_custom()':
+test_main.ino:165:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(100, 150, 200));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_red()':
+test_main.ino:171:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_green()':
+test_main.ino:177:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_yellow()':
+test_main.ino:183:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_off()':
+test_main.ino:190:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_loop_processes_reading()':
+test_main.ino:198:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+
+Error during build: exit status 1

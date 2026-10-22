@@ -1,0 +1,13 @@
+@RUN_BEGIN 11
+@TEST init_sets_all_pins_low PASS
+@TEST init_sets_motors_stopped PASS
+@TEST forward_motor_a PASS
+@TEST forward_motor_b PASS
+@TEST backward_motor_a PASS
+@TEST backward_motor_b PASS
+@TEST stop_motor_a PASS
+@TEST stop_all_motors PASS
+@TEST invalid_motor_returns_false PASS
+@TEST invalid_motor_direction_returns_zero PASS
+@TEST invalid_motor_speed_returns_zero PASS
+@RUN_END 11/11

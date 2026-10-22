@@ -1,0 +1,18 @@
+id: button_toggle_led
+name: "Push-button toggles an LED"
+source_url: https://github.com/harsh-hw-dev/Embedded-Programming-Series
+license: MIT
+category: led
+complexity: simple
+pins:
+  - {pin: 2, mode: INPUT_PULLUP, role: "push-button (LOW = pressed)"}
+  - {pin: 13, mode: OUTPUT, role: "LED"}
+entry_functions:
+  - "void toggle_init()"
+  - "bool toggle_button_pressed()"
+  - "void toggle_update(bool pressed)"
+  - "void toggle_poll()"
+  - "bool toggle_led_state()"
+  - "void toggle_set_led(bool on)"
+loc: 40
+notes: "Source file: LED WITH BUTTON/sketch_nov19a.ino. Original blocks in a while-loop until the button is released; refactored to non-blocking edge detection in toggle_update(pressed). Tests can call toggle_update() directly or drive pin 2 as OUTPUT to emulate presses."

@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_default_state_and_output_low PASS
+@TEST reset_restores_defaults_after_changes PASS
+@TEST velocity_setting_accepts_nonzero_and_ignores_zero PASS
+@TEST step_writes_current_brightness_then_advances PASS
+@TEST step_bounces_at_maximum_and_minimum PASS
+@TEST step_clamps_overshoot_at_maximum PASS
+@RUN_END 6/6

@@ -1,0 +1,18 @@
+id: led_breathing
+name: "PWM breathing LED"
+source_url: https://github.com/italianproject423/Fade-In-Fade-Out
+license: MIT
+category: led
+complexity: simple
+pins:
+  - {pin: 11, mode: OUTPUT, role: "LED (PWM)"}
+entry_functions:
+  - "void breath_init()"
+  - "void breath_reset()"
+  - "void breath_step()"
+  - "int breath_brightness()"
+  - "int breath_velocity()"
+  - "void breath_set_velocity(int velocity)"
+  - "bool breath_is_rising()"
+loc: 52
+notes: "Brightness and velocity globals exposed through getters; breath_step() keeps the original write-then-advance order and bounce at 0/255. Intermediate PWM levels are not observable with digitalRead (only 0 and 255 are), use breath_brightness()."

@@ -1,0 +1,14 @@
+@RUN_BEGIN 12
+@TEST park_init_resets_state_and_sets_purple PASS
+@TEST led_controller_sets_expected_colours PASS
+@TEST led_controller_flash_methods_finish_on_colour PASS
+@TEST sonar_read_distance_reads_fixed_sensor PASS
+@TEST sonar_apply_reading_tracks_previous_reading PASS
+@TEST sonar_zone_boundaries_are_classified PASS
+@TEST sonar_idle_timeout_detects_stillness_and_movement PASS
+@TEST set_led_color_matches_distance_zones PASS
+@TEST park_loop_with_updates_led_for_reading PASS
+@TEST park_loop_with_button_event_stores_target PASS
+@TEST park_loop_uses_sensor_reading_and_sets_green PASS
+@TEST button_is_not_pressed_while_released PASS
+@RUN_END 12/12

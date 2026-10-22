@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_moves_to_start PASS
+@TEST clamp_angle_bounds PASS
+@TEST write_clamps_and_counts PASS
+@TEST steps_per_cycle_valid FAIL line 26: expected sweep_steps_per_cycle(0, 9, 5) == 6 (got 4 vs 6)
+@TEST steps_per_cycle_invalid PASS
+@TEST run_executes_full_cycle PASS
+@TEST run_invalid_args_no_writes PASS
+@TEST pin_reflects_last_write FAIL line 54: pin 9 is LOW, expected HIGH
+@RUN_END 6/8

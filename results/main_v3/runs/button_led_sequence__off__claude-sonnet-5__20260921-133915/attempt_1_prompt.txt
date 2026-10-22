@@ -1,0 +1,102 @@
+Module: Button-driven 4-LED sequence (id: button_led_sequence, category: led, complexity: simple)
+Pins:
+- 2 INPUT: push-button (HIGH = pressed, external pull-down)
+- 7 OUTPUT: LED 1
+- 6 OUTPUT: LED 2
+- 5 OUTPUT: LED 3
+- 4 OUTPUT: LED 4
+Functions to test:
+- void seq_init()
+- bool seq_apply(uint8_t step)
+- void seq_advance()
+- uint8_t seq_count()
+- int8_t seq_current_led()
+- void seq_all_off()
+- bool seq_button_pressed()
+- void seq_poll()
+
+### logic.h
+```cpp
+// button_led_sequence: each button press advances a 4-LED sequence (only one LED lit at a time).
+// Adapted from https://github.com/rajeshThakare/Arduino-UNO-for-Absolute-Beginners (Codes/3_Switch/switch_practical_3, MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define SEQ_PIN_BUTTON 2      // INPUT with external pull-down: HIGH = pressed
+#define SEQ_NUM_LEDS 4
+extern const uint8_t SEQ_PINS[SEQ_NUM_LEDS];   // {7, 6, 5, 4}
+
+void seq_init();                  // pins configured, all LEDs off, count 0
+void seq_all_off();               // all LEDs LOW (count unchanged, current LED -1)
+bool seq_apply(uint8_t step);     // LED[step] on and the previous LED off; false if step out of range
+void seq_advance();               // apply current count, then count = (count + 1) % 4
+uint8_t seq_count();              // index of the step that the next advance will apply (0..3)
+int8_t seq_current_led();         // index of the LED currently lit, -1 if none
+bool seq_button_pressed();        // digitalRead(SEQ_PIN_BUTTON) == HIGH
+void seq_poll();                  // advance once if the button is pressed
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};
+
+static uint8_t g_count = 0;
+static int8_t g_current = -1;
+
+void seq_init() {
+  for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {
+    pinMode(SEQ_PINS[i], OUTPUT);
+  }
+  pinMode(SEQ_PIN_BUTTON, INPUT);
+  g_count = 0;
+  seq_all_off();
+}
+
+void seq_all_off() {
+  for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {
+    digitalWrite(SEQ_PINS[i], LOW);
+  }
+  g_current = -1;
+}
+
+bool seq_apply(uint8_t step) {
+  if (step >= SEQ_NUM_LEDS) {
+    return false;
+  }
+  uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;
+  digitalWrite(SEQ_PINS[previous], LOW);
+  digitalWrite(SEQ_PINS[step], HIGH);
+  g_current = (int8_t)step;
+  return true;
+}
+
+void seq_advance() {
+  seq_apply(g_count);
+  g_count = (g_count + 1) % SEQ_NUM_LEDS;
+}
+
+uint8_t seq_count() {
+  return g_count;
+}
+
+int8_t seq_current_led() {
+  return g_current;
+}
+
+bool seq_button_pressed() {
+  return digitalRead(SEQ_PIN_BUTTON) == HIGH;
+}
+
+void seq_poll() {
+  if (seq_button_pressed()) {
+    seq_advance();
+  }
+}
+```
+
+Write the test sketch for this module.

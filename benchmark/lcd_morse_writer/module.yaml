@@ -1,0 +1,48 @@
+id: lcd_morse_writer
+name: "Morse code writer: three buttons type text on a 16x2 I2C LCD"
+source_url: https://github.com/tesar-tech/arduino_and_morse_code
+license: MIT
+repo_created: 2019-01-11
+experiment: 2
+category: display
+complexity: medium
+backend: wokwi
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal I2C", version: "1.1.2"}
+devices:
+  - part: wokwi-lcd1602
+    id: lcd
+    pins: {SDA: A4, SCL: A5}
+    attrs: {pins: "i2c"}
+    test_visible: "16x2 character LCD at I2C address 0x27; it cannot be read back, morse_lcd_line() returns what was written"
+  - part: wokwi-pushbutton
+    id: dash
+    pins: {"2.l": 12}
+    attrs: {}
+    test_visible: "three buttons (pins 12, 8, 10) with pull-down resistors, released for the whole run (pins read LOW)"
+interrupts: false
+pins:
+  - {pin: 12, mode: INPUT, role: "dash button, HIGH = pressed (pull-down)"}
+  - {pin: 8, mode: INPUT, role: "dot button, HIGH = pressed (pull-down)"}
+  - {pin: 10, mode: INPUT, role: "separator button, HIGH = pressed (pull-down)"}
+  - {pin: 18, mode: I2C, role: "LCD SDA (A4)"}
+  - {pin: 19, mode: I2C, role: "LCD SCL (A5)"}
+entry_functions:
+  - "void morse_init()"
+  - "void morse_loop()"
+  - "void morse_loop_with(int carka, int tecka, int oddel)"
+  - "char getToneFromButtonStates()"
+  - "char getSymbolFromBuffer()"
+  - "void extractActionFromTonesBuffer()"
+  - "const char* morse_text()"
+  - "const char* morse_tones()"
+  - "const char* morse_lcd_line(uint8_t row)"
+loc: 176
+metrics: {nloc: 176, ccn_sum: 29, ccn_max: 7, functions: 11}
+notes: >-
+  Source: script.ino (single sketch, Czech comments kept). Globals and the three helper functions copied unchanged
+  into logic.cpp (the String-based alphabet table included); globals used by tests are declared extern in logic.h.
+  setup() -> morse_init(), which also clears the text, the tone buffer and the button history so tests are
+  independent; loop() reads the buttons in morse_loop() and runs the same pass as morse_loop_with(carka, tecka,
+  oddel); an LCD shadow buffer and string getters were added.

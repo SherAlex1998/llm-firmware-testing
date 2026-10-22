@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_configures_off_state PASS
+@TEST apply_first_led PASS
+@TEST apply_last_led PASS
+@TEST apply_out_of_range_does_not_change_state PASS
+@TEST advance_cycles_through_all_leds PASS
+@TEST all_off_preserves_count PASS
+@TEST button_and_poll_control_sequence PASS
+@RUN_END 7/7

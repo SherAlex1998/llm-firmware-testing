@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_phase_and_value PASS
+@TEST apply_clamps_negative PASS
+@TEST apply_clamps_above_max PASS
+@TEST phase_0_crossfade PASS
+@TEST phase_1_crossfade PASS
+@TEST step_increments_and_wraps PASS
+@TEST step_phase_alternates PASS
+@RUN_END 7/7

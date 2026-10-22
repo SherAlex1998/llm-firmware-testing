@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_defaults PASS
+@TEST set_direction_counterclockwise PASS
+@TEST set_speed_clamped PASS
+@TEST stop_zeroes_speed PASS
+@TEST pure_speed_and_direction_from_axis PASS
+@TEST apply_axis_dead_zone_stops PASS
+@TEST apply_axis_positive_sets_clockwise PASS
+@TEST apply_axis_negative_sets_counterclockwise PASS
+@RUN_END 8/8

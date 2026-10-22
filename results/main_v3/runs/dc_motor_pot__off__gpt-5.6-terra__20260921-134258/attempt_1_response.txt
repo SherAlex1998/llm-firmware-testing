@@ -1,0 +1,83 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(initializes_forward_with_zero_power) {
+  motor_init();
+  ASSERT_TRUE(motor_direction());
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(MOTOR_PIN_IN1, LOW);
+  ASSERT_PIN(MOTOR_PIN_IN2, HIGH);
+  ASSERT_PIN(MOTOR_PIN_EN, LOW);
+}
+
+TEST(changes_direction_and_reports_state) {
+  motor_init();
+
+  motor_set_direction(false);
+  ASSERT_FALSE(motor_direction());
+  ASSERT_PIN(MOTOR_PIN_IN1, HIGH);
+  ASSERT_PIN(MOTOR_PIN_IN2, LOW);
+
+  motor_set_direction(true);
+  ASSERT_TRUE(motor_direction());
+  ASSERT_PIN(MOTOR_PIN_IN1, LOW);
+  ASSERT_PIN(MOTOR_PIN_IN2, HIGH);
+}
+
+TEST(clamps_and_writes_motor_power) {
+  motor_init();
+
+  motor_set_power(128);
+  ASSERT_EQ(motor_power(), 128);
+
+  motor_set_power(-10);
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(MOTOR_PIN_EN, LOW);
+
+  motor_set_power(300);
+  ASSERT_EQ(motor_power(), 255);
+  ASSERT_PIN(MOTOR_PIN_EN, HIGH);
+}
+
+TEST(converts_potentiometer_readings_to_pwm) {
+  motor_init();
+
+  ASSERT_EQ(motor_power_from_reading(-1), 0);
+  ASSERT_EQ(motor_power_from_reading(0), 0);
+  ASSERT_EQ(motor_power_from_reading(512), 127);
+  ASSERT_EQ(motor_power_from_reading(1023), 255);
+  ASSERT_EQ(motor_power_from_reading(2000), 255);
+}
+
+TEST(stops_motor_and_disables_power) {
+  motor_init();
+  motor_set_direction(false);
+  motor_set_power(255);
+
+  motor_stop();
+
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(MOTOR_PIN_IN1, LOW);
+  ASSERT_PIN(MOTOR_PIN_IN2, LOW);
+  ASSERT_PIN(MOTOR_PIN_EN, LOW);
+}
+
+TEST(updates_power_from_potentiometer_input) {
+  motor_init();
+
+  pinMode(MOTOR_PIN_POT, OUTPUT);
+  digitalWrite(MOTOR_PIN_POT, LOW);
+  motor_update();
+  ASSERT_EQ(motor_power(), 0);
+  ASSERT_PIN(MOTOR_PIN_EN, LOW);
+
+  digitalWrite(MOTOR_PIN_POT, HIGH);
+  motor_update();
+  ASSERT_EQ(motor_power(), 255);
+  ASSERT_PIN(MOTOR_PIN_EN, HIGH);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_state PASS
+@TEST apply_valid_step PASS
+@TEST apply_out_of_range PASS
+@TEST advance_sequence PASS
+@TEST all_off PASS
+@TEST button_not_pressed PASS
+@TEST poll_no_button PASS
+@RUN_END 7/7

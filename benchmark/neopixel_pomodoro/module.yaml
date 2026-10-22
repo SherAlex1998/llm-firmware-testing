@@ -1,0 +1,37 @@
+id: neopixel_pomodoro
+name: "Pomodoro timer on a 24-LED NeoPixel ring with one button"
+source_url: https://github.com/atbrask/NeoPomodorino
+license: BSD-2-Clause
+repo_created: 2017-07-15
+experiment: 2
+category: led
+complexity: medium
+backend: avr8js
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "Adafruit NeoPixel", version: "1.15.5"}
+interrupts: false
+pins:
+  - {pin: 3, mode: INPUT_PULLUP, role: "button to GND, LOW = pressed (not connected in the test setup: reads HIGH)"}
+  - {pin: 6, mode: OUTPUT, role: "NeoPixel ring data (24 LEDs, GRB); colours can be read back with neo_pixel()"}
+entry_functions:
+  - "void neo_set_delay_scale(uint8_t percent)"
+  - "void neo_init()"
+  - "void neo_loop()"
+  - "void neo_loop_at(unsigned long now, ButtonClick button)"
+  - "ButtonClick getButtonClick()"
+  - "void turnOff()"
+  - "void startPomodoro()"
+  - "void startPause()"
+  - "void updateDisplay()"
+  - "uint32_t neo_pixel(uint8_t i)"
+loc: 203
+metrics: {nloc: 203, ccn_sum: 41, ccn_max: 9, functions: 13}
+notes: >-
+  Source: Firmware/NeoPomodorino/NeoPomodorino.ino (single sketch). Functions copied into logic.cpp; state globals
+  declared extern in logic.h. Changes: loop() body became neo_loop_at(now, button) with the time and the click as
+  arguments (neo_loop() supplies millis() and getButtonClick()); the time used by startPomodoro/startPause/
+  updateDisplay is that pass's time instead of new millis() calls; the loop delay(20) moved to the sketch; the
+  blink (1.2 s) and fill (0.5 s) animations are scaled by neo_set_delay_scale() (default 100 %); neo_init() also
+  resets the timing variables; neo_pixel(i) reads a ring colour back. Bug fixed: initLeds() used an uninitialised
+  colour when called in the Off state (now 0). avr8js backend: the ring is output-only.

@@ -1,0 +1,21 @@
+{
+ "module_id": "ultrasonic_parking",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6445,
+ "tokens_out": 2123,
+ "cost_usd": 0.01706,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6445,
+   "tokens_out": 2123,
+   "latency_s": 18.86467146873474,
+   "cached": false,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

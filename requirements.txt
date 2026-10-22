@@ -1,0 +1,11 @@
+anthropic>=1.5
+openai>=3.14
+chromadb==1.5.9          # the published kb/.chroma index needs this version
+pyyaml>=6.0
+pandas>=3.0
+pyarrow>=25.0
+scipy>=1.18
+matplotlib>=3.11
+pyserial>=3.5
+lizard>=1.24
+pytest>=8.0

@@ -1,0 +1,27 @@
+# environment and tools
+.venv/
+.idea/
+.claude/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+tools/
+node_modules/
+
+# local, not published
+.backup/
+Plan/
+Plan.zip
+Docs/
+benchmark/exp2_candidates/
+demo/build/
+analysis/matrix_overview_run1.html
+
+# results: experiment 1 (main_v3), experiment 2 (catalog and pilot) and the LLM response cache;
+# build folders are left out, a rerun from the cache recreates them
+results/*
+!results/.llm_cache/
+!results/main_v3/
+!results/exp2/
+results/**/work/

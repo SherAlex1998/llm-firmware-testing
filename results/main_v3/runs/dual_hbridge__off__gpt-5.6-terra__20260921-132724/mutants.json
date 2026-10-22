@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 6,
+ "score": 0.6,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "flip_cmp",
+   "line": 7,
+   "before": "if (motor == HB_MOTOR_A) {",
+   "after": "if (motor != HB_MOTOR_A) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "swap_hilo",
+   "line": 51,
+   "before": "digitalWrite(b, HIGH);",
+   "after": "digitalWrite(b, LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "drop_call",
+   "line": 52,
+   "before": "analogWrite(en, speed);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 4,
+   "operator": "drop_call",
+   "line": 38,
+   "before": "digitalWrite(b, LOW);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 5,
+   "operator": "negate_cond",
+   "line": 47,
+   "before": "if (!hb_pins(motor, a, b, en)) {",
+   "after": "if (!(!hb_pins(motor, a, b, en))) {",
+   "verdict": "timeout",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "swap_hilo",
+   "line": 37,
+   "before": "digitalWrite(a, HIGH);",
+   "after": "digitalWrite(a, LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "negate_cond",
+   "line": 34,
+   "before": "if (!hb_pins(motor, a, b, en)) {",
+   "after": "if (!(!hb_pins(motor, a, b, en))) {",
+   "verdict": "timeout",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "const_change",
+   "line": 3,
+   "before": "static int8_t g_dir[2] = {0, 0};",
+   "after": "static int8_t g_dir[2] = {1, 0};",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 9,
+   "operator": "const_change",
+   "line": 4,
+   "before": "static uint8_t g_speed[2] = {0, 0};",
+   "after": "static uint8_t g_speed[2] = {1, 0};",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 10,
+   "operator": "flip_cmp",
+   "line": 77,
+   "before": "if (motor > HB_MOTOR_B) {",
+   "after": "if (motor <= HB_MOTOR_B) {",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

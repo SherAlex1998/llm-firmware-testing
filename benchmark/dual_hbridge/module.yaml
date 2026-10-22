@@ -1,0 +1,23 @@
+id: dual_hbridge
+name: "Two DC motors on an H-bridge"
+source_url: https://github.com/Projectslearner/arduino-uno-h-bridge-module
+license: MIT
+category: motor
+complexity: simple
+pins:
+  - {pin: 8, mode: OUTPUT, role: "motor A IN1"}
+  - {pin: 9, mode: OUTPUT, role: "motor A IN2"}
+  - {pin: 6, mode: OUTPUT, role: "motor A enable (PWM)"}
+  - {pin: 10, mode: OUTPUT, role: "motor B IN3"}
+  - {pin: 11, mode: OUTPUT, role: "motor B IN4"}
+  - {pin: 5, mode: OUTPUT, role: "motor B enable (PWM)"}
+entry_functions:
+  - "void hb_init()"
+  - "bool hb_forward(uint8_t motor, uint8_t speed)"
+  - "bool hb_backward(uint8_t motor, uint8_t speed)"
+  - "bool hb_stop(uint8_t motor)"
+  - "void hb_stop_all()"
+  - "int8_t hb_direction(uint8_t motor)"
+  - "uint8_t hb_speed(uint8_t motor)"
+loc: 98
+notes: "Inline forward/stop/backward/stop sequence turned into per-motor hb_forward/hb_backward/hb_stop with direction and speed state; Serial prints removed; delays moved to the main sketch. Original file has a .c extension but is an Arduino sketch."

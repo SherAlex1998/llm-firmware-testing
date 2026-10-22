@@ -1,0 +1,19 @@
+@RUN_BEGIN 17
+@TEST park_init_sets_led_purple PASS
+@TEST sonar_reset_defaults PASS
+@TEST sonar_set_target_distance PASS
+@TEST sonar_apply_reading_updates_distance_and_last PASS
+@TEST sonar_zone_in_target PASS
+@TEST sonar_zone_past_target PASS
+@TEST sonar_zone_too_close PASS
+@TEST sonar_zone_away PASS
+@TEST sonar_object_out_of_range PASS
+@TEST sonar_idle_timeout PASS
+@TEST led_named_and_rgb_colors PASS
+@TEST set_led_color_in_target_zone PASS
+@TEST set_led_color_past_target_zone PASS
+@TEST set_led_color_too_close PASS
+@TEST set_led_color_away_from_target PASS
+@TEST park_loop_with_button_press_sets_target_and_flashes_green PASS
+@TEST park_loop_with_idle_timeout_turns_led_off PASS
+@RUN_END 17/17

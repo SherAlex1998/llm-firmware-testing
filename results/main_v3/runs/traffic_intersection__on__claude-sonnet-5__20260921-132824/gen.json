@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_intersection",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6777,
+ "tokens_out": 1436,
+ "cost_usd": 0.041871,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6777,
+   "tokens_out": 1436,
+   "latency_s": 11.033272981643677,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

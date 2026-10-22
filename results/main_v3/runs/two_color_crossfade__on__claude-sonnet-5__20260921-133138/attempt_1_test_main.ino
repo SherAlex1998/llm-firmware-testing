@@ -1,0 +1,63 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_phase0_and_max_red) {
+  xf_init();
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_phase(), 0);
+  ASSERT_EQ(xf_red_level(), 150);
+  ASSERT_EQ(xf_green_level(), 0);
+  ASSERT_PIN(10, LOW); // green channel written 0 -> readable LOW
+}
+
+TEST(apply_clamps_above_max) {
+  xf_init();
+  xf_apply(500);
+  ASSERT_EQ(xf_value(), 150);
+  ASSERT_EQ(xf_red_level(), 0);
+  ASSERT_EQ(xf_green_level(), 150);
+  ASSERT_PIN(11, LOW); // red channel written 0 -> readable LOW
+}
+
+TEST(apply_clamps_below_zero) {
+  xf_init();
+  xf_apply(-10);
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_red_level(), 150);
+  ASSERT_EQ(xf_green_level(), 0);
+  ASSERT_PIN(10, LOW);
+}
+
+TEST(step_increments_value_within_phase) {
+  xf_init();
+  xf_step();
+  ASSERT_EQ(xf_value(), 1);
+  ASSERT_EQ(xf_phase(), 0);
+  ASSERT_EQ(xf_red_level(), 149);
+  ASSERT_EQ(xf_green_level(), 1);
+}
+
+TEST(step_wraps_and_switches_phase) {
+  xf_init();
+  xf_apply(150);
+  xf_step(); // wraps to 0, phase flips to 1
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_phase(), 1);
+  ASSERT_EQ(xf_red_level(), 0);   // phase1: red=value
+  ASSERT_EQ(xf_green_level(), 150); // phase1: green=MAX-value
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(phase1_apply_swaps_channels) {
+  xf_init();
+  xf_apply(150);
+  xf_step(); // now phase1, value 0
+  xf_apply(150);
+  ASSERT_EQ(xf_value(), 150);
+  ASSERT_EQ(xf_red_level(), 150);
+  ASSERT_EQ(xf_green_level(), 0);
+  ASSERT_PIN(10, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

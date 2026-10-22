@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_all_leds_off PASS
+@TEST light_only_first_led PASS
+@TEST light_only_last_led PASS
+@TEST invalid_light_request_preserves_state PASS
+@TEST step_starts_at_first_and_moves_forward PASS
+@TEST step_bounces_from_last_led PASS
+@TEST step_bounces_from_first_led PASS
+@TEST all_off_clears_active_led PASS
+@RUN_END 8/8

@@ -1,0 +1,21 @@
+{
+ "module_id": "joystick_motor",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6020,
+ "tokens_out": 1279,
+ "cost_usd": 0.037245,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6020,
+   "tokens_out": 1279,
+   "latency_s": 10.444372415542603,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

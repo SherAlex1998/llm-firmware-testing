@@ -1,0 +1,1369 @@
+Module: Pomodoro timer with TM1637 display, DS1307 statistics and a single button (id: pomodoro_rtc, category: mixed, complexity: complex)
+Pins:
+- 3 OUTPUT: TM1637 CLK
+- 4 OUTPUT: TM1637 DIO
+- 6 INPUT: button (HIGH = pressed, external pull-down)
+- 9 OUTPUT: buzzer (tone)
+- 18 I2C: DS1307 SDA (A4)
+- 19 I2C: DS1307 SCL (A5)
+External devices (simulated; their readings are fixed for the whole run):
+- rtc (wokwi-ds1307), pins SDA=A4 SCL=A5: DS1307 RTC on I2C; every run starts at Monday 2030-03-11 10:00:00 with its RAM empty (all zero)
+- disp (wokwi-tm1637-7segment), pins CLK=3 DIO=4: TM1637 4-digit display (write-only; pomo_display_digits/dot/text return what was sent)
+- btn (wokwi-pushbutton), pins 2.l=6: button on pin 6 with a pull-down resistor, released for the whole run (pin 6 reads LOW)
+- bz (wokwi-buzzer), pins 2=9: passive buzzer on pin 9 (output only)
+Libraries available: Rtc by Makuna 2.5.0, Grove 4-Digit Display 2.0.0, TimerOne 1.1.1
+Functions to test:
+- void pomo_set_delay_scale(uint8_t percent)
+- void pomo_init()
+- void pomo_start_timer()
+- void pomo_tick()
+- void pomo_update()
+- void pomo_handle_action(uint8_t action)
+- uint8_t pomo_read_click()
+- uint8_t pomo_status()
+- uint8_t pomo_prev_status()
+- int8_t pomo_minute()
+- int8_t pomo_second()
+- int8_t pomo_completed()
+- bool pomo_seconds_event()
+- uint16_t pomo_user_data(uint8_t index)
+- void pomo_load_user_data()
+- void pomo_apply_rollover(uint16_t data[5], uint16_t year, uint8_t month, uint8_t day, uint8_t day_of_week)
+- uint8_t pomo_calc_weekday(int year, int month, int day)
+- const int8_t* pomo_display_digits()
+- bool pomo_display_dot()
+- const char* pomo_display_text()
+
+### logic.h
+```cpp
+// Pomodoro timer: TM1637 4-digit display, DS1307 RTC (statistics kept in its RAM), one button, buzzer.
+// Source: https://github.com/2CoderOK/pomodoro (src/), MIT License, Copyright (c) 2022 CoderOK.
+// Refactored for testability (see module.yaml notes). Internal files: state_machine, click, display4, rtsl, soundbuzz.
+#pragma once
+#include <Arduino.h>
+
+#define TM_CLK_PIN 3      // TM1637 display
+#define TM_DIO_PIN 4
+#define BTN_CLICK 6       // button, HIGH = pressed (external pull-down)
+#define BTN_BUZZER 9      // passive buzzer
+
+#define STATUS_IDLE 0
+#define STATUS_PREPARE 1
+#define STATUS_RUN_WORK 2
+#define STATUS_RUN_PAUSE 3
+#define STATUS_RUN_REST 4
+
+#define DEFAULT_TIME 25   // minutes
+#define INCREASE_TIME 5
+#define MAX_TIME 60
+
+#define CLICK_NONE 0
+#define CLICK_SHORT_ACTION 1
+#define CLICK_LONG_ACTION 2
+
+void pomo_set_delay_scale(uint8_t percent);  // pauses of melodies, text scrolling and statistics pages: 100 = original (default), 0 = none; kept across pomo_init()
+void pomo_init();                  // state machine back to power-up values, then the original Init(): RTC, statistics, display, start melody, idle
+void pomo_start_timer();           // Timer1 every 500 ms calls pomo_tick() (the sketch does this after pomo_init)
+void pomo_tick();                  // half-second tick (interrupt body): counts seconds down, sets the seconds event
+void pomo_update();                // one pass of loop(): handles a pending seconds event, else the button and the display
+void pomo_handle_action(uint8_t action);  // what the state machine does on a click: CLICK_SHORT_ACTION or CLICK_LONG_ACTION
+uint8_t pomo_read_click();         // button pass of loop() (Click::GetClick): returns the action of a press that just ended
+
+uint8_t pomo_status();
+uint8_t pomo_prev_status();
+int8_t pomo_minute();              // minutes shown (pomodoro_minute)
+int8_t pomo_second();
+int8_t pomo_completed();           // pomodoros completed today
+bool pomo_seconds_event();
+uint16_t pomo_user_data(uint8_t index);  // statistics: 0 day of month, 1 today, 2 this week, 3 this month, 4 total
+void pomo_load_user_data();        // reads statistics from the RTC RAM and rolls them over to the RTC date
+void pomo_apply_rollover(uint16_t data[5], uint16_t year, uint8_t month, uint8_t day, uint8_t day_of_week);  // rollover rules on an explicit array and date (Sunday = 0)
+uint8_t pomo_calc_weekday(int year, int month, int day);  // proleptic Gregorian, Sunday = 0
+const int8_t* pomo_display_digits();     // last 4 cells sent to the display (0-9, 0x40 = dash, '-' = progress mark)
+bool pomo_display_dot();                 // colon state
+const char* pomo_display_text();         // last text shown with DisplayString (empty if none since init)
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+#include <TimerOne.h>
+#include <Wire.h>
+#include <RtcDS1307.h>
+
+#include "state_machine.h"
+
+uint8_t g_delay_scale = 100;
+
+static RtcDS1307<TwoWire> Rtc(Wire);
+static StateMachine machine(&Rtc);
+
+static void TimingISR() {
+  machine.Tick();
+}
+
+void pomo_set_delay_scale(uint8_t percent) {
+  g_delay_scale = percent;
+}
+
+void pomo_init() {
+  pinMode(BTN_BUZZER, OUTPUT);
+  pinMode(BTN_CLICK, INPUT);
+  machine.Reset();
+  machine.Init();
+}
+
+void pomo_start_timer() {
+  Timer1.initialize(500000);
+  Timer1.attachInterrupt(TimingISR);
+}
+
+void pomo_tick() {
+  machine.Tick();
+}
+
+void pomo_update() {
+  machine.Update();
+}
+
+void pomo_handle_action(uint8_t action) {
+  machine.HandleAction(action);
+}
+
+uint8_t pomo_read_click() {
+  return machine.ReadClick();
+}
+
+uint8_t pomo_status() {
+  return machine.Status();
+}
+
+uint8_t pomo_prev_status() {
+  return machine.PrevStatus();
+}
+
+int8_t pomo_minute() {
+  return machine.Minute();
+}
+
+int8_t pomo_second() {
+  return machine.Second();
+}
+
+int8_t pomo_completed() {
+  return machine.Completed();
+}
+
+bool pomo_seconds_event() {
+  return machine.SecondsEvent();
+}
+
+uint16_t pomo_user_data(uint8_t index) {
+  return machine.UserData(index);
+}
+
+void pomo_load_user_data() {
+  machine.LoadUserData();
+}
+
+void pomo_apply_rollover(uint16_t data[5], uint16_t year, uint8_t month, uint8_t day, uint8_t day_of_week) {
+  StateMachine::ApplyRollover(data, year, month, day, day_of_week);
+}
+
+uint8_t pomo_calc_weekday(int year, int month, int day) {
+  return StateMachine::CalcWeekday(year, month, day);
+}
+
+const int8_t* pomo_display_digits() {
+  return machine.Disp().LastDigits();
+}
+
+bool pomo_display_dot() {
+  return machine.Disp().Dot();
+}
+
+const char* pomo_display_text() {
+  return machine.Disp().LastText();
+}
+```
+
+### state_machine.h
+```cpp
+#ifndef StateMachine_h
+#define StateMachine_h
+#include "logic.h"
+#include "soundbuzz.h"
+#include "click.h"
+#include "display4.h"
+#include "rtsl.h"
+
+class StateMachine {
+public:
+  StateMachine(RtcDS1307<TwoWire> *rtsl);
+  void Init();
+  void Reset();                       // fields back to their power-up values (testability)
+  void Update();
+
+  void Tick();
+
+  void HandleAction(int8_t action);   // body of HandleClick for a given action
+  int8_t ReadClick() { return button.GetClick(); }
+  void LoadUserData();
+  static void ApplyRollover(unsigned int *data, int year, int month, int day, int dayOfWeek);
+  static byte CalcWeekday(int, int, int);
+
+  // testability getters
+  byte Status() const { return cur_status; }
+  byte PrevStatus() const { return prev_status; }
+  int8_t Minute() const { return pomodoro_minute; }
+  int8_t Second() const { return second; }
+  int8_t Completed() const { return pomodoro_completed; }
+  bool SecondsEvent() const { return seconds_event; }
+  unsigned int UserData(uint8_t i) const { return userData[i % 5]; }
+  const Display4 &Disp() const { return disp; }
+
+private:
+  void Idle();
+  void IncreaseTime();
+  void Prepare();
+  void Start();
+  void Rest();
+  void Pause();
+  void Cancel();
+
+  void HandleClick();
+  void MinusSecond();
+  void UpdateDisplay();
+  void UpdatePomodoro(bool success = true);
+  void UpdateStatus(int8_t newStatus);
+  byte GetStatus();
+
+  bool DisplayClick();
+  void ClearDisplay();
+
+  void PrintStats();
+
+  SoundBuzz sound;
+  Click button;
+  Display4 disp;
+  RTSL rtc = NULL;
+
+  int8_t timeDisp[4];
+  unsigned int userData[5];  // 0 - current_day_number, stats_for_today, stats_this_week (of a given month), stats_this_month, stats_total
+
+  byte cur_status = STATUS_IDLE;
+  byte prev_status = STATUS_IDLE;
+
+  bool redraw = false;
+  bool seconds_event = false;
+
+  int8_t second = 59;
+  byte idle_time = 0;
+  int8_t pause_second = 0;
+  int8_t pause_minute = 0;
+  byte halfsecond = 0;
+
+  int8_t lastClickDisplay = 0;
+
+  int8_t pomodoro_minute = DEFAULT_TIME;
+  int8_t pomodoro_minute_last = DEFAULT_TIME;
+  int8_t pomodoro_completed = 0;  // track number of completed pomodors, after 3 pomodoros give rest 25 min
+};
+
+#endif
+```
+
+### state_machine.cpp
+```cpp
+#include "state_machine.h"
+#include "pace.h"
+
+StateMachine::StateMachine(RtcDS1307<TwoWire> *rtsl)
+  : sound(BTN_BUZZER), button(BTN_CLICK), disp(TM_CLK_PIN, TM_DIO_PIN) {
+  rtc = RTSL(rtsl);
+  for (uint8_t i = 0; i < 5; i++)
+    userData[i] = 0;
+  for (uint8_t i = 0; i < 4; i++)
+    timeDisp[i] = 0;
+}
+
+void StateMachine::Reset() {
+  for (uint8_t i = 0; i < 5; i++)
+    userData[i] = 0;
+  for (uint8_t i = 0; i < 4; i++)
+    timeDisp[i] = 0;
+  cur_status = prev_status = STATUS_IDLE;
+  redraw = seconds_event = false;
+  second = 59;
+  idle_time = halfsecond = 0;
+  pause_second = pause_minute = 0;
+  lastClickDisplay = 0;
+  pomodoro_minute = pomodoro_minute_last = DEFAULT_TIME;
+  pomodoro_completed = 0;
+  button = Click(BTN_CLICK);
+  disp.ResetShadow();
+}
+
+void StateMachine::Init() {
+  bool hardwareReset = digitalRead(BTN_CLICK) == HIGH ? true : false;
+  rtc.Init();
+  LoadUserData();
+  disp.Init();
+  sound.PlayInit();
+  disp.DisplayString("HELL0");
+  if (hardwareReset) {
+    rtc.HardResetData();
+  }
+  Idle();
+}
+
+byte StateMachine::CalcWeekday(int year, int month, int day)
+/* Calculate day of week in proleptic Gregorian calendar. Sunday == 0. */
+{
+  int adjustment, mm, yy;
+  if (year < 2000) year += 2000;
+  adjustment = (14 - month) / 12;
+  mm = month + 12 * adjustment - 2;
+  yy = year - adjustment;
+  return (day + (13 * mm - 1) / 5 + yy + yy / 4 - yy / 100 + yy / 400) % 7;
+}
+
+void StateMachine::PrintStats() {
+  disp.DisplayString("today _");
+  disp.DisplayNum(userData[1]);
+  paced_delay(1500);
+  disp.DisplayString("week _");
+  disp.DisplayNum(userData[2] + userData[1]);
+  paced_delay(1500);
+  disp.DisplayString("month _");
+  disp.DisplayNum(userData[3] + userData[2] + userData[1]);
+  paced_delay(1500);
+  disp.DisplayString("all _");
+  disp.DisplayNum(userData[4] + userData[3] + userData[2] + userData[1]);
+  paced_delay(1500);
+}
+
+void StateMachine::LoadUserData() {
+  rtc.GetData(userData);
+  RtcDateTime now = rtc.GetTime();
+  if (userData[0] == now.Day()) {
+    pomodoro_completed = userData[1];  // load todays pomodoros
+  } else {
+    ApplyRollover(userData, now.Year(), now.Month(), now.Day(), now.DayOfWeek());
+    rtc.SaveData(userData);
+  }
+}
+
+// Statistics rollover when the stored day differs from today (data[0] == day: nothing to do).
+void StateMachine::ApplyRollover(unsigned int *data, int year, int month, int day, int dayOfWeek) {
+  if (data[0] == (unsigned int)day)
+    return;
+  bool rollover_month = false;
+  bool rollover_week = false;
+  bool rollover_day = false;
+
+  if ((unsigned int)day > data[0]) {
+    // same month, next day
+    byte prev_day_of_week = CalcWeekday(year, month, data[0]);
+    if (dayOfWeek <= prev_day_of_week || day - data[0] > 7) {
+      rollover_week = true;
+    }
+    rollover_day = true;
+  } else {
+    // next month: rollover today, week, month
+    rollover_month = rollover_week = rollover_day = true;
+  }
+  data[0] = day;  // set today
+  if (rollover_day) {
+    data[2] = data[2] + data[1];  // copy today`s pomodoro (old) to this week
+    data[1] = 0;                  // reset today`s pomodoro
+  }
+  if (rollover_week) {
+    data[3] = data[3] + data[2];  // copy this week`s pomodoro to this month
+    data[2] = 0;                  // reset this week`s pomodoro
+  }
+  if (rollover_month) {
+    data[4] = data[4] + data[3];  // copy this month`s pomodoro to all time total
+    data[3] = 0;                  // reset this month`s pomodoro
+  }
+}
+
+void StateMachine::UpdateStatus(int8_t newStatus) {
+  prev_status = cur_status;
+  cur_status = newStatus;
+}
+
+byte StateMachine::GetStatus() {
+  return cur_status;
+}
+
+void StateMachine::Tick() {
+  if (!seconds_event) {
+    halfsecond++;
+    if (halfsecond == 2) {
+      halfsecond = 0;
+      if (lastClickDisplay == 0) {
+        second--;
+        if (second < 0) {
+          seconds_event = true;
+          second = 59;
+        }
+      }
+    }
+    redraw = true;
+  }
+}
+
+void StateMachine::IncreaseTime() {
+  pomodoro_minute = pomodoro_minute + INCREASE_TIME;
+
+  if (pomodoro_minute > MAX_TIME)
+    pomodoro_minute = DEFAULT_TIME;
+  pomodoro_minute_last = pomodoro_minute;
+}
+
+void StateMachine::Prepare() {
+  second = 10;
+  UpdateStatus(STATUS_PREPARE);
+}
+
+void StateMachine::Start() {
+  pomodoro_minute--;
+  second = 59;
+  pause_minute = 5;
+  UpdateStatus(STATUS_RUN_WORK);
+  disp.DisplayDot(false);
+  disp.ClearDisplay();
+  sound.PlayStart();
+}
+
+void StateMachine::Rest() {
+  disp.DisplayDot(false);
+  disp.ClearDisplay();
+  UpdatePomodoro();
+  if (pomodoro_completed % 3 == 0)
+    pomodoro_minute = 30;
+  else
+    pomodoro_minute = 5;
+  UpdateStatus(STATUS_RUN_REST);
+  pomodoro_minute--;
+  second = 59;
+  sound.PlayFinish();
+}
+
+void StateMachine::Pause() {
+  if (cur_status != STATUS_RUN_PAUSE) {
+    pause_second = second;
+    second = 59;
+    UpdateStatus(STATUS_RUN_PAUSE);
+    disp.DisplayString("PAUSE");
+  } else {
+    second = pause_second;
+    UpdateStatus(STATUS_RUN_WORK);
+  }
+  disp.DisplayDot(false);
+  ClearDisplay();
+}
+
+void StateMachine::Cancel() {
+  if (cur_status == STATUS_RUN_WORK)
+    UpdatePomodoro(false);
+
+  pomodoro_minute = pomodoro_minute_last;
+  disp.DisplayDot(false);
+  ClearDisplay();
+  sound.PlayCancel();
+  Idle();
+}
+
+void StateMachine::Idle() {
+  UpdateStatus(STATUS_IDLE);
+  redraw = true;
+  pomodoro_minute = pomodoro_minute_last;
+  disp.DisplayDot(false);
+  disp.ClearDisplay();
+}
+
+void StateMachine::UpdatePomodoro(bool success) {
+  if (success) {
+    pomodoro_completed++;
+    userData[1]++;
+    rtc.SaveData(userData);
+  } else
+    pomodoro_completed = pomodoro_completed > 0 ? pomodoro_completed - 1 : 0;
+}
+
+void StateMachine::HandleClick() {
+  HandleAction(button.GetClick());
+}
+
+void StateMachine::HandleAction(int8_t action) {
+  if (action)
+    switch (cur_status) {
+      case STATUS_IDLE:
+        if (action == 2)
+          Prepare();
+        else
+          IncreaseTime();
+        break;
+      case STATUS_RUN_WORK:
+        if (action == 2)
+          Cancel();
+        else
+          Pause();
+        break;
+      case STATUS_PREPARE:
+      case STATUS_RUN_REST:
+        Cancel();
+        break;
+      case STATUS_RUN_PAUSE:
+        Pause();
+        break;
+      default:
+        break;
+    }
+}
+
+void StateMachine::ClearDisplay() {
+  for (int8_t i = 0; i < 4; i++)
+    timeDisp[i] = 0x40;
+}
+
+bool StateMachine::DisplayClick() {
+  int8_t clickDisplay = button.GetDisplay();
+
+  if (clickDisplay > 0) {
+    if (clickDisplay != lastClickDisplay) {
+      lastClickDisplay = clickDisplay;
+      ClearDisplay();
+
+      for (uint8_t i = 2; i <= clickDisplay; i++)
+        timeDisp[i - 2] = '-';
+
+      disp.DisplayDot(false);
+      disp.DisplayClock(timeDisp);
+
+      if (clickDisplay == 2)
+        sound.PlayNote(NOTE_LOW);
+      else if (clickDisplay == 5)
+        sound.PlayNote(NOTE_HIGH);
+    }
+    return true;
+  }
+  lastClickDisplay = 0;
+  return false;
+}
+
+void StateMachine::UpdateDisplay() {
+  if (!DisplayClick())
+    if (redraw) {
+      switch (cur_status) {
+        case STATUS_IDLE:
+          disp.DisplayDot(false);
+          timeDisp[0] = pomodoro_minute / 10;
+          timeDisp[1] = pomodoro_minute % 10;
+          timeDisp[2] = 0x40;
+          timeDisp[3] = pomodoro_completed % 10;
+          break;
+        case STATUS_PREPARE:
+          timeDisp[0] = 0x40;
+          timeDisp[1] = 0x40;
+          timeDisp[2] = second / 10;
+          timeDisp[3] = second % 10;
+          disp.DotNext();
+          break;
+        case STATUS_RUN_WORK:
+        case STATUS_RUN_REST:
+          timeDisp[0] = pomodoro_minute / 10;
+          timeDisp[1] = pomodoro_minute % 10;
+          timeDisp[2] = second / 10;
+          timeDisp[3] = second % 10;
+          disp.DotNext();
+          break;
+        case STATUS_RUN_PAUSE:
+          ClearDisplay();
+          disp.DotNext();
+          break;
+      }
+      disp.DisplayClock(timeDisp);
+      redraw = false;
+    }
+}
+
+void StateMachine::MinusSecond() {
+  switch (cur_status) {
+    case STATUS_IDLE:
+      idle_time++;
+      if (idle_time == 5) {
+        idle_time = 0;
+        PrintStats();
+      }
+      break;
+    case STATUS_PREPARE:
+      Start();
+      break;
+    case STATUS_RUN_WORK:
+    case STATUS_RUN_REST:
+      if (pomodoro_minute == 0) {
+        if (cur_status == STATUS_RUN_WORK) {
+          Rest();
+        } else {
+          Idle();
+          sound.PlaySecond();
+        }
+      } else {
+        pomodoro_minute--;
+      }
+      break;
+    case STATUS_RUN_PAUSE:
+      pause_minute--;
+      if (pause_minute < 0)
+        Cancel();
+      break;
+  }
+  seconds_event = false;
+}
+
+void StateMachine::Update() {
+  if (seconds_event)
+    MinusSecond();
+  else {
+    HandleClick();
+    UpdateDisplay();
+    if (second == 30) {
+      if (cur_status == STATUS_RUN_WORK)
+        disp.DisplayString("[11 11 11]");
+      else if (cur_status == STATUS_RUN_REST)
+        disp.DisplayString("[00 00 00]");
+      else if (cur_status == STATUS_RUN_PAUSE)
+        disp.DisplayString("PAUSE");
+    }
+  }
+}
+```
+
+### click.h
+```cpp
+#ifndef Click_h
+#define Click_h
+#include <Arduino.h>
+
+#define CLICK_SHORT 40000          // loop passes with the button held
+#define CLICK_LONG CLICK_SHORT * 4
+
+class Click {
+public:
+  Click(byte cPin);
+  unsigned char GetClick();
+  unsigned char GetDisplay();
+  unsigned long GetDuration();
+
+private:
+  byte clickPin;
+  unsigned long clickDuration;
+  bool clickLastState;
+};
+
+#endif
+```
+
+### click.cpp
+```cpp
+#include "click.h"
+
+Click::Click(byte cPin) {
+  clickPin = cPin;
+  clickDuration = 0;
+  clickLastState = false;
+}
+
+unsigned char Click::GetClick() {
+  int8_t action = 0;
+
+  if (digitalRead(this->clickPin) == HIGH) {
+    clickLastState = true;
+    clickDuration++;
+  } else {
+    if (clickLastState) {
+      if (clickDuration > CLICK_LONG) {
+        action = 2;
+      } else if (clickDuration > CLICK_SHORT) {
+        action = 1;
+      }
+    } else
+      action = 0;
+
+    clickLastState = false;
+    clickDuration = 0;
+  }
+  return action;
+}
+
+unsigned long Click::GetDuration() {
+  return clickDuration;
+}
+
+unsigned char Click::GetDisplay() {
+  unsigned char clickStatus = 0;
+  if (clickDuration) {
+    if (clickDuration >= CLICK_SHORT) {
+      clickStatus = 2;
+      for (int8_t i = 2; i <= 4; i++)
+        if (clickDuration >= CLICK_SHORT * i)
+          clickStatus = i + 1;
+        else
+          break;
+    } else
+      clickStatus = 1;
+  }
+  return clickStatus;
+}
+```
+
+### display4.h
+```cpp
+#ifndef Display4_h
+#define Display4_h
+
+#include <TM1637.h>
+
+class Display4 {
+public:
+  Display4(int8_t clkPin, int8_t dioPin);
+
+  void Init();
+  void DisplayString(const char str[]);
+  void DisplayNum(int num);
+  void DisplayClock(int8_t timeDisp[]);
+  void ClearDisplay();
+  void DisplayDot(bool show);
+  void DotNext();
+
+  // testability: the display cannot be read back, so the last output is kept here
+  const int8_t* LastDigits() const { return lastDigits; }
+  bool Dot() const { return lastPointState; }
+  const char* LastText() const { return lastText; }
+  void ResetShadow() {
+    lastPointState = false;
+    for (uint8_t i = 0; i < 4; i++) lastDigits[i] = 0;
+    lastText[0] = '\0';
+  }
+
+private:
+  bool lastPointState = false;
+  TM1637 tm1637;
+  int8_t lastDigits[4] = {0, 0, 0, 0};
+  char lastText[13] = "";
+};
+
+#endif
+```
+
+### display4.cpp
+```cpp
+#include "display4.h"
+#include "pace.h"
+
+Display4::Display4(int8_t clkPin, int8_t dioPin)
+  : tm1637(clkPin, dioPin) {
+}
+
+void Display4::Init() {
+  tm1637.set();
+  tm1637.init();
+}
+
+void Display4::DisplayString(const char str[]) {
+  strncpy(lastText, str, sizeof(lastText) - 1);
+  lastText[sizeof(lastText) - 1] = '\0';
+  tm1637.point(POINT_OFF);
+  tm1637.displayStr((char*)str, paced(500));   // longer texts scroll, 500 ms per step originally
+  tm1637.point(lastPointState);
+}
+
+void Display4::DisplayNum(int num) {
+  tm1637.point(POINT_OFF);
+  tm1637.displayNum(num);
+  tm1637.point(lastPointState);
+}
+
+void Display4::DisplayClock(int8_t timeDisp[]) {
+  for (uint8_t i = 0; i < 4; i++)
+    lastDigits[i] = timeDisp[i];
+  tm1637.display(timeDisp);
+}
+
+void Display4::ClearDisplay() {
+  for (uint8_t i = 0; i < 4; i++)
+    lastDigits[i] = 0x7f;   // blank (the library's clear code)
+  tm1637.clearDisplay();
+}
+
+void Display4::DisplayDot(bool show) {
+  if (show) {
+    tm1637.point(POINT_ON);
+    lastPointState = true;
+  } else {
+    tm1637.point(POINT_OFF);
+    lastPointState = false;
+  }
+}
+
+void Display4::DotNext() {
+  DisplayDot(!lastPointState);
+}
+```
+
+### rtsl.h
+```cpp
+#ifndef RTSL_h
+#define RTSL_h
+
+#define countof(a) (sizeof(a) / sizeof(a[0]))
+#include <Wire.h>
+#include <RtcDS1307.h>
+
+#define MEMORY_ADDRESS 13
+
+// Statistics storage in the DS1307 RAM: byte 0 = data address marker, byte 1 = data size, data at MEMORY_ADDRESS.
+class RTSL {
+public:
+  RTSL(RtcDS1307<TwoWire>* rtc);
+  void Init();
+  void GetData(unsigned int* data);
+  void SaveData(unsigned int* data);
+  void HardResetData();
+  RtcDateTime GetTime();
+
+private:
+  RtcDS1307<TwoWire>* rtc;
+};
+
+#endif
+```
+
+### rtsl.cpp
+```cpp
+#include "rtsl.h"
+
+RTSL::RTSL(RtcDS1307<TwoWire>* rtsl) {
+  rtc = rtsl;
+}
+
+void RTSL::HardResetData() {
+  RtcDateTime now = rtc->GetDateTime();
+  unsigned int empty[] = { now.Day(), 0, 0, 0, 0 };
+  SaveData(empty);
+}
+
+void RTSL::SaveData(unsigned int* num2) {
+  unsigned int num[5] = { num2[0], num2[1], num2[2], num2[3], num2[4] };
+  rtc->SetMemory(0, MEMORY_ADDRESS);
+  uint8_t written = rtc->SetMemory(MEMORY_ADDRESS, (const uint8_t*)num, 10);
+  rtc->SetMemory(1, written);
+}
+
+void RTSL::GetData(unsigned int* num) {
+  uint8_t address = rtc->GetMemory(0);
+  if (address != MEMORY_ADDRESS) {
+    HardResetData();
+  } else {
+    uint8_t count = rtc->GetMemory(1);
+    uint8_t buff[10];
+
+    uint8_t gotten = rtc->GetMemory(address, buff, count);
+    if (gotten == count) {
+      byte y = 0;
+      for (int8_t i = 0; i < 5; i++) {
+        num[i] = buff[y + 1];
+        num[i] = num[i] << 8;
+        num[i] |= buff[y];
+        y = y + 2;
+      }
+    }
+  }
+}
+
+void RTSL::Init() {
+  rtc->Begin();
+  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+
+  if (!rtc->IsDateTimeValid()) {
+    if (rtc->LastError() == 0) {
+      // RTC lost confidence in the DateTime
+      rtc->SetDateTime(compiled);
+    }
+  }
+
+  if (!rtc->GetIsRunning()) {
+    rtc->SetIsRunning(true);
+  }
+
+  if (rtc->GetDateTime() < compiled) {
+    // RTC is older than compile time
+    rtc->SetDateTime(compiled);
+  }
+
+  rtc->SetSquareWavePin(DS1307SquareWaveOut_Low);
+}
+
+RtcDateTime RTSL::GetTime() {
+  return rtc->GetDateTime();
+}
+```
+
+### soundbuzz.h
+```cpp
+#ifndef SoundBuzz_h
+#define SoundBuzz_h
+#include <Arduino.h>
+#include "pitches.h"
+
+#define NOTE_LOW 440
+#define NOTE_HIGH 880
+
+class SoundBuzz {
+public:
+  SoundBuzz(byte buzzerPin);
+
+  void PlayStart();
+  void PlaySecond();
+  void PlayFinish();
+  void PlayInit();
+  void PlayCancel();
+
+  void PlayNote(int note);
+
+  void Play(int *melody, byte *tempo, byte len);
+private:
+  byte buzzerPin;
+};
+
+#endif
+```
+
+### soundbuzz.cpp
+```cpp
+#include "soundbuzz.h"
+#include "pace.h"
+
+SoundBuzz::SoundBuzz(byte buzzerPin) {
+  this->buzzerPin = buzzerPin;
+}
+
+void SoundBuzz::PlayStart() {
+  int melody[] = {
+    NOTE_E7, NOTE_E7, 0, NOTE_E7,
+    0, NOTE_C7, NOTE_E7, 0,
+    NOTE_G7, 0, 0, 0,
+    NOTE_G6, 0, 0, 0,
+  };
+
+  byte tempo[] = {
+    12, 12, 12, 12,
+    12, 12, 12, 12,
+    12, 12, 12, 12,
+    12, 12, 12, 12,
+  };
+
+  Play(melody, tempo, (sizeof(melody) / sizeof(int)));
+}
+
+void SoundBuzz::PlaySecond() {
+  int melody_line_1[] = { NOTE_C4, NOTE_C5, NOTE_A3, NOTE_A4, NOTE_AS3, NOTE_AS4, 0, 0 };
+  int melody_line_2[] = { NOTE_F3, NOTE_F4, NOTE_D3, NOTE_D4, NOTE_DS3, NOTE_DS4, 0, 0 };
+  byte tempo[] = { 12, 12, 12, 12, 12, 12, 6, 3 };
+  Play(melody_line_1, tempo, (sizeof(melody_line_1) / sizeof(int)));
+  Play(melody_line_1, tempo, (sizeof(melody_line_1) / sizeof(int)));
+  Play(melody_line_2, tempo, (sizeof(melody_line_1) / sizeof(int)));
+  Play(melody_line_2, tempo, (sizeof(melody_line_1) / sizeof(int)));
+}
+
+void SoundBuzz::PlayFinish() {
+  int melody[] = {
+    0, NOTE_C5, NOTE_E5, NOTE_G5, NOTE_C6, NOTE_E6,
+    NOTE_G6, NOTE_E6, 0,
+  };
+
+  byte tempo[] = {
+    12, 12, 12, 12, 12, 12,
+    4, 6, 6,
+  };
+
+  Play(melody, tempo, (sizeof(melody) / sizeof(int)));
+}
+
+void SoundBuzz::PlayCancel() {
+  int c4[] = { NOTE_C4 }, b3[] = { NOTE_B3 }, rest[] = { 0 };
+  byte tempo[] = { 12 };
+  for (byte i = 0; i < 3; i++) {
+    Play(c4, tempo, 1);
+    Play(b3, tempo, 1);
+  }
+  Play(rest, tempo, 1);
+}
+
+void SoundBuzz::PlayInit() {
+  int melody[] = { NOTE_C4, NOTE_E4, NOTE_G4, 0 };
+
+  byte tempo[] = { 5, 5, 3, 4 };
+
+  Play(melody, tempo, (sizeof(melody) / sizeof(int)));
+}
+
+void SoundBuzz::Play(int *melody, byte *tempo, byte len) {
+  for (uint8_t thisNote = 0; thisNote < len; thisNote++) {
+    int noteDuration = 1000 / uint8_t(tempo[thisNote]);  // convert duration to time delay
+    tone(buzzerPin, melody[thisNote], noteDuration);
+    int pauseBetweenNotes = noteDuration * 2;
+    paced_delay(pauseBetweenNotes);
+    noTone(buzzerPin);
+  }
+}
+
+void SoundBuzz::PlayNote(int note) {
+  tone(buzzerPin, note, 100);
+  paced_delay(100);
+  noTone(buzzerPin);
+}
+```
+
+### pace.h
+```cpp
+#ifndef Pace_h
+#define Pace_h
+#include <Arduino.h>
+
+// Testability: one scale for every blocking pause of the module (melodies, text scrolling, statistics pages).
+extern uint8_t g_delay_scale;   // percent, 100 = original timing
+
+inline unsigned long paced(unsigned long ms) {
+  return ms * g_delay_scale / 100;
+}
+
+inline void paced_delay(unsigned long ms) {
+  delay(paced(ms));
+}
+
+#endif
+```
+
+### pitches.h
+```cpp
+#define NOTE_B0 31
+#define NOTE_C1 33
+#define NOTE_CS1 35
+#define NOTE_D1 37
+#define NOTE_DS1 39
+#define NOTE_E1 41
+#define NOTE_F1 44
+#define NOTE_FS1 46
+#define NOTE_G1 49
+#define NOTE_GS1 52
+#define NOTE_A1 55
+#define NOTE_AS1 58
+#define NOTE_B1 62
+#define NOTE_C2 65
+#define NOTE_CS2 69
+#define NOTE_D2 73
+#define NOTE_DS2 78
+#define NOTE_E2 82
+#define NOTE_F2 87
+#define NOTE_FS2 93
+#define NOTE_G2 98
+#define NOTE_GS2 104
+#define NOTE_A2 110
+#define NOTE_AS2 117
+#define NOTE_B2 123
+#define NOTE_C3 131
+#define NOTE_CS3 139
+#define NOTE_D3 147
+#define NOTE_DS3 156
+#define NOTE_E3 165
+#define NOTE_F3 175
+#define NOTE_FS3 185
+#define NOTE_G3 196
+#define NOTE_GS3 208
+#define NOTE_A3 220
+#define NOTE_AS3 233
+#define NOTE_B3 247
+#define NOTE_C4 262
+#define NOTE_CS4 277
+#define NOTE_D4 294
+#define NOTE_DS4 311
+#define NOTE_E4 330
+#define NOTE_F4 349
+#define NOTE_FS4 370
+#define NOTE_G4 392
+#define NOTE_GS4 415
+#define NOTE_A4 440
+#define NOTE_AS4 466
+#define NOTE_B4 494
+#define NOTE_C5 523
+#define NOTE_CS5 554
+#define NOTE_D5 587
+#define NOTE_DS5 622
+#define NOTE_E5 659
+#define NOTE_F5 698
+#define NOTE_FS5 740
+#define NOTE_G5 784
+#define NOTE_GS5 831
+#define NOTE_A5 880
+#define NOTE_AS5 932
+#define NOTE_B5 988
+#define NOTE_C6 1047
+#define NOTE_CS6 1109
+#define NOTE_D6 1175
+#define NOTE_DS6 1245
+#define NOTE_E6 1319
+#define NOTE_F6 1397
+#define NOTE_FS6 1480
+#define NOTE_G6 1568
+#define NOTE_GS6 1661
+#define NOTE_A6 1760
+#define NOTE_AS6 1865
+#define NOTE_B6 1976
+#define NOTE_C7 2093
+#define NOTE_CS7 2217
+#define NOTE_D7 2349
+#define NOTE_DS7 2489
+#define NOTE_E7 2637
+#define NOTE_F7 2794
+#define NOTE_FS7 2960
+#define NOTE_G7 3136
+#define NOTE_GS7 3322
+#define NOTE_A7 3520
+#define NOTE_AS7 3729
+#define NOTE_B7 3951
+#define NOTE_C8 4186
+#define NOTE_CS8 4435
+#define NOTE_D8 4699
+#define NOTE_DS8 4978
+```
+
+<reference>
+[kb/exp2/libraries/grove_4_digit_display_example_stopwatch.md]
+Grove 4-Digit Display library: example Stopwatch
+
+```cpp
+#include <TimerOne.h>
+
+#ifdef ESP32
+#include <pgmspace.h>
+#else
+#include <avr/pgmspace.h>
+#endif  // ifdef ESP32
+
+#include "TM1637.h"
+#define ON 1
+#define OFF 0
+
+int8_t TimeDisp[] = {0x00, 0x00, 0x00, 0x00};
+unsigned char ClockPoint = 1;
+unsigned char Update;
+unsigned char microsecond_10 = 0;
+unsigned char second;
+unsigned char _microsecond_10 = 0;
+unsigned char _second;
+unsigned int eepromaddr;
+boolean Flag_ReadTime;
+
+#define CLK 2//pins definitions for TM1637 and can be changed to other ports
+#define DIO 3
+TM1637 tm1637(CLK, DIO);
+
+void setup() {
+    Serial.begin(9600);
+    tm1637.set(BRIGHT_TYPICAL);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
+    tm1637.init();
+    Timer1.initialize(10000);//timing for 10ms
+    Timer1.attachInterrupt(TimingISR);//declare the interrupt serve routine:TimingISR
+    Serial.println("Please send command to control the stopwatch:");
+    Serial.println("S - start");
+    Serial.println("P - pause");
+    Serial.println("L - list the time");
+    Serial.println("W - write the time to EEPROM ");
+    Serial.println("R - reset");
+}
+void loop() {
+    char command;
+    command = Serial.read();
+    switch (command) {
+        case 'S': stopwatchStart(); Serial.println("Start timing..."); break;
+        case 'P': stopwatchPause(); Serial.println("Stopwatch was paused"); break;
+        case 'L': readTime(); break;
+        case 'W': saveTime(); Serial.println("Save the time"); break;
+```
+
+[kb/exp2/libraries/grove_4_digit_display_api.md]
+Grove 4-Digit Display library: API / TM1637.h
+
+```cpp
+#include <inttypes.h>
+#include <Arduino.h>
+/*******************Definitions for TM1637*********************/
+#define ADDR_AUTO 0x40
+#define ADDR_FIXED 0x44
+
+#define STARTADDR 0xc0
+/*****Definitions for the clock point of the digit tube *******/
+#define POINT_ON 1
+#define POINT_OFF 0
+/**************Definitions for brightness**********************/
+#define BRIGHT_DARKEST 0
+#define BRIGHT_TYPICAL 2
+#define BRIGHTEST 7
+
+class TM1637 {
+  public:
+    uint8_t cmd_set_data;
+    uint8_t cmd_set_addr;
+    uint8_t cmd_disp_ctrl;
+    boolean _PointFlag;            //_PointFlag=1:the clock point on
+    TM1637(uint8_t, uint8_t);
+    void init(void);               // To clear the display
+    int writeByte(int8_t wr_data); // Write 8bit data to tm1637
+    void start(void);              // Send start bits
+    void stop(void);               // Send stop bits
+    void display(int8_t DispData[]);
+    void display(uint8_t BitAddr, int8_t DispData);
+    void displayNum(float num, int decimal = 0, bool show_minus = true);
+    void displayStr(char str[],  uint16_t loop_delay = 500);
+    void clearDisplay(void);
+    void set(uint8_t = BRIGHT_TYPICAL, uint8_t = 0x40, uint8_t = 0xc0); //To take effect the next time it displays.
+    void point(boolean
+               PointFlag);                                      //whether to light the clock point ":".To take effect the next time it displays.
+    void coding(int8_t DispData[]);
+    int8_t coding(int8_t DispData);
+```
+
+[kb/exp2/libraries/grove_4_digit_display_example_stopwatch.md]
+Grove 4-Digit Display library: example Stopwatch
+
+```cpp
+        case 'R': stopwatchReset(); Serial.println("Stopwatch was reset"); break;
+        default: break;
+    }
+    if (Update == ON) {
+        TimeUpdate();
+        tm1637.display(TimeDisp);
+    }
+}
+//************************************************
+void TimingISR() {
+    microsecond_10 ++;
+    Update = ON;
+    if (microsecond_10 == 100) {
+        second ++;
+        if (second == 60) {
+            second = 0;
+        }
+        microsecond_10 = 0;
+    }
+    ClockPoint = (~ClockPoint) & 0x01;
+    if (Flag_ReadTime == 0) {
+        _microsecond_10 = microsecond_10;
+        _second = second;
+    }
+}
+void TimeUpdate(void) {
+    if (ClockPoint) {
+        tm1637.point(POINT_ON);    //POINT_ON = 1,POINT_OFF = 0;
+    } else {
+        tm1637.point(POINT_ON);
+    }
+    TimeDisp[2] = _microsecond_10 / 10;
+    TimeDisp[3] = _microsecond_10 % 10;
+    TimeDisp[0] = _second / 10;
+    TimeDisp[1] = _second % 10;
+    Update = OFF;
+}
+void stopwatchStart() { //timer1 on
+    Flag_ReadTime = 0;
+    TCCR1B |= Timer1.clockSelectBits;
+}
+void stopwatchPause() { //timer1 off if [CS12 CS11 CS10] is [0 0 0].
+    TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
+}
+void stopwatchReset() {
+    stopwatchPause();
+    Flag_ReadTime = 0;
+    _microsecond_10 = 0;
+    _second = 0;
+    microsecond_10 = 0;
+    second = 0;
+    Update = ON;
+}
+void saveTime() {
+    EEPROM.write(eepromaddr ++, microsecond_10);
+    EEPROM.write(eepromaddr ++, second);
+}
+void readTime() {
+    Flag_ReadTime = 1;
+```
+
+[kb/exp2/libraries/timerone_api.md]
+TimerOne library: API / TimerOne.h
+
+```cpp
+	TCCR1B = 0;
+	TCNT1 = 0;		// TODO: does this cause an undesired interrupt?
+	resume();
+    }
+    void stop() __attribute__((always_inline)) {
+	TCCR1B = _BV(WGM13);
+    }
+    void restart() __attribute__((always_inline)) {
+	start();
+    }
+    void resume() __attribute__((always_inline)) {
+	TCCR1B = _BV(WGM13) | clockSelectBits;
+    }
+
+    //****************************
+    //  PWM outputs
+    //****************************
+    void setPwmDuty(char pin, unsigned int duty) __attribute__((always_inline)) {
+	unsigned long dutyCycle = pwmPeriod;
+	dutyCycle *= duty;
+	dutyCycle >>= 10;
+	if (pin == TIMER1_A_PIN) OCR1A = dutyCycle;
+	#ifdef TIMER1_B_PIN
+	else if (pin == TIMER1_B_PIN) OCR1B = dutyCycle;
+	#endif
+	#ifdef TIMER1_C_PIN
+	else if (pin == TIMER1_C_PIN) OCR1C = dutyCycle;
+	#endif
+    }
+    void pwm(char pin, unsigned int duty) __attribute__((always_inline)) {
+	if (pin == TIMER1_A_PIN) { pinMode(TIMER1_A_PIN, OUTPUT); TCCR1A |= _BV(COM1A1); }
+	#ifdef TIMER1_B_PIN
+	else if (pin == TIMER1_B_PIN) { pinMode(TIMER1_B_PIN, OUTPUT); TCCR1A |= _BV(COM1B1); }
+	#endif
+	#ifdef TIMER1_C_PIN
+	else if (pin == TIMER1_C_PIN) { pinMode(TIMER1_C_PIN, OUTPUT); TCCR1A |= _BV(COM1C1); }
+	#endif
+	setPwmDuty(pin, duty);
+	TCCR1B = _BV(WGM13) | clockSelectBits;
+    }
+    void pwm(char pin, unsigned int duty, unsigned long microseconds) __attribute__((always_inline)) {
+	if (microseconds > 0) setPeriod(microseconds);
+	pwm(pin, duty);
+    }
+```
+
+[kb/exp2/devices/wokwi-tm1637-7segment.md]
+wokwi-tm1637-7segment (Wokwi simulator part) / Using the 7-segment display
+
+## Using the 7-segment display
+
+This variant of the seven segment display uses the TM1637 chip. You'll only need 2 microcontroller pins to communicate with it.
+
+The module comes in two forms: one with a colon between the second and third digits (common on clock modules), and one with a decimal point after each digit. Set the `type` attribute to "dp" for the decimal point module. Bit 7 (the DP segment) of a digit byte lights the colon on the colon module, and that digit's decimal point on the "dp" module.
+
+The TM1637 communication protocol is non-standard. It resembles the I2C protocol, but it is simpler and incompatible with I2C. Luckily, you can use a library and not worry about the implementation of the protocol. Here are some TM1637 libraries you can use on Arduino: RT1637_RT(https://github.com/RobTillaart/TM1637_RT), Grove 4-Digit Display.
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

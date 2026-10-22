@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 8,
+ "score": 0.8,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "drop_call",
+   "line": 40,
+   "before": "xf_apply(next);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "negate_cond",
+   "line": 19,
+   "before": "if (value > XF_MAX_LEVEL) {",
+   "after": "if (!(value > XF_MAX_LEVEL)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "swap_arith",
+   "line": 35,
+   "before": "int next = g_value + 1;",
+   "after": "int next = g_value - 1;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "off_by_one",
+   "line": 16,
+   "before": "if (value < 0) {",
+   "after": "if (value < 1) {",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 5,
+   "operator": "off_by_one",
+   "line": 23,
+   "before": "if (g_phase == 0) {",
+   "after": "if (g_phase == 1) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "drop_call",
+   "line": 31,
+   "before": "analogWrite(XF_PIN_GREEN, g_green);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 7,
+   "operator": "negate_cond",
+   "line": 36,
+   "before": "if (next > XF_MAX_LEVEL) {",
+   "after": "if (!(next > XF_MAX_LEVEL)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 38,
+   "before": "g_phase = (g_phase == 0) ? 1 : 0;",
+   "after": "g_phase = (g_phase != 0) ? 1 : 0;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "swap_arith",
+   "line": 24,
+   "before": "g_red = XF_MAX_LEVEL - value;   // red dims",
+   "after": "g_red = XF_MAX_LEVEL + value;   // red dims",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "const_change",
+   "line": 12,
+   "before": "xf_apply(0);",
+   "after": "xf_apply(1);",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

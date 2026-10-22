@@ -1,0 +1,4 @@
+model,outcome,killed_off,killed_on,n_pairs,off_only,on_only,p,p_holm,p_holm_significant
+claude-sonnet-5,mutant killed,86,88,110,2,4,0.6875,1.0,False
+gpt-5.6-terra,mutant killed,110,114,130,3,7,0.3438,1.0,False
+claude-haiku-4-5,mutant killed,42,40,50,2,0,0.5,1.0,False

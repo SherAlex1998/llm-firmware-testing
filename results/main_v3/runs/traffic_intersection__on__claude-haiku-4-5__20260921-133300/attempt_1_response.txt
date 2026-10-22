@@ -1,0 +1,164 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_all_yellow) {
+  ti_init();
+  // All directions should be set to yellow
+  ASSERT_PIN(13, LOW);   // A red
+  ASSERT_PIN(12, LOW);   // A green
+  ASSERT_PIN(11, HIGH);  // A yellow
+  ASSERT_PIN(10, LOW);   // B red
+  ASSERT_PIN(9, LOW);    // B green
+  ASSERT_PIN(8, HIGH);   // B yellow
+  ASSERT_PIN(7, LOW);    // C red
+  ASSERT_PIN(6, LOW);    // C green
+  ASSERT_PIN(5, HIGH);   // C yellow
+  ASSERT_PIN(4, LOW);    // D red
+  ASSERT_PIN(3, LOW);    // D green
+  ASSERT_PIN(2, HIGH);   // D yellow
+  ASSERT_EQ(ti_phase(), 0);
+}
+
+TEST(set_direction_valid) {
+  ti_init();
+  // Test setting direction 0 to red
+  ASSERT_TRUE(ti_set_direction(0, TI_RED));
+  ASSERT_PIN(13, HIGH);  // A red
+  ASSERT_PIN(12, LOW);   // A green
+  ASSERT_PIN(11, LOW);   // A yellow
+  ASSERT_EQ(ti_direction_color(0), TI_RED);
+  
+  // Test setting direction 3 to green
+  ASSERT_TRUE(ti_set_direction(3, TI_GREEN));
+  ASSERT_PIN(4, LOW);    // D red
+  ASSERT_PIN(3, HIGH);   // D green
+  ASSERT_PIN(2, LOW);    // D yellow
+  ASSERT_EQ(ti_direction_color(3), TI_GREEN);
+}
+
+TEST(set_direction_invalid) {
+  ti_init();
+  // Invalid direction
+  ASSERT_FALSE(ti_set_direction(4, TI_RED));
+  ASSERT_FALSE(ti_set_direction(255, TI_GREEN));
+  
+  // Invalid color
+  ASSERT_FALSE(ti_set_direction(0, 3));
+  ASSERT_FALSE(ti_set_direction(1, 255));
+}
+
+TEST(direction_color_tracking) {
+  ti_init();
+  // Check initial state
+  ASSERT_EQ(ti_direction_color(0), TI_YELLOW);
+  ASSERT_EQ(ti_direction_color(1), TI_YELLOW);
+  ASSERT_EQ(ti_direction_color(2), TI_YELLOW);
+  ASSERT_EQ(ti_direction_color(3), TI_YELLOW);
+  
+  // Invalid direction returns red
+  ASSERT_EQ(ti_direction_color(4), TI_RED);
+  ASSERT_EQ(ti_direction_color(255), TI_RED);
+}
+
+TEST(apply_phase_even) {
+  ti_init();
+  // Phase 0: direction 0 (A) green, others red
+  ASSERT_TRUE(ti_apply_phase(0));
+  ASSERT_EQ(ti_phase(), 0);
+  ASSERT_PIN(13, LOW);   // A red
+  ASSERT_PIN(12, HIGH);  // A green
+  ASSERT_PIN(11, LOW);   // A yellow
+  ASSERT_PIN(10, HIGH);  // B red
+  ASSERT_PIN(9, LOW);    // B green
+  ASSERT_PIN(8, LOW);    // B yellow
+  ASSERT_EQ(ti_direction_color(0), TI_GREEN);
+  ASSERT_EQ(ti_direction_color(1), TI_RED);
+}
+
+TEST(apply_phase_odd) {
+  ti_init();
+  // Phase 1: direction 0 (A) yellow, others red
+  ASSERT_TRUE(ti_apply_phase(1));
+  ASSERT_EQ(ti_phase(), 1);
+  ASSERT_PIN(13, LOW);   // A red
+  ASSERT_PIN(12, LOW);   // A green
+  ASSERT_PIN(11, HIGH);  // A yellow
+  ASSERT_PIN(10, HIGH);  // B red
+  ASSERT_PIN(9, LOW);    // B green
+  ASSERT_PIN(8, LOW);    // B yellow
+  ASSERT_EQ(ti_direction_color(0), TI_YELLOW);
+  ASSERT_EQ(ti_direction_color(1), TI_RED);
+}
+
+TEST(apply_phase_all_directions) {
+  ti_init();
+  // Phase 4: direction 2 (C) green
+  ASSERT_TRUE(ti_apply_phase(4));
+  ASSERT_EQ(ti_direction_color(0), TI_RED);
+  ASSERT_EQ(ti_direction_color(1), TI_RED);
+  ASSERT_EQ(ti_direction_color(2), TI_GREEN);
+  ASSERT_EQ(ti_direction_color(3), TI_RED);
+  
+  // Phase 5: direction 2 (C) yellow
+  ASSERT_TRUE(ti_apply_phase(5));
+  ASSERT_EQ(ti_direction_color(2), TI_YELLOW);
+}
+
+TEST(apply_phase_invalid) {
+  ti_init();
+  ASSERT_FALSE(ti_apply_phase(8));
+  ASSERT_FALSE(ti_apply_phase(255));
+  // Phase should remain 0
+  ASSERT_EQ(ti_phase(), 0);
+}
+
+TEST(next_phase_cycles) {
+  ti_init();
+  ASSERT_EQ(ti_phase(), 0);
+  
+  ti_next_phase();
+  ASSERT_EQ(ti_phase(), 1);
+  ASSERT_EQ(ti_direction_color(0), TI_YELLOW);
+  
+  ti_next_phase();
+  ASSERT_EQ(ti_phase(), 2);
+  ASSERT_EQ(ti_direction_color(1), TI_GREEN);
+  
+  // Cycle through to phase 0
+  for (uint8_t i = 0; i < 6; i++) {
+    ti_next_phase();
+  }
+  ASSERT_EQ(ti_phase(), 0);
+}
+
+TEST(is_safe_check) {
+  ti_init();
+  // Initial state: all yellow, not safe
+  ASSERT_FALSE(ti_is_safe());
+  
+  // Phase 0: direction 0 green, others red - safe
+  ASSERT_TRUE(ti_apply_phase(0));
+  ASSERT_TRUE(ti_is_safe());
+  
+  // Phase 1: direction 0 yellow, others red - safe (one non-red)
+  ASSERT_TRUE(ti_apply_phase(1));
+  ASSERT_TRUE(ti_is_safe());
+  
+  // Phase 2: direction 1 green, others red - safe
+  ASSERT_TRUE(ti_apply_phase(2));
+  ASSERT_TRUE(ti_is_safe());
+  
+  // Manually set two directions to non-red - unsafe
+  ti_set_direction(0, TI_GREEN);
+  ti_set_direction(1, TI_GREEN);
+  ASSERT_FALSE(ti_is_safe());
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```

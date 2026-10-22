@@ -1,0 +1,21 @@
+{
+ "module_id": "button_toggle_led",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3688,
+ "tokens_out": 692,
+ "cost_usd": 0.021444,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3688,
+   "tokens_out": 692,
+   "latency_s": 17.03180432319641,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

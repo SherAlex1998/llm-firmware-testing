@@ -1,0 +1,21 @@
+{
+ "module_id": "debounce_toggle",
+ "model_id": "gpt-5.6-terra",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3105,
+ "tokens_out": 709,
+ "cost_usd": 0.014718,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3105,
+   "tokens_out": 709,
+   "latency_s": 11.696969985961914,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

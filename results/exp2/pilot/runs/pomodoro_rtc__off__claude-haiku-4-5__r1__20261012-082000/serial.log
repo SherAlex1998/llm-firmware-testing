@@ -1,0 +1,27 @@
+@RUN_BEGIN 25
+@TEST init_and_status PASS
+@TEST calc_weekday_known_dates PASS
+@TEST display_initialization PASS
+@TEST user_data_initial_state PASS
+@TEST rollover_same_day_no_change PASS
+@TEST rollover_next_day_same_week PASS
+@TEST rollover_next_month FAIL line 82: expected data[3] == 6 (got 0 vs 6)
+@TEST status_transitions PASS
+@TEST prepare_to_work PASS
+@TEST minute_and_second_getters PASS
+@TEST completed_increment PASS
+@TEST seconds_event_flag PASS
+@TEST read_click_no_button PASS
+@TEST display_digits_and_dot PASS
+@TEST display_text_initial PASS
+@TEST pin_buzzer_configured PASS
+@TEST button_pin_input PASS
+@TEST multiple_time_increases PASS
+@TEST time_wraps_at_max PASS
+@TEST cancel_in_prepare PASS
+@TEST prev_status_tracks_transition PASS
+@TEST load_user_data_same_day PASS
+@TEST delay_scale_affects_timing PASS
+@TEST handle_action_long_click_idle PASS
+@TEST handle_action_invalid_action PASS
+@RUN_END 24/25

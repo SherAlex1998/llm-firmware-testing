@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_default_angle_and_counts_write PASS
+@TEST clamp_limits_angles_to_servo_range PASS
+@TEST write_clamps_and_updates_angle_and_count PASS
+@TEST steps_per_cycle_handles_valid_and_invalid_ranges PASS
+@TEST run_performs_cycles_and_finishes_at_start PASS
+@TEST run_ignores_invalid_arguments PASS
+@RUN_END 6/6

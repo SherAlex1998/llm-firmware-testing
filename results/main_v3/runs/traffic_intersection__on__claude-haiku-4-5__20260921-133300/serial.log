@@ -1,0 +1,12 @@
+@RUN_BEGIN 10
+@TEST init_sets_all_yellow PASS
+@TEST set_direction_valid PASS
+@TEST set_direction_invalid PASS
+@TEST direction_color_tracking PASS
+@TEST apply_phase_even PASS
+@TEST apply_phase_odd PASS
+@TEST apply_phase_all_directions PASS
+@TEST apply_phase_invalid PASS
+@TEST next_phase_cycles PASS
+@TEST is_safe_check PASS
+@RUN_END 10/10

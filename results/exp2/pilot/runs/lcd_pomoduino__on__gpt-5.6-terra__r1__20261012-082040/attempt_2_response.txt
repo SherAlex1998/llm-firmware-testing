@@ -1,0 +1,240 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(setup_initializes_ready_timer_and_pins)
+{
+  pomo2_setup();
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 0);
+  ASSERT_TRUE(the_pomodoro.Is_Pomodoro());
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 25);
+  ASSERT_EQ(the_pomodoro.Get_Time_Max_Ms(), 1500000UL);
+  ASSERT_EQ(the_pomodoro.Get_Time_Left_Ms(), 1500000UL);
+  ASSERT_PIN(3, HIGH);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(loop_at_uses_idle_pullup_buttons)
+{
+  pomo2_setup();
+
+  pomo2_loop_at(100);
+  pomo2_loop_at(200);
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 0);
+  ASSERT_EQ(pomo2_lcd_line(0)[0], 'P');
+  ASSERT_EQ(pomo2_lcd_line(0)[1], '2');
+  ASSERT_EQ(pomo2_lcd_line(0)[2], '5');
+  ASSERT_EQ(pomo2_lcd_line(0)[4], 'R');
+}
+
+TEST(button_logic_reports_edges_and_durations)
+{
+  pomo2_setup();
+
+  MO::Button_Logic button;
+  button.Update(100, false);
+  ASSERT_FALSE(button.On());
+  ASSERT_FALSE(button.Pressed());
+  ASSERT_FALSE(button.Released());
+  ASSERT_EQ(button.Duration(), 0);
+
+  button.Update(150, true);
+  ASSERT_TRUE(button.On());
+  ASSERT_TRUE(button.Pressed());
+  ASSERT_FALSE(button.Released());
+  ASSERT_EQ(button.Last_Duration(), 50);
+
+  button.Update(200, true);
+  ASSERT_TRUE(button.On());
+  ASSERT_FALSE(button.Pressed());
+  ASSERT_EQ(button.Duration(), 50);
+
+  button.Update(260, false);
+  ASSERT_FALSE(button.On());
+  ASSERT_TRUE(button.Released());
+  ASSERT_FALSE(button.Pressed());
+  ASSERT_EQ(button.Last_Duration(), 110);
+  ASSERT_EQ(button.Duration(), 0);
+
+  button.Update(300, false);
+  ASSERT_FALSE(button.Released());
+  ASSERT_EQ(button.Duration(), 40);
+
+  button.Reset();
+  ASSERT_FALSE(button.On());
+  ASSERT_EQ(button.Duration(), 0);
+  ASSERT_EQ(button.Last_Duration(), 0);
+}
+
+TEST(timer_counter_and_period_values)
+{
+  pomo2_setup();
+
+  MO::Timer timer(100);
+  timer.Update(100);
+  ASSERT_EQ(timer.Duration(), 0);
+  ASSERT_EQ(timer.Get_Time_Left(), 100);
+  ASSERT_FALSE(timer.Elapsed());
+
+  timer.Update(150);
+  ASSERT_EQ(timer.Duration(), 50);
+  ASSERT_EQ(timer.Get_Time_Left(), 50);
+
+  timer.Update(220);
+  ASSERT_EQ(timer.Duration(), 120);
+  ASSERT_EQ(timer.Get_Time_Left(), 0);
+  ASSERT_TRUE(timer.Elapsed());
+
+  timer.Reset(250);
+  ASSERT_EQ(timer.Duration(), 0);
+  ASSERT_EQ(timer.Get_Max(), 250);
+  ASSERT_EQ(timer.Get_Time_Left(), 250);
+
+  MO::Period period(5, 3);
+  ASSERT_EQ(period.Get_Time_In_Min(), 5);
+  ASSERT_EQ(period.Get_Time_In_Ms(), 300000UL);
+  ASSERT_EQ(period.Get_Beeps(), 3);
+}
+
+TEST(beeper_toggles_requested_number_of_cycles)
+{
+  pomo2_setup();
+
+  MO::Beeper beeper(2, 1);
+  beeper.Setup();
+  beeper.Reset(2);
+
+  ASSERT_FALSE(beeper.Done());
+  ASSERT_PIN(2, LOW);
+
+  beeper.Update();
+  ASSERT_PIN(2, HIGH);
+  ASSERT_FALSE(beeper.Done());
+
+  beeper.Update();
+  ASSERT_PIN(2, LOW);
+  ASSERT_FALSE(beeper.Done());
+
+  beeper.Update();
+  ASSERT_PIN(2, HIGH);
+  ASSERT_FALSE(beeper.Done());
+
+  beeper.Update();
+  ASSERT_PIN(2, LOW);
+  ASSERT_TRUE(beeper.Done());
+}
+
+TEST(button_one_cycles_all_period_types)
+{
+  pomo2_setup();
+
+  pomo2_step(100, false, false);
+  pomo2_step(200, true, false);
+  pomo2_step(300, false, false);
+  pomo2_step(400, false, false);
+
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 1);
+  ASSERT_FALSE(the_pomodoro.Is_Pomodoro());
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 5);
+  ASSERT_EQ(the_pomodoro.Get_Time_Max_Ms(), 300000UL);
+  ASSERT_EQ(pomo2_lcd_line(0)[1], '0');
+  ASSERT_EQ(pomo2_lcd_line(0)[2], '5');
+
+  pomo2_step(500, true, false);
+  pomo2_step(600, false, false);
+
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 2);
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 15);
+  ASSERT_EQ(the_pomodoro.Get_Time_Max_Ms(), 900000UL);
+}
+
+TEST(short_button_two_press_starts_pauses_and_resumes)
+{
+  pomo2_setup();
+
+  pomo2_step(100, false, false);
+  pomo2_step(200, false, true);
+  pomo2_step(300, false, false);
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_RUNNING);
+  ASSERT_EQ(the_pomodoro.Get_Time_Left_Ms(), 1500000UL);
+
+  pomo2_step(400, false, false);
+  pomo2_step(1400, false, false);
+  ASSERT_EQ(the_pomodoro.Get_Time_Left_Ms(), 1499000UL);
+
+  pomo2_step(1500, false, true);
+  pomo2_step(1600, false, false);
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_PAUSED);
+
+  uint32_t paused_left = the_pomodoro.Get_Time_Left_Ms();
+  ASSERT_TRUE(paused_left < 1500000UL);
+
+  pomo2_step(1700, false, true);
+  pomo2_step(1800, false, false);
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_RUNNING);
+  ASSERT_EQ(the_pomodoro.Get_Time_Max_Ms(), paused_left);
+  ASSERT_EQ(the_pomodoro.Get_Time_Left_Ms(), paused_left);
+}
+
+TEST(long_ready_button_two_hold_clears_count_and_resets_work_period)
+{
+  pomo2_setup();
+
+  pomo2_step(100, false, false);
+  pomo2_step(200, false, true);
+  pomo2_step(3201, false, true);
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Pomodoros(), 0);
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 0);
+  ASSERT_TRUE(the_pomodoro.Is_Pomodoro());
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 25);
+  ASSERT_EQ(the_pomodoro.Get_Time_Left_Ms(), 1500000UL);
+}
+
+TEST(completed_work_period_beeps_then_advances_to_short_break)
+{
+  pomo2_setup();
+
+  uint8_t initial_pomodoros = the_pomodoro.Get_Pomodoros();
+
+  pomo2_step(100, false, false);
+  pomo2_step(200, false, true);
+  pomo2_step(300, false, false);
+  pomo2_step(400, false, false);
+  pomo2_step(1500400UL, false, false);
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_FINISHED);
+
+  pomo2_step(1500401UL, false, false);
+  ASSERT_EQ(pomo2_lcd_line(0)[0], '!');
+  ASSERT_EQ(pomo2_lcd_line(0)[1], 'P');
+  ASSERT_PIN(2, HIGH);
+
+  pomo2_step(1500402UL, false, false);
+  pomo2_step(1500403UL, false, false);
+  pomo2_step(1500404UL, false, false);
+  pomo2_step(1500405UL, false, false);
+  pomo2_step(1500406UL, false, false);
+  pomo2_step(1500407UL, false, false);
+  pomo2_step(1500408UL, false, false);
+  pomo2_step(1500409UL, false, false);
+  pomo2_step(1500410UL, false, false);
+  pomo2_step(1500411UL, false, false);
+
+  ASSERT_EQ(the_pomodoro.Get_State(), POM_READY);
+  ASSERT_EQ(the_pomodoro.Get_Pomodoros(), (uint8_t)(initial_pomodoros + 1));
+  ASSERT_EQ(the_pomodoro.Get_Timer_Type(), 1);
+  ASSERT_EQ(the_pomodoro.Get_Current_Period_Minutes(), 5);
+  ASSERT_EQ(the_pomodoro.Get_Time_Max_Ms(), 300000UL);
+  ASSERT_PIN(2, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

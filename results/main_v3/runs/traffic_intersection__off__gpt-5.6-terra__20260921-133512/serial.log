@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST initialization_sets_all_yellow FAIL line 11: expected true: ti_is_safe()
+@TEST set_direction_drives_selected_color PASS
+@TEST invalid_direction_and_color_are_rejected PASS
+@TEST apply_phase_sets_one_active_direction PASS
+@TEST invalid_phase_preserves_current_phase PASS
+@TEST next_phase_advances_and_wraps PASS
+@TEST safety_detects_multiple_non_red_directions FAIL line 121: expected true: ti_is_safe()
+@RUN_END 5/7

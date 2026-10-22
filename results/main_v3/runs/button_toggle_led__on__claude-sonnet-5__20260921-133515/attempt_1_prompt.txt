@@ -1,0 +1,153 @@
+Module: Push-button toggles an LED (id: button_toggle_led, category: led, complexity: simple)
+Pins:
+- 2 INPUT_PULLUP: push-button (LOW = pressed)
+- 13 OUTPUT: LED
+Functions to test:
+- void toggle_init()
+- bool toggle_button_pressed()
+- void toggle_update(bool pressed)
+- void toggle_poll()
+- bool toggle_led_state()
+- void toggle_set_led(bool on)
+
+### logic.h
+```cpp
+// button_toggle_led: a push-button (INPUT_PULLUP, active LOW) toggles an LED on each press/release.
+// Adapted from https://github.com/harsh-hw-dev/Embedded-Programming-Series ("LED WITH BUTTON", MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define TOGGLE_PIN_BUTTON 2   // INPUT_PULLUP: LOW = pressed
+#define TOGGLE_PIN_LED    13
+
+void toggle_init();                 // pins configured, LED off, no press remembered
+bool toggle_button_pressed();       // digitalRead(TOGGLE_PIN_BUTTON) == LOW
+void toggle_update(bool pressed);   // feed the current button level; LED toggles on the release edge
+void toggle_poll();                 // toggle_update(toggle_button_pressed())
+bool toggle_led_state();            // true = LED on
+void toggle_set_led(bool on);       // force LED state
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static bool g_led = false;
+static bool g_prev_pressed = false;
+
+void toggle_init() {
+  pinMode(TOGGLE_PIN_BUTTON, INPUT_PULLUP);
+  pinMode(TOGGLE_PIN_LED, OUTPUT);
+  g_prev_pressed = false;
+  toggle_set_led(false);
+}
+
+bool toggle_button_pressed() {
+  return digitalRead(TOGGLE_PIN_BUTTON) == LOW;
+}
+
+void toggle_set_led(bool on) {
+  g_led = on;
+  digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);
+}
+
+bool toggle_led_state() {
+  return g_led;
+}
+
+void toggle_update(bool pressed) {
+  if (g_prev_pressed && !pressed) {
+    toggle_set_led(!g_led);   // released after a press -> toggle
+  }
+  g_prev_pressed = pressed;
+}
+
+void toggle_poll() {
+  toggle_update(toggle_button_pressed());
+}
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Inputs, buttons and floating pins
+
+## Inputs, buttons and floating pins
+A pin configured as `INPUT` with nothing connected is floating: `digitalRead()` may return `HIGH` or `LOW`, and
+the value can change at random. A test must not expect a particular value from an input it does not drive.
+
+With `INPUT_PULLUP` the internal pull-up resistor holds the pin `HIGH`; a button wired to GND reads `LOW` when
+pressed. With `INPUT` and an external pull-down resistor, a button wired to 5V reads `HIGH` when pressed.
+
+To test logic that depends on an input (a button, a sensor), call the function that takes the input value as a
+parameter, for example `update(bool pressed)`, with both values, instead of trying to change the physical pin.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/examples/Button.md]
+How to Wire and Program a Button
+
+# How to Wire and Program a Button
+
+Pushbuttons or switches connect two points in a circuit when you press them.  This example turns on the built-in LED on pin 13 when you press the button.
+
+### Hardware
+
+- [Arduino Board](https://store.arduino.cc/collections/boards-modules)
+
+- Momentary button or Switch
+
+- 10K ohm resistor
+
+- hook-up wires
+
+- breadboard
+
+[kb/examples/Button.md]
+How to Wire and Program a Button / Circuit
+
+### Circuit
+
+Connect three wires to the board. The first two, red and black, connect to the two long vertical rows on the side of the breadboard to provide access to the 5 volt supply and ground. The third wire goes from digital pin 2 to one leg of the pushbutton.  That same leg of the button connects through a pull-down resistor (here 10K ohm) to ground. The other leg of the button connects to the 5 volt supply.
+
+When the pushbutton is open (unpressed) there is no connection between the two legs of the pushbutton, so the pin is connected to ground (through the pull-down resistor) and we read a LOW.  When the button is closed (pressed), it makes a connection between its two legs, connecting the pin to 5 volts, so that we read a HIGH.
+
+You can also wire this circuit the opposite way, with a pullup resistor keeping the input HIGH, and going LOW when the button is pressed.  If so, the behavior of the sketch will be reversed, with the LED normally on and turning off when you press the button.
+
+If you disconnect the digital I/O pin from everything, the LED may blink erratically.  This is because the input is "floating" - that is, it will randomly return either HIGH or LOW.  That's why you need a pull-up or pull-down resistor in the circuit.
+
+[kb/examples/StateChangeDetection.md]
+State Change Detection (Edge Detection) for pushbuttons / Hardware Required
+
+### Hardware Required
+
+- [Arduino Board](https://store.arduino.cc/collections/boards-modules)
+
+- momentary button or switch
+
+- 10k ohm resistor
+
+- hook-up wires
+
+- breadboard
+
+### Circuit
+
+Connect three wires to the board.  The first goes from one leg of the pushbutton through a pull-down resistor (here 10k ohm) to ground.  The second goes from the corresponding leg of the pushbutton to the 5 volt supply.  The third connects to a digital I/O pin (here pin 2) which reads the button's state.
+
+When the pushbutton is open (unpressed) there is no connection between the two legs of the pushbutton, so the pin is connected to ground (through the pull-down resistor) and we read a LOW.  When the button is closed (pressed), it makes a connection between its two legs, connecting the pin to voltage, so that we read a HIGH.  (The pin is still connected to ground, but the resistor resists the flow of current, so the path of least resistance is to +5V.)
+
+If you disconnect the digital I/O pin from everything, the LED may blink erratically.  This is because the input is "floating" - that is, not connected to either voltage or ground. It will more or less randomly return either HIGH or LOW.  That's why you need a pull-down resistor in the circuit.
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

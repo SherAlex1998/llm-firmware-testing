@@ -1,0 +1,4 @@
+# experiment records and knowledge base documents are stored byte for byte
+results/** -text
+kb/** -text
+*.html -text

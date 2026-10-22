@@ -1,0 +1,21 @@
+{
+ "module_id": "dc_motor_pot",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2405,
+ "tokens_out": 1520,
+ "cost_usd": 0.02305,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2405,
+   "tokens_out": 1520,
+   "latency_s": 24.714322566986084,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

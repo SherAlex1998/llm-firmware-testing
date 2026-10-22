@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 7,
+ "score": 0.7,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "drop_call",
+   "line": 49,
+   "before": "digitalWrite(GATE_PIN_LED_GREEN, LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "drop_call",
+   "line": 81,
+   "before": "gate_open();",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "swap_hilo",
+   "line": 71,
+   "before": "return digitalRead(GATE_PIN_SENSOR1) == LOW;",
+   "after": "return digitalRead(GATE_PIN_SENSOR1) == HIGH;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "swap_hilo",
+   "line": 75,
+   "before": "return digitalRead(GATE_PIN_SENSOR2) == LOW;",
+   "after": "return digitalRead(GATE_PIN_SENSOR2) == HIGH;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "negate_cond",
+   "line": 79,
+   "before": "if (!g_object_between) {",
+   "after": "if (!(!g_object_between)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "flip_cmp",
+   "line": 15,
+   "before": "for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {",
+   "after": "for (int pos = from; pos < to; pos -= GATE_SWEEP_STEP_DEG) {",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 7,
+   "operator": "negate_cond",
+   "line": 83,
+   "before": "} else if (sensor2_detected) {",
+   "after": "} else if (!(sensor2_detected)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 10,
+   "before": "for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {",
+   "after": "for (int pos = from; pos > to; pos += GATE_SWEEP_STEP_DEG) {",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 9,
+   "operator": "drop_call",
+   "line": 11,
+   "before": "servo.write(pos);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 10,
+   "operator": "drop_call",
+   "line": 32,
+   "before": "digitalWrite(GATE_PIN_LED_RED, HIGH);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

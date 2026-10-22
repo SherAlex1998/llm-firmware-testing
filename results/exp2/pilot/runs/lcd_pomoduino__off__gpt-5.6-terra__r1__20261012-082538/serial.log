@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST button_logic_tracks_edges_and_durations PASS
+@TEST timer_and_period_values PASS
+@TEST beeper_generates_requested_cycles PASS
+@TEST setup_initializes_ready_work_period PASS
+@TEST ready_b1_cycles_all_periods PASS
+@TEST short_b2_click_starts_and_pause_resume_preserves_time PASS
+@TEST long_ready_b2_hold_clears_count_and_work_completion_advances PASS
+@TEST lcd_reports_ready_screen PASS
+@RUN_END 8/8

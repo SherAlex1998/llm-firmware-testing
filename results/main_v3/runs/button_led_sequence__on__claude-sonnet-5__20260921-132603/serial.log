@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_all_leds_off PASS
+@TEST apply_step_out_of_range PASS
+@TEST apply_sequential_steps PASS
+@TEST advance_cycles_count_and_leds PASS
+@TEST all_off_clears_leds_keeps_count PASS
+@TEST button_pressed_reflects_pin PASS
+@TEST poll_advances_only_when_pressed PASS
+@RUN_END 7/7

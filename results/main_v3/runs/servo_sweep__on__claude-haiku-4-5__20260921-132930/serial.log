@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST clamp_angle_low PASS
+@TEST clamp_angle_high PASS
+@TEST clamp_angle_valid PASS
+@TEST init_and_write PASS
+@TEST write_and_read PASS
+@TEST write_clamps PASS
+@TEST steps_per_cycle PASS
+@TEST sweep_run_basic PASS
+@RUN_END 8/8

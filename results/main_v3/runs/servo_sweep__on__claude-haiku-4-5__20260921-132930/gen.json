@@ -1,0 +1,21 @@
+{
+ "module_id": "servo_sweep",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4539,
+ "tokens_out": 513,
+ "cost_usd": 0.007104,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4539,
+   "tokens_out": 513,
+   "latency_s": 3.9917218685150146,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

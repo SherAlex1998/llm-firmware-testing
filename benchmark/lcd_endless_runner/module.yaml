@@ -1,0 +1,48 @@
+id: lcd_endless_runner
+name: "Endless runner game on a 16x2 I2C LCD with one interrupt button"
+source_url: https://github.com/jaswch/Arduino_LCD_16x2_Endless_Runner_Game
+license: MIT
+repo_created: 2022-12-27
+experiment: 2
+category: display
+complexity: medium
+backend: wokwi
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal I2C", version: "1.1.2"}
+devices:
+  - part: wokwi-lcd1602
+    id: lcd
+    pins: {SDA: A4, SCL: A5}
+    attrs: {pins: "i2c"}
+    test_visible: "16x2 character LCD at I2C address 0x27; runner_lcd_line() returns what was written"
+  - part: wokwi-pushbutton
+    id: btn
+    pins: {"1.l": 2}
+    attrs: {}
+    test_visible: "jump button on pin 2 to GND (pull-up enabled), released for the whole run"
+interrupts: true
+pins:
+  - {pin: 2, mode: INPUT_PULLUP, role: "jump/start button, interrupt 0 on FALLING"}
+  - {pin: 3, mode: OUTPUT, role: "autoplay output: HIGH when the lower lane two cells ahead is free"}
+  - {pin: 18, mode: I2C, role: "LCD SDA (A4)"}
+  - {pin: 19, mode: I2C, role: "LCD SCL (A5)"}
+entry_functions:
+  - "void runner_set_delay_scale(uint8_t percent)"
+  - "void runner_reset_state()"
+  - "void runner_init()"
+  - "void runner_loop()"
+  - "void initializeGraphics()"
+  - "void advanceTerrain(char* terrain, byte newTerrain)"
+  - "bool drawCAR(byte position, char* terrainUpper, char* terrainLower, unsigned int score)"
+  - "void buttonPush()"
+  - "const char *runner_lcd_line(uint8_t row)"
+loc: 295
+metrics: {nloc: 295, ccn_sum: 71, ccn_max: 23, functions: 14}
+notes: >-
+  Source: game/game.ino (single sketch; a variant of the classic Arduino LCD runner game). Functions copied into
+  logic.cpp; #defines moved to logic.h. Changes: the autoplay output moved from pin 1 (Serial TX) to pin 3; the
+  static locals of loop() (car position, terrain generator, playing/blink, distance) became globals restored by
+  runner_reset_state(), which runner_init() calls; setup()/loop() -> runner_init()/runner_loop(); the 100 ms blink
+  delay of the start screen is scaled by runner_set_delay_scale() (default 100 %); LCD calls go through wrappers
+  with a shadow buffer. The empty for loop after a collision is kept.

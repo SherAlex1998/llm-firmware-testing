@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "flip_cmp",
+   "line": 91,
+   "before": "while (steps > 0) {",
+   "after": "while (steps <= 0) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "drop_call",
+   "line": 69,
+   "before": "stepper_apply_phase(g_phase);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "drop_call",
+   "line": 115,
+   "before": "digitalWrite(STEPPER_PIN_IN2, LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "negate_cond",
+   "line": 61,
+   "before": "if (g_phase % 2 != 1) {",
+   "after": "if (!(g_phase % 2 != 1)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "negate_cond",
+   "line": 66,
+   "before": "if (g_phase > 7) {",
+   "after": "if (!(g_phase > 7)) {",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 6,
+   "operator": "off_by_one",
+   "line": 80,
+   "before": "if (g_phase < 1) {",
+   "after": "if (g_phase < 2) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "off_by_one",
+   "line": 75,
+   "before": "if (g_phase % 2 != 1) {",
+   "after": "if (g_phase % 2 != 2) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 39,
+   "before": "if (phase >= STEPPER_SEQUENCE_LENGTH) {",
+   "after": "if (phase < STEPPER_SEQUENCE_LENGTH) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "const_change",
+   "line": 45,
+   "before": "digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 2));",
+   "after": "digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 4));",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "const_change",
+   "line": 46,
+   "before": "digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 3));",
+   "after": "digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 6));",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

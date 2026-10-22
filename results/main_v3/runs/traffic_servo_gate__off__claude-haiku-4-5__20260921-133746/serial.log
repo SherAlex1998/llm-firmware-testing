@@ -1,0 +1,13 @@
+@RUN_BEGIN 11
+@TEST init_sets_green_state PASS
+@TEST init_opens_gate PASS
+@TEST set_state_yellow PASS
+@TEST set_state_red PASS
+@TEST set_state_off PASS
+@TEST set_state_invalid PASS
+@TEST next_state_cycle PASS
+@TEST next_state_invalid PASS
+@TEST tsg_next_advances_state PASS
+@TEST state_duration_valid PASS
+@TEST state_duration_invalid PASS
+@RUN_END 11/11

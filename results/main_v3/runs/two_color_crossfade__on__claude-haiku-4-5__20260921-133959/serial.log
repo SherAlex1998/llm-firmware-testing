@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_pins_and_state PASS
+@TEST apply_phase0_red_dims_green_glows PASS
+@TEST apply_clamps_value PASS
+@TEST step_increments_and_wraps PASS
+@TEST step_wraps_at_max_and_switches_phase PASS
+@TEST apply_phase1_red_glows_green_dims PASS
+@TEST full_cycle_phase_alternation PASS
+@RUN_END 7/7

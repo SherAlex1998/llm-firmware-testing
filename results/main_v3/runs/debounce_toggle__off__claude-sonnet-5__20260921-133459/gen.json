@@ -1,0 +1,21 @@
+{
+ "module_id": "debounce_toggle",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4116,
+ "tokens_out": 1259,
+ "cost_usd": 0.031233,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4116,
+   "tokens_out": 1259,
+   "latency_s": 11.251072645187378,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

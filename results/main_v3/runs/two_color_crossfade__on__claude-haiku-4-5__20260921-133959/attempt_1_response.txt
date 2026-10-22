@@ -1,0 +1,115 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_pins_and_state) {
+  xf_init();
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_phase(), 0);
+  ASSERT_EQ(xf_red_level(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_green_level(), 0);
+}
+
+TEST(apply_phase0_red_dims_green_glows) {
+  xf_init();
+  xf_apply(0);
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_phase(), 0);
+  ASSERT_EQ(xf_red_level(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_green_level(), 0);
+  
+  xf_apply(75);
+  ASSERT_EQ(xf_value(), 75);
+  ASSERT_EQ(xf_red_level(), 75);
+  ASSERT_EQ(xf_green_level(), 75);
+  
+  xf_apply(XF_MAX_LEVEL);
+  ASSERT_EQ(xf_value(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_red_level(), 0);
+  ASSERT_EQ(xf_green_level(), XF_MAX_LEVEL);
+}
+
+TEST(apply_clamps_value) {
+  xf_init();
+  xf_apply(-10);
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_red_level(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_green_level(), 0);
+  
+  xf_apply(200);
+  ASSERT_EQ(xf_value(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_red_level(), 0);
+  ASSERT_EQ(xf_green_level(), XF_MAX_LEVEL);
+}
+
+TEST(step_increments_and_wraps) {
+  xf_init();
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_phase(), 0);
+  
+  xf_step();
+  ASSERT_EQ(xf_value(), 1);
+  ASSERT_EQ(xf_phase(), 0);
+  
+  xf_step();
+  ASSERT_EQ(xf_value(), 2);
+  ASSERT_EQ(xf_phase(), 0);
+}
+
+TEST(step_wraps_at_max_and_switches_phase) {
+  xf_init();
+  xf_apply(XF_MAX_LEVEL);
+  ASSERT_EQ(xf_value(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_phase(), 0);
+  
+  xf_step();
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_phase(), 1);
+}
+
+TEST(apply_phase1_red_glows_green_dims) {
+  xf_init();
+  xf_apply(XF_MAX_LEVEL);
+  xf_step();
+  ASSERT_EQ(xf_phase(), 1);
+  
+  xf_apply(0);
+  ASSERT_EQ(xf_value(), 0);
+  ASSERT_EQ(xf_red_level(), 0);
+  ASSERT_EQ(xf_green_level(), XF_MAX_LEVEL);
+  
+  xf_apply(75);
+  ASSERT_EQ(xf_value(), 75);
+  ASSERT_EQ(xf_red_level(), 75);
+  ASSERT_EQ(xf_green_level(), 75);
+  
+  xf_apply(XF_MAX_LEVEL);
+  ASSERT_EQ(xf_value(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_red_level(), XF_MAX_LEVEL);
+  ASSERT_EQ(xf_green_level(), 0);
+}
+
+TEST(full_cycle_phase_alternation) {
+  xf_init();
+  ASSERT_EQ(xf_phase(), 0);
+  
+  for (int i = 0; i <= XF_MAX_LEVEL; i++) {
+    xf_step();
+  }
+  ASSERT_EQ(xf_phase(), 1);
+  ASSERT_EQ(xf_value(), 0);
+  
+  for (int i = 0; i <= XF_MAX_LEVEL; i++) {
+    xf_step();
+  }
+  ASSERT_EQ(xf_phase(), 0);
+  ASSERT_EQ(xf_value(), 0);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```

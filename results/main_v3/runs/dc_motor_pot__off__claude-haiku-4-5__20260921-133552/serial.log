@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST motor_init_sets_direction_forward PASS
+@TEST motor_init_sets_power_zero PASS
+@TEST motor_set_direction_forward PASS
+@TEST motor_set_direction_reverse PASS
+@TEST motor_set_power_clamping PASS
+@TEST motor_power_from_reading_conversion PASS
+@TEST motor_stop_halts_motor PASS
+@RUN_END 7/7

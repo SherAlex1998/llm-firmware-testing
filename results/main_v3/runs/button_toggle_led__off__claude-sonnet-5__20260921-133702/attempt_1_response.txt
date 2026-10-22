@@ -1,0 +1,61 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_state) {
+  toggle_init();
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(set_led_direct) {
+  toggle_init();
+  toggle_set_led(true);
+  ASSERT_TRUE(toggle_led_state());
+  ASSERT_PIN(13, HIGH);
+  toggle_set_led(false);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(toggle_on_release_edge) {
+  toggle_init();
+  toggle_update(true);   // press
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(13, LOW);
+  toggle_update(false);  // release -> toggle
+  ASSERT_TRUE(toggle_led_state());
+  ASSERT_PIN(13, HIGH);
+}
+
+TEST(no_toggle_while_held) {
+  toggle_init();
+  toggle_update(true);
+  toggle_update(true);
+  toggle_update(true);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(no_toggle_without_press) {
+  toggle_init();
+  toggle_update(false);
+  toggle_update(false);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(multiple_toggles) {
+  toggle_init();
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(13, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

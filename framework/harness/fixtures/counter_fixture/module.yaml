@@ -1,0 +1,18 @@
+id: counter_fixture
+name: "Multi-file counter fixture (harness self-test)"
+source_url: none
+license: CC0-1.0
+category: led
+complexity: medium
+experiment: 2
+backend: avr8js
+sources: [logic.h, logic.cpp, display.cpp]
+pins:
+  - {pin: 13, mode: OUTPUT, role: "overflow LED"}
+entry_functions:
+  - "void cnt_init()"
+  - "void cnt_add(uint8_t n)"
+  - "uint8_t cnt_value()"
+  - "uint8_t cnt_digit(uint8_t pos)"
+loc: 30
+notes: "Not part of the benchmark. Two .cpp files: tests sources/overrides in the harness and mutation sites in a second file."

@@ -1,0 +1,21 @@
+{
+ "module_id": "railway_gate",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3693,
+ "tokens_out": 1060,
+ "cost_usd": 0.008993,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3693,
+   "tokens_out": 1060,
+   "latency_s": 12.134774446487427,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

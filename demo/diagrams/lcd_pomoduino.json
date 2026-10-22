@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "author": "demo/diagrams (drawn for the test player from benchmark/lcd_pomoduino/module.yaml and src/Const.hpp)",
+  "editor": "wokwi",
+  "parts": [
+    {"type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {}},
+    {"type": "wokwi-lcd1602", "id": "lcd1", "top": 40, "left": 330, "attrs": {"pins": "full"}},
+    {"type": "wokwi-buzzer", "id": "beeper", "top": -20, "left": -150, "attrs": {}},
+    {"type": "wokwi-pushbutton", "id": "b1", "top": 110, "left": -180, "attrs": {"color": "green", "label": "B1"}},
+    {"type": "wokwi-pushbutton", "id": "b2", "top": 190, "left": -180, "attrs": {"color": "blue", "label": "B2"}}
+  ],
+  "connections": [
+    ["uno:5", "lcd1:V0", "orange", ["v-13"]],
+    ["uno:7", "lcd1:RS", "green", ["v-20"]],
+    ["uno:8", "lcd1:E", "green", ["v-27"]],
+    ["uno:9", "lcd1:D4", "blue", ["v-34"]],
+    ["uno:10", "lcd1:D5", "blue", ["v-41"]],
+    ["uno:11", "lcd1:D6", "blue", ["v-48"]],
+    ["uno:12", "lcd1:D7", "blue", ["v-55"]],
+    ["uno:6", "lcd1:A", "orange", ["v-62"]],
+    ["uno:2", "beeper:1", "red", ["v-90"]],
+    ["uno:3", "b1:1.r", "green", ["v-77", "h-255"]],
+    ["uno:4", "b2:1.r", "green", ["v-70", "h-240"]]
+  ],
+  "dependencies": {}
+}

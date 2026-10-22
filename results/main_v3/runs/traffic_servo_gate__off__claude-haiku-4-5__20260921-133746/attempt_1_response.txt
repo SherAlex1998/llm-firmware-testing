@@ -1,0 +1,99 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_green_state) {
+  tsg_init();
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+  ASSERT_PIN(TSG_PIN_GREEN, HIGH);
+  ASSERT_PIN(TSG_PIN_YELLOW, LOW);
+  ASSERT_PIN(TSG_PIN_RED, LOW);
+}
+
+TEST(init_opens_gate) {
+  tsg_init();
+  ASSERT_TRUE(tsg_gate_open());
+  ASSERT_EQ(tsg_gate_angle(), TSG_GATE_OPEN_ANGLE);
+}
+
+TEST(set_state_yellow) {
+  tsg_init();
+  bool result = tsg_set_state(TSG_YELLOW);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(tsg_state(), TSG_YELLOW);
+  ASSERT_PIN(TSG_PIN_GREEN, LOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, HIGH);
+  ASSERT_PIN(TSG_PIN_RED, LOW);
+  ASSERT_FALSE(tsg_gate_open());
+}
+
+TEST(set_state_red) {
+  tsg_init();
+  bool result = tsg_set_state(TSG_RED);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(tsg_state(), TSG_RED);
+  ASSERT_PIN(TSG_PIN_GREEN, LOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, LOW);
+  ASSERT_PIN(TSG_PIN_RED, HIGH);
+  ASSERT_FALSE(tsg_gate_open());
+}
+
+TEST(set_state_off) {
+  tsg_init();
+  bool result = tsg_set_state(TSG_OFF);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(tsg_state(), TSG_OFF);
+  ASSERT_PIN(TSG_PIN_GREEN, LOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, LOW);
+  ASSERT_PIN(TSG_PIN_RED, LOW);
+}
+
+TEST(set_state_invalid) {
+  tsg_init();
+  bool result = tsg_set_state(TSG_STATE_COUNT);
+  ASSERT_FALSE(result);
+}
+
+TEST(next_state_cycle) {
+  tsg_init();
+  ASSERT_EQ(tsg_next_state(TSG_GREEN), TSG_YELLOW);
+  ASSERT_EQ(tsg_next_state(TSG_YELLOW), TSG_RED);
+  ASSERT_EQ(tsg_next_state(TSG_RED), TSG_OFF);
+  ASSERT_EQ(tsg_next_state(TSG_OFF), TSG_GREEN);
+}
+
+TEST(next_state_invalid) {
+  tsg_init();
+  ASSERT_EQ(tsg_next_state(TSG_STATE_COUNT), TSG_GREEN);
+}
+
+TEST(tsg_next_advances_state) {
+  tsg_init();
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_YELLOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, HIGH);
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_RED);
+  ASSERT_PIN(TSG_PIN_RED, HIGH);
+}
+
+TEST(state_duration_valid) {
+  tsg_init();
+  ASSERT_EQ(tsg_state_duration_ms(TSG_GREEN), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_YELLOW), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_RED), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_OFF), 5000);
+}
+
+TEST(state_duration_invalid) {
+  tsg_init();
+  ASSERT_EQ(tsg_state_duration_ms(TSG_STATE_COUNT), 0);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```

@@ -1,0 +1,21 @@
+{
+ "module_id": "button_led_sequence",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4131,
+ "tokens_out": 1351,
+ "cost_usd": 0.032658,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4131,
+   "tokens_out": 1351,
+   "latency_s": 9.589908838272095,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

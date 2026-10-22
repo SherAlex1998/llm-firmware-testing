@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_enters_green_with_open_gate PASS
+@TEST set_yellow_closes_gate_and_sets_only_yellow PASS
+@TEST set_red_and_off_leds_and_gate_behavior PASS
+@TEST invalid_state_is_rejected_without_changes PASS
+@TEST next_state_is_cyclic_and_invalid_defaults_green PASS
+@TEST next_advances_states_and_outputs PASS
+@TEST state_durations_cover_valid_and_invalid_states PASS
+@RUN_END 7/7

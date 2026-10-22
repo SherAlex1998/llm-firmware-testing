@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_forward_direction PASS
+@TEST init_sets_zero_power PASS
+@TEST init_configures_pins PASS
+@TEST set_direction_forward PASS
+@TEST set_direction_reverse PASS
+@TEST set_power_clamping PASS
+@TEST power_from_reading_conversion FAIL line 53: expected motor_power_from_reading(512) == 128 (got 127 vs 128)
+@TEST motor_stop PASS
+@RUN_END 7/8

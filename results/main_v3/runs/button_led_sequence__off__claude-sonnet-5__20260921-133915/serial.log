@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_state PASS
+@TEST apply_valid_step PASS
+@TEST apply_invalid_step PASS
+@TEST advance_cycles_through_leds PASS
+@TEST all_off_clears_leds PASS
+@TEST button_pressed_reflects_pin PASS
+@TEST poll_advances_only_when_pressed PASS
+@RUN_END 7/7

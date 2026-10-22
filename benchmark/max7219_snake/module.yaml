@@ -1,0 +1,59 @@
+id: max7219_snake
+name: "Snake game on four MAX7219 LED matrices with an analog joystick"
+source_url: https://github.com/nazarii-piontko/arduino-snake
+license: MIT
+repo_created: 2020-04-15
+experiment: 2
+category: display
+complexity: complex
+backend: wokwi
+sources: [logic.h, logic.cpp, game.h, game.cpp]
+devices:
+  - part: wokwi-max7219-matrix
+    id: matrix
+    pins: {DIN: 12, CS: 11, CLK: 10}
+    attrs: {chain: "4"}
+    test_visible: "four chained MAX7219 8x8 matrices (write-only; snake_led_row returns what was sent)"
+  - part: wokwi-analog-joystick
+    id: joy
+    pins: {VERT: A0, HORZ: A1}
+    attrs: {}
+    test_visible: "analog joystick at rest for the whole run (A0 and A1 read about 512)"
+interrupts: false
+pins:
+  - {pin: 12, mode: OUTPUT, role: "MAX7219 DIN"}
+  - {pin: 10, mode: OUTPUT, role: "MAX7219 CLK"}
+  - {pin: 11, mode: OUTPUT, role: "MAX7219 CS"}
+  - {pin: 14, mode: INPUT, role: "joystick vertical (A0), up = low values"}
+  - {pin: 15, mode: INPUT, role: "joystick horizontal (A1), left = low values"}
+entry_functions:
+  - "void snake_init()"
+  - "void snake_init_seeded(unsigned long seed)"
+  - "void snake_input_read()"
+  - "void snake_input_apply(int raw_dy, int raw_dx)"
+  - "void snake_loop_pass()"
+  - "STEP_RESULT snake_step()"
+  - "void snake_render_init()"
+  - "void snake_render_field()"
+  - "DIRECTION snake_next_move()"
+  - "Game* snake_game()"
+  - "int snake_loop_filter()"
+  - "uint8_t snake_led_row(uint8_t panel, uint8_t row)"
+  - "void game_init(Game *game)"
+  - "void game_prepare_level(Game *game)"
+  - "STEP_RESULT game_handle_next_step(Game *game, UserInput *input)"
+  - "bool is_next_snake_point_allowed(Game *game, Point point)"
+  - "Point get_next_point(Point point, DIRECTION direction)"
+  - "DIRECTION get_opposite_direction(DIRECTION direction)"
+  - "void set_snake_direction(Game *game, DIRECTION direction)"
+loc: 338
+metrics: {nloc: 338, ccn_sum: 75, ccn_max: 10, functions: 29}
+notes: >-
+  Source: snake.ino + game.h/game.cpp (game.* copied unchanged except four helper prototypes added to game.h; the
+  Emscripten branch of the WASM build stays as in the original; game.cpp now includes Arduino.h on AVR, without it
+  random(max) does not resolve and the original does not build). snake.ino became logic.cpp: setup() -> snake_init(),
+  loop() body without its delay(25) -> snake_loop_pass() (the delay is in the sketch), the step/redraw/restart block
+  -> snake_step(), input_read() split into snake_input_read() and the pure snake_input_apply(raw_dy, raw_dx); added
+  snake_init_seeded(seed) for repeatable levels, getters and a frame shadow snake_led_row(); pin and timing
+  constants became #defines in logic.h. Needs Wokwi: on avr8js unconnected analog pins read 0, i.e. a deflected
+  joystick, while the Wokwi joystick rests at the centre.

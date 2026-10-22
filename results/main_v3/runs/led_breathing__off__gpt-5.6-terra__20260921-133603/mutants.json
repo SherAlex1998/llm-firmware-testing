@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "drop_call",
+   "line": 36,
+   "before": "analogWrite(BREATH_PIN, g_brightness);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "off_by_one",
+   "line": 32,
+   "before": "return g_velocity > 0;",
+   "after": "return g_velocity > 1;",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 3,
+   "operator": "negate_cond",
+   "line": 18,
+   "before": "if (velocity != 0) {",
+   "after": "if (!(velocity != 0)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "negate_cond",
+   "line": 38,
+   "before": "if (g_brightness >= BREATH_MAX) {",
+   "after": "if (!(g_brightness >= BREATH_MAX)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "flip_cmp",
+   "line": 41,
+   "before": "} else if (g_brightness <= BREATH_MIN) {",
+   "after": "} else if (g_brightness > BREATH_MIN) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "swap_arith",
+   "line": 37,
+   "before": "g_brightness = g_brightness + g_velocity;",
+   "after": "g_brightness = g_brightness - g_velocity;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "drop_call",
+   "line": 8,
+   "before": "breath_reset();",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 32,
+   "before": "return g_velocity > 0;",
+   "after": "return g_velocity <= 0;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "negate_cond",
+   "line": 41,
+   "before": "} else if (g_brightness <= BREATH_MIN) {",
+   "after": "} else if (!(g_brightness <= BREATH_MIN)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "flip_cmp",
+   "line": 18,
+   "before": "if (velocity != 0) {",
+   "after": "if (velocity == 0) {",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

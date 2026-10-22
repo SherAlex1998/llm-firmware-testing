@@ -1,0 +1,38 @@
+id: lcd_pomoduino
+name: "Pomodoro timer with a 16x2 LCD, two buttons, beeper and EEPROM count (object-oriented)"
+source_url: https://github.com/opokatech/pomoduino2
+license: MIT
+repo_created: 2016-04-08
+experiment: 2
+category: mixed
+complexity: complex
+backend: avr8js
+sources: [logic.h, logic.cpp, Const.hpp, Pomodoro.hpp, Pomodoro.cpp, State_IF.hpp, UI_IF.hpp, UI.hpp, UI.cpp,
+          Display.hpp, Display.cpp, Button_Logic.hpp, Button_Logic.cpp, Button.hpp, Timer.hpp, Period.hpp,
+          Counter.hpp, Beeper.hpp, Eeprom_IF.hpp, Eeprom.hpp, Utils.hpp, Utils.cpp]
+libraries:
+  - {name: "LiquidCrystal", version: "1.0.7"}
+interrupts: false
+pins:
+  - {pin: 2, mode: OUTPUT, role: "beeper"}
+  - {pin: 3, mode: INPUT_PULLUP, role: "button B1 to GND, LOW = pressed (not connected in the test setup: reads HIGH)"}
+  - {pin: 4, mode: INPUT_PULLUP, role: "button B2 to GND, LOW = pressed (not connected in the test setup: reads HIGH)"}
+  - {pin: 7, mode: OUTPUT, role: "LCD 16x2 RS (E 8, D4..D7 = 9..12)"}
+entry_functions:
+  - "void pomo2_setup()"
+  - "void pomo2_loop_at(uint32_t a_time)"
+  - "void pomo2_step(uint32_t a_time, bool b1_down, bool b2_down)"
+  - "const char *pomo2_lcd_line(uint8_t a_y)"
+  - "MO::Pomodoro: Run, Get_State, Get_Timer_Type, Get_Pomodoros, Get_Current_Period_Minutes, Get_Time_Left_Ms, Get_Time_Max_Ms, Is_Pomodoro"
+  - "MO::Button_Logic: Update(time, active), Pressed, Released, On, Duration, Last_Duration, Reset"
+  - "MO::Timer, MO::Period, MO::Counter, MO::Beeper, MO::Utils::ms_to_m_s (see headers)"
+loc: 782
+metrics: {nloc: 782, ccn_sum: 119, ccn_max: 6, functions: 78}
+notes: >-
+  Source: src/ with the LCD user interface from src-alternative/ui/lcd (the variant the README describes for the
+  Arduino Uno build); all class files copied unchanged except three testability getters (Pomodoro::Get_State,
+  Pomodoro::Get_Timer_Type, Display/UI::Line). sketch.ino became logic.cpp: global objects as before;
+  setup() -> pomo2_setup(), which also resets the buttons and re-creates the Pomodoro object so tests start from
+  power-up (the pomodoro count is read from EEPROM in the constructor; an erased EEPROM reads 255, as in the
+  original); loop() -> pomo2_loop_at(time) without its delay(100) (kept in the sketch) plus the twin
+  pomo2_step(time, b1_down, b2_down). The MO_DEBUG serial console stays compiled out. avr8js backend.

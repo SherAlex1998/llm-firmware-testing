@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_closed_gate_state PASS
+@TEST open_sets_angles_and_leds PASS
+@TEST close_sets_angles_and_leds PASS
+@TEST update_tracks_object_between_sensors PASS
+@TEST sensor_detection_reads_pin_levels PASS
+@TEST poll_opens_when_sensor1_detects_object PASS
+@RUN_END 6/6

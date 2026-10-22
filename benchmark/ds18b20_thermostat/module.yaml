@@ -1,0 +1,65 @@
+id: ds18b20_thermostat
+name: "Fermentation thermostat: DS18B20, two relays, 20x4 I2C LCD menu, settings in EEPROM"
+source_url: https://github.com/IoBeer/thermostat-arduino
+license: Apache-2.0
+repo_created: 2016-01-25
+experiment: 2
+category: sensor
+complexity: complex
+backend: wokwi
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal I2C", version: "1.1.2"}
+  - {name: "OneWire", version: "2.3.8"}
+devices:
+  - part: wokwi-ds18b20
+    id: temp
+    pins: {DQ: 12}
+    attrs: {temperature: "21.5"}
+    test_visible: "DS18B20 on pin 12 (1-Wire) reading 21.5 degC for the whole run"
+  - part: wokwi-lcd2004
+    id: lcd
+    pins: {SDA: A4, SCL: A5}
+    attrs: {pins: "i2c"}
+    test_visible: "20x4 character LCD at I2C address 0x27; thermo_lcd_line() returns what was written"
+  - part: wokwi-pushbutton
+    id: set
+    pins: {"2.l": 2}
+    attrs: {}
+    test_visible: "SET/UP/DOWN buttons on pins 2/3/4 with pull-down resistors, released for the whole run (read LOW)"
+interrupts: false
+pins:
+  - {pin: 2, mode: INPUT, role: "SET button, HIGH = pressed (pull-down)"}
+  - {pin: 3, mode: INPUT, role: "UP button, HIGH = pressed (pull-down)"}
+  - {pin: 4, mode: INPUT, role: "DOWN button, HIGH = pressed (pull-down)"}
+  - {pin: 8, mode: OUTPUT, role: "blue LED (cooling)"}
+  - {pin: 9, mode: OUTPUT, role: "red LED (heating)"}
+  - {pin: 12, mode: ONEWIRE, role: "DS18B20 data"}
+  - {pin: 14, mode: OUTPUT, role: "relay 1, cooling (A0), LOW = on"}
+  - {pin: 15, mode: OUTPUT, role: "relay 2, heating (A1), LOW = on"}
+entry_functions:
+  - "void thermo_reset_state(void)"
+  - "void thermo_init(void)"
+  - "void thermo_loop(void)"
+  - "void thermo_loop_with(unsigned long now_ms, int set, int up, int down, float temp_c)"
+  - "void readingTemperature()"
+  - "void confirmDefaultValuesLoaded()"
+  - "void startConfigurationWizard()"
+  - "void configureMaxDelta()"
+  - "void updateTempConfiguration()"
+  - "void loadConfig()"
+  - "void saveConfig()"
+  - "void resetEEPROM()"
+  - "float getTemp()"
+  - "const char *thermo_lcd_line(uint8_t row)"
+loc: 387
+metrics: {nloc: 387, ccn_sum: 74, ccn_max: 33, functions: 20}
+notes: >-
+  Source: Thermostat/Thermostat.ino (single sketch, 2016). Functions copied into logic.cpp; globals declared extern
+  in logic.h, struct StoreStruct moved there. Changes: the LCD calls were ported from the New-LiquidCrystal
+  (fmalpartida) API, which is not in the Library Manager, to LiquidCrystal I2C 1.1.2 (lcd.begin(20,4) +
+  setBacklightPin/setBacklight -> lcd.init() + lcd.backlight(); the rest is the same API); setup() ->
+  thermo_init() (also resets the state via thermo_reset_state()); loop() -> thermo_loop(), which reads the buttons,
+  millis() and the sensor, and the twin thermo_loop_with(now_ms, set, up, down, temp_c); Serial logs removed; LCD
+  calls go through wrappers with a shadow buffer. Bug fixed: outstr[4] overflowed with dtostrf(x, 4, 1)
+  (5+ bytes), now outstr[8].

@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "drop_call",
+   "line": 35,
+   "before": "tsg_leds(false, false, true);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "flip_cmp",
+   "line": 21,
+   "before": "if (state >= TSG_STATE_COUNT) {",
+   "after": "if (state < TSG_STATE_COUNT) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "const_change",
+   "line": 16,
+   "before": "g_servo.attach(TSG_PIN_SERVO, 500, 2500);",
+   "after": "g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 4,
+   "operator": "swap_arith",
+   "line": 53,
+   "before": "return (state + 1) % TSG_STATE_COUNT;",
+   "after": "return (state - 1) % TSG_STATE_COUNT;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "flip_cmp",
+   "line": 65,
+   "before": "return tsg_gate_angle() >= 90;",
+   "after": "return tsg_gate_angle() < 90;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "drop_call",
+   "line": 9,
+   "before": "digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "swap_hilo",
+   "line": 8,
+   "before": "digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);",
+   "after": "digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "negate_cond",
+   "line": 50,
+   "before": "if (state >= TSG_STATE_COUNT) {",
+   "after": "if (!(state >= TSG_STATE_COUNT)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "swap_hilo",
+   "line": 7,
+   "before": "digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);",
+   "after": "digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "negate_cond",
+   "line": 69,
+   "before": "if (state >= TSG_STATE_COUNT) {",
+   "after": "if (!(state >= TSG_STATE_COUNT)) {",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

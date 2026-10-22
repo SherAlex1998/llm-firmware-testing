@@ -1,0 +1,75 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_default_state) {
+  breath_init();
+  ASSERT_EQ(breath_brightness(), BREATH_MIN);
+  ASSERT_EQ(breath_velocity(), BREATH_DEFAULT_VELOCITY);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(BREATH_PIN, LOW);
+}
+
+TEST(reset_restores_default_state) {
+  breath_init();
+  breath_set_velocity(20);
+  breath_step();
+  breath_step();
+  breath_reset();
+  ASSERT_EQ(breath_brightness(), BREATH_MIN);
+  ASSERT_EQ(breath_velocity(), BREATH_DEFAULT_VELOCITY);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(BREATH_PIN, LOW);
+}
+
+TEST(positive_velocity_advances_brightness) {
+  breath_init();
+  breath_set_velocity(10);
+  breath_step();
+  ASSERT_EQ(breath_brightness(), 10);
+  ASSERT_EQ(breath_velocity(), 10);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(BREATH_PIN, LOW);
+  breath_step();
+  ASSERT_EQ(breath_brightness(), 20);
+}
+
+TEST(zero_velocity_is_ignored) {
+  breath_init();
+  breath_set_velocity(7);
+  breath_set_velocity(0);
+  ASSERT_EQ(breath_velocity(), 7);
+  ASSERT_TRUE(breath_is_rising());
+  breath_step();
+  ASSERT_EQ(breath_brightness(), 7);
+}
+
+TEST(upper_boundary_clamps_and_reverses) {
+  breath_init();
+  breath_set_velocity(200);
+  breath_step();
+  ASSERT_EQ(breath_brightness(), 200);
+  ASSERT_EQ(breath_velocity(), 200);
+  breath_step();
+  ASSERT_EQ(breath_brightness(), BREATH_MAX);
+  ASSERT_EQ(breath_velocity(), -200);
+  ASSERT_FALSE(breath_is_rising());
+  breath_step();
+  ASSERT_PIN(BREATH_PIN, HIGH);
+  ASSERT_EQ(breath_brightness(), 55);
+}
+
+TEST(lower_boundary_reverses_negative_velocity) {
+  breath_init();
+  breath_set_velocity(-9);
+  ASSERT_FALSE(breath_is_rising());
+  breath_step();
+  ASSERT_EQ(breath_brightness(), BREATH_MIN);
+  ASSERT_EQ(breath_velocity(), 9);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(BREATH_PIN, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

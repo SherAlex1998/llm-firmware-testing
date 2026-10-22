@@ -1,0 +1,14 @@
+@RUN_BEGIN 12
+@TEST init_sets_red PASS
+@TEST set_state_red PASS
+@TEST set_state_red_yellow PASS
+@TEST set_state_green PASS
+@TEST set_state_green_blink PASS
+@TEST set_state_yellow PASS
+@TEST set_state_invalid PASS
+@TEST next_state_cycle PASS
+@TEST next_state_invalid PASS
+@TEST advance_transitions PASS
+@TEST state_duration PASS
+@TEST blink_green PASS
+@RUN_END 12/12

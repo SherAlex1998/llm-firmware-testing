@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_led_high PASS
+@TEST init_sets_button_state_low PASS
+@TEST debounce_delay_default PASS
+@TEST set_and_get_debounce_delay PASS
+@TEST toggle_on_high_transition PASS
+@TEST no_toggle_on_high_hold PASS
+@TEST last_change_ms_tracking FAIL line 64: expected change1 == 100 (got 0 vs 100)
+@TEST debounce_ignores_noise PASS
+@RUN_END 7/8

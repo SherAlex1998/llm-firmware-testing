@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_setup PASS
+@TEST all_off PASS
+@TEST light_only_first PASS
+@TEST light_only_middle PASS
+@TEST light_only_last PASS
+@TEST light_only_out_of_range PASS
+@TEST step_forward_and_bounce FAIL line 83: expected chaser_position() == 8 (got 9 vs 8)
+@TEST step_backward_and_bounce FAIL line 111: expected chaser_position() == 1 (got 0 vs 1)
+@RUN_END 6/8

@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_stops_all PASS
+@TEST motor_a_forward PASS
+@TEST motor_a_backward PASS
+@TEST motor_b_forward_and_stop PASS
+@TEST invalid_motor_returns_false PASS
+@TEST stop_all_stops_both_motors PASS
+@RUN_END 6/6

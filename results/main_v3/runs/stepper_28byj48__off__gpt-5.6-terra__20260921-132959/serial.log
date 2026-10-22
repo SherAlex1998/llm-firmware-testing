@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_defaults_and_releases_coils PASS
+@TEST coil_patterns_match_sequence_and_reject_invalid PASS
+@TEST apply_phase_writes_expected_pins_and_invalid_preserves_state PASS
+@TEST half_steps_track_phase_position_and_wrap PASS
+@TEST full_steps_use_two_coil_phases_and_update_position PASS
+@TEST release_turns_off_coils_without_changing_motion_state PASS
+@RUN_END 6/6

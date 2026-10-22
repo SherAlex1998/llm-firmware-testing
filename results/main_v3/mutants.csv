@@ -1,0 +1,691 @@
+run_id,module_id,rag,model,mutant_id,operator,line,before,after,verdict,killed
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,1,drop_call,30,"digitalWrite(SEQ_PINS[step], HIGH);",;,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,2,swap_arith,28,uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;,uint8_t previous = (step + SEQ_NUM_LEDS + 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,3,negate_cond,25,if (step >= SEQ_NUM_LEDS) {,if (!(step >= SEQ_NUM_LEDS)) {,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,4,swap_arith,37,g_count = (g_count + 1) % SEQ_NUM_LEDS;,g_count = (g_count - 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,5,drop_call,36,seq_apply(g_count);,;,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,6,flip_cmp,18,for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= SEQ_NUM_LEDS; i++) {,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,7,swap_hilo,29,"digitalWrite(SEQ_PINS[previous], LOW);","digitalWrite(SEQ_PINS[previous], HIGH);",fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,8,flip_cmp,49,return digitalRead(SEQ_PIN_BUTTON) == HIGH;,return digitalRead(SEQ_PIN_BUTTON) != HIGH;,fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,9,const_change,3,"const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};","const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 12, 5, 4};",fail,True
+button_led_sequence__off__claude-haiku-4-5__20260921-134116,button_led_sequence,off,claude-haiku-4-5,10,negate_cond,53,if (seq_button_pressed()) {,if (!(seq_button_pressed())) {,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,1,drop_call,30,"digitalWrite(SEQ_PINS[step], HIGH);",;,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,2,swap_arith,28,uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;,uint8_t previous = (step + SEQ_NUM_LEDS + 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,3,negate_cond,25,if (step >= SEQ_NUM_LEDS) {,if (!(step >= SEQ_NUM_LEDS)) {,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,4,swap_arith,37,g_count = (g_count + 1) % SEQ_NUM_LEDS;,g_count = (g_count - 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,5,drop_call,36,seq_apply(g_count);,;,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,6,flip_cmp,18,for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= SEQ_NUM_LEDS; i++) {,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,7,swap_hilo,29,"digitalWrite(SEQ_PINS[previous], LOW);","digitalWrite(SEQ_PINS[previous], HIGH);",fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,8,flip_cmp,49,return digitalRead(SEQ_PIN_BUTTON) == HIGH;,return digitalRead(SEQ_PIN_BUTTON) != HIGH;,fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,9,const_change,3,"const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};","const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 12, 5, 4};",fail,True
+button_led_sequence__off__claude-sonnet-5__20260921-133915,button_led_sequence,off,claude-sonnet-5,10,negate_cond,53,if (seq_button_pressed()) {,if (!(seq_button_pressed())) {,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,1,drop_call,30,"digitalWrite(SEQ_PINS[step], HIGH);",;,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,2,swap_arith,28,uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;,uint8_t previous = (step + SEQ_NUM_LEDS + 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,3,negate_cond,25,if (step >= SEQ_NUM_LEDS) {,if (!(step >= SEQ_NUM_LEDS)) {,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,4,swap_arith,37,g_count = (g_count + 1) % SEQ_NUM_LEDS;,g_count = (g_count - 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,5,drop_call,36,seq_apply(g_count);,;,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,6,flip_cmp,18,for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= SEQ_NUM_LEDS; i++) {,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,7,swap_hilo,29,"digitalWrite(SEQ_PINS[previous], LOW);","digitalWrite(SEQ_PINS[previous], HIGH);",fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,8,flip_cmp,49,return digitalRead(SEQ_PIN_BUTTON) == HIGH;,return digitalRead(SEQ_PIN_BUTTON) != HIGH;,fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,9,const_change,3,"const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};","const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 12, 5, 4};",fail,True
+button_led_sequence__off__gpt-5.6-terra__20260921-133540,button_led_sequence,off,gpt-5.6-terra,10,negate_cond,53,if (seq_button_pressed()) {,if (!(seq_button_pressed())) {,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,1,drop_call,30,"digitalWrite(SEQ_PINS[step], HIGH);",;,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,2,swap_arith,28,uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;,uint8_t previous = (step + SEQ_NUM_LEDS + 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,3,negate_cond,25,if (step >= SEQ_NUM_LEDS) {,if (!(step >= SEQ_NUM_LEDS)) {,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,4,swap_arith,37,g_count = (g_count + 1) % SEQ_NUM_LEDS;,g_count = (g_count - 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,5,drop_call,36,seq_apply(g_count);,;,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,6,flip_cmp,18,for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= SEQ_NUM_LEDS; i++) {,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,7,swap_hilo,29,"digitalWrite(SEQ_PINS[previous], LOW);","digitalWrite(SEQ_PINS[previous], HIGH);",fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,8,flip_cmp,49,return digitalRead(SEQ_PIN_BUTTON) == HIGH;,return digitalRead(SEQ_PIN_BUTTON) != HIGH;,fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,9,const_change,3,"const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};","const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 12, 5, 4};",fail,True
+button_led_sequence__on__claude-sonnet-5__20260921-132603,button_led_sequence,on,claude-sonnet-5,10,negate_cond,53,if (seq_button_pressed()) {,if (!(seq_button_pressed())) {,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,1,drop_call,30,"digitalWrite(SEQ_PINS[step], HIGH);",;,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,2,swap_arith,28,uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;,uint8_t previous = (step + SEQ_NUM_LEDS + 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,3,negate_cond,25,if (step >= SEQ_NUM_LEDS) {,if (!(step >= SEQ_NUM_LEDS)) {,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,4,swap_arith,37,g_count = (g_count + 1) % SEQ_NUM_LEDS;,g_count = (g_count - 1) % SEQ_NUM_LEDS;,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,5,drop_call,36,seq_apply(g_count);,;,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,6,flip_cmp,18,for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= SEQ_NUM_LEDS; i++) {,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,7,swap_hilo,29,"digitalWrite(SEQ_PINS[previous], LOW);","digitalWrite(SEQ_PINS[previous], HIGH);",fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,8,flip_cmp,49,return digitalRead(SEQ_PIN_BUTTON) == HIGH;,return digitalRead(SEQ_PIN_BUTTON) != HIGH;,fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,9,const_change,3,"const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};","const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 12, 5, 4};",fail,True
+button_led_sequence__on__gpt-5.6-terra__20260921-134246,button_led_sequence,on,gpt-5.6-terra,10,negate_cond,53,if (seq_button_pressed()) {,if (!(seq_button_pressed())) {,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,1,swap_logic,27,if (g_prev_pressed && !pressed) {,if (g_prev_pressed || !pressed) {,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,2,drop_call,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",;,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,3,swap_hilo,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,4,drop_call,28,toggle_set_led(!g_led);   // released after a press -> toggle,;   // released after a press -> toggle,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,5,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,6,negate_cond,27,if (g_prev_pressed && !pressed) {,if (!(g_prev_pressed && !pressed)) {,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,7,drop_call,34,toggle_update(toggle_button_pressed());,;,pass,False
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,8,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,9,drop_call,10,toggle_set_led(false);,;,fail,True
+button_toggle_led__off__claude-haiku-4-5__20260921-132523,button_toggle_led,off,claude-haiku-4-5,10,flip_cmp,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) != LOW;,fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,1,swap_logic,27,if (g_prev_pressed && !pressed) {,if (g_prev_pressed || !pressed) {,pass,False
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,2,drop_call,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",;,fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,3,swap_hilo,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;,pass,False
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,4,drop_call,28,toggle_set_led(!g_led);   // released after a press -> toggle,;   // released after a press -> toggle,fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,5,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,6,negate_cond,27,if (g_prev_pressed && !pressed) {,if (!(g_prev_pressed && !pressed)) {,fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,7,drop_call,34,toggle_update(toggle_button_pressed());,;,pass,False
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,8,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,9,drop_call,10,toggle_set_led(false);,;,fail,True
+button_toggle_led__off__claude-sonnet-5__20260921-133702,button_toggle_led,off,claude-sonnet-5,10,flip_cmp,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) != LOW;,pass,False
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,1,swap_logic,27,if (g_prev_pressed && !pressed) {,if (g_prev_pressed || !pressed) {,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,2,drop_call,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",;,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,3,swap_hilo,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,4,drop_call,28,toggle_set_led(!g_led);   // released after a press -> toggle,;   // released after a press -> toggle,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,5,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,6,negate_cond,27,if (g_prev_pressed && !pressed) {,if (!(g_prev_pressed && !pressed)) {,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,7,drop_call,34,toggle_update(toggle_button_pressed());,;,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,8,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,9,drop_call,10,toggle_set_led(false);,;,fail,True
+button_toggle_led__off__gpt-5.6-terra__20260921-133247,button_toggle_led,off,gpt-5.6-terra,10,flip_cmp,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) != LOW;,fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,1,swap_logic,27,if (g_prev_pressed && !pressed) {,if (g_prev_pressed || !pressed) {,fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,2,drop_call,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",;,fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,3,swap_hilo,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;,pass,False
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,4,drop_call,28,toggle_set_led(!g_led);   // released after a press -> toggle,;   // released after a press -> toggle,fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,5,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,6,negate_cond,27,if (g_prev_pressed && !pressed) {,if (!(g_prev_pressed && !pressed)) {,fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,7,drop_call,34,toggle_update(toggle_button_pressed());,;,pass,False
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,8,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,9,drop_call,10,toggle_set_led(false);,;,fail,True
+button_toggle_led__on__claude-haiku-4-5__20260921-134144,button_toggle_led,on,claude-haiku-4-5,10,flip_cmp,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) != LOW;,pass,False
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,1,swap_logic,27,if (g_prev_pressed && !pressed) {,if (g_prev_pressed || !pressed) {,fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,2,drop_call,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",;,fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,3,swap_hilo,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;,pass,False
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,4,drop_call,28,toggle_set_led(!g_led);   // released after a press -> toggle,;   // released after a press -> toggle,fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,5,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,6,negate_cond,27,if (g_prev_pressed && !pressed) {,if (!(g_prev_pressed && !pressed)) {,fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,7,drop_call,34,toggle_update(toggle_button_pressed());,;,pass,False
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,8,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,9,drop_call,10,toggle_set_led(false);,;,fail,True
+button_toggle_led__on__claude-sonnet-5__20260921-133515,button_toggle_led,on,claude-sonnet-5,10,flip_cmp,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) != LOW;,pass,False
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,1,swap_logic,27,if (g_prev_pressed && !pressed) {,if (g_prev_pressed || !pressed) {,fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,2,drop_call,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",;,fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,3,swap_hilo,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;,fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,4,drop_call,28,toggle_set_led(!g_led);   // released after a press -> toggle,;   // released after a press -> toggle,fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,5,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,6,negate_cond,27,if (g_prev_pressed && !pressed) {,if (!(g_prev_pressed && !pressed)) {,fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,7,drop_call,34,toggle_update(toggle_button_pressed());,;,pass,False
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,8,swap_hilo,19,"digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);","digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,9,drop_call,10,toggle_set_led(false);,;,fail,True
+button_toggle_led__on__gpt-5.6-terra__20260921-133801,button_toggle_led,on,gpt-5.6-terra,10,flip_cmp,14,return digitalRead(TOGGLE_PIN_BUTTON) == LOW;,return digitalRead(TOGGLE_PIN_BUTTON) != LOW;,fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,1,swap_hilo,21,"digitalWrite(MOTOR_PIN_IN1, HIGH);","digitalWrite(MOTOR_PIN_IN1, LOW);",fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,2,negate_cond,31,if (pwm < 0) {,if (!(pwm < 0)) {,fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,3,swap_hilo,18,"digitalWrite(MOTOR_PIN_IN1, LOW);","digitalWrite(MOTOR_PIN_IN1, HIGH);",fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,4,const_change,52,"return map(raw, 0, 1023, 0, 255);","return map(raw, 0, 1023, 1, 255);",fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,5,negate_cond,46,if (raw < 0) {,if (!(raw < 0)) {,fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,6,drop_call,57,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,pass,False
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,7,drop_call,22,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,8,flip_cmp,34,if (pwm > 255) {,if (pwm <= 255) {,fail,True
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,9,off_by_one,49,if (raw > 1023) {,if (raw > 1024) {,pass,False
+dc_motor_pot__off__claude-haiku-4-5__20260921-133552,dc_motor_pot,off,claude-haiku-4-5,10,const_change,58,motor_set_power(0);,motor_set_power(1);,fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,1,swap_hilo,21,"digitalWrite(MOTOR_PIN_IN1, HIGH);","digitalWrite(MOTOR_PIN_IN1, LOW);",fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,2,negate_cond,31,if (pwm < 0) {,if (!(pwm < 0)) {,fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,3,swap_hilo,18,"digitalWrite(MOTOR_PIN_IN1, LOW);","digitalWrite(MOTOR_PIN_IN1, HIGH);",fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,4,const_change,52,"return map(raw, 0, 1023, 0, 255);","return map(raw, 0, 1023, 1, 255);",fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,5,negate_cond,46,if (raw < 0) {,if (!(raw < 0)) {,fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,6,drop_call,57,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,pass,False
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,7,drop_call,22,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,8,flip_cmp,34,if (pwm > 255) {,if (pwm <= 255) {,fail,True
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,9,off_by_one,49,if (raw > 1023) {,if (raw > 1024) {,pass,False
+dc_motor_pot__off__claude-sonnet-5__20260921-133435,dc_motor_pot,off,claude-sonnet-5,10,const_change,58,motor_set_power(0);,motor_set_power(1);,fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,1,swap_hilo,21,"digitalWrite(MOTOR_PIN_IN1, HIGH);","digitalWrite(MOTOR_PIN_IN1, LOW);",fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,2,negate_cond,31,if (pwm < 0) {,if (!(pwm < 0)) {,fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,3,swap_hilo,18,"digitalWrite(MOTOR_PIN_IN1, LOW);","digitalWrite(MOTOR_PIN_IN1, HIGH);",fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,4,const_change,52,"return map(raw, 0, 1023, 0, 255);","return map(raw, 0, 1023, 1, 255);",fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,5,negate_cond,46,if (raw < 0) {,if (!(raw < 0)) {,fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,6,drop_call,57,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,pass,False
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,7,drop_call,22,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,8,flip_cmp,34,if (pwm > 255) {,if (pwm <= 255) {,fail,True
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,9,off_by_one,49,if (raw > 1023) {,if (raw > 1024) {,pass,False
+dc_motor_pot__on__claude-sonnet-5__20260921-134208,dc_motor_pot,on,claude-sonnet-5,10,const_change,58,motor_set_power(0);,motor_set_power(1);,fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,1,swap_hilo,21,"digitalWrite(MOTOR_PIN_IN1, HIGH);","digitalWrite(MOTOR_PIN_IN1, LOW);",fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,2,negate_cond,31,if (pwm < 0) {,if (!(pwm < 0)) {,fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,3,swap_hilo,18,"digitalWrite(MOTOR_PIN_IN1, LOW);","digitalWrite(MOTOR_PIN_IN1, HIGH);",fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,4,const_change,52,"return map(raw, 0, 1023, 0, 255);","return map(raw, 0, 1023, 1, 255);",fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,5,negate_cond,46,if (raw < 0) {,if (!(raw < 0)) {,fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,6,drop_call,57,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,pass,False
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,7,drop_call,22,"digitalWrite(MOTOR_PIN_IN2, LOW);",;,fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,8,flip_cmp,34,if (pwm > 255) {,if (pwm <= 255) {,fail,True
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,9,off_by_one,49,if (raw > 1023) {,if (raw > 1024) {,pass,False
+dc_motor_pot__on__gpt-5.6-terra__20260921-132704,dc_motor_pot,on,gpt-5.6-terra,10,const_change,58,motor_set_power(0);,motor_set_power(1);,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,1,negate_cond,27,if (g_button_state == HIGH) {,if (!(g_button_state == HIGH)) {,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,2,flip_cmp,25,if (reading != g_button_state) {,if (reading == g_button_state) {,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,3,swap_hilo,13,g_button_state = LOW;,g_button_state = HIGH;,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,4,negate_cond,24,if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {,if (!((now_ms - g_last_debounce_ms) > g_debounce_delay_ms)) {,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,5,swap_hilo,14,g_last_reading = LOW;,g_last_reading = HIGH;,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,6,drop_call,32,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,7,drop_call,17,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,8,flip_cmp,21,if (reading != g_last_reading) {,if (reading == g_last_reading) {,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,9,flip_cmp,27,if (g_button_state == HIGH) {,if (g_button_state != HIGH) {,fail,True
+debounce_toggle__off__claude-sonnet-5__20260921-133459,debounce_toggle,off,claude-sonnet-5,10,negate_cond,25,if (reading != g_button_state) {,if (!(reading != g_button_state)) {,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,1,negate_cond,27,if (g_button_state == HIGH) {,if (!(g_button_state == HIGH)) {,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,2,flip_cmp,25,if (reading != g_button_state) {,if (reading == g_button_state) {,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,3,swap_hilo,13,g_button_state = LOW;,g_button_state = HIGH;,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,4,negate_cond,24,if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {,if (!((now_ms - g_last_debounce_ms) > g_debounce_delay_ms)) {,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,5,swap_hilo,14,g_last_reading = LOW;,g_last_reading = HIGH;,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,6,drop_call,32,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,7,drop_call,17,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,8,flip_cmp,21,if (reading != g_last_reading) {,if (reading == g_last_reading) {,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,9,flip_cmp,27,if (g_button_state == HIGH) {,if (g_button_state != HIGH) {,fail,True
+debounce_toggle__off__gpt-5.6-terra__20260921-133903,debounce_toggle,off,gpt-5.6-terra,10,negate_cond,25,if (reading != g_button_state) {,if (!(reading != g_button_state)) {,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,1,negate_cond,27,if (g_button_state == HIGH) {,if (!(g_button_state == HIGH)) {,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,2,flip_cmp,25,if (reading != g_button_state) {,if (reading == g_button_state) {,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,3,swap_hilo,13,g_button_state = LOW;,g_button_state = HIGH;,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,4,negate_cond,24,if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {,if (!((now_ms - g_last_debounce_ms) > g_debounce_delay_ms)) {,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,5,swap_hilo,14,g_last_reading = LOW;,g_last_reading = HIGH;,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,6,drop_call,32,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,7,drop_call,17,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,8,flip_cmp,21,if (reading != g_last_reading) {,if (reading == g_last_reading) {,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,9,flip_cmp,27,if (g_button_state == HIGH) {,if (g_button_state != HIGH) {,fail,True
+debounce_toggle__on__claude-sonnet-5__20260921-132911,debounce_toggle,on,claude-sonnet-5,10,negate_cond,25,if (reading != g_button_state) {,if (!(reading != g_button_state)) {,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,1,negate_cond,27,if (g_button_state == HIGH) {,if (!(g_button_state == HIGH)) {,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,2,flip_cmp,25,if (reading != g_button_state) {,if (reading == g_button_state) {,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,3,swap_hilo,13,g_button_state = LOW;,g_button_state = HIGH;,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,4,negate_cond,24,if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {,if (!((now_ms - g_last_debounce_ms) > g_debounce_delay_ms)) {,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,5,swap_hilo,14,g_last_reading = LOW;,g_last_reading = HIGH;,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,6,drop_call,32,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,7,drop_call,17,"digitalWrite(DB_PIN_LED, g_led_state);",;,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,8,flip_cmp,21,if (reading != g_last_reading) {,if (reading == g_last_reading) {,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,9,flip_cmp,27,if (g_button_state == HIGH) {,if (g_button_state != HIGH) {,fail,True
+debounce_toggle__on__gpt-5.6-terra__20260921-133827,debounce_toggle,on,gpt-5.6-terra,10,negate_cond,25,if (reading != g_button_state) {,if (!(reading != g_button_state)) {,fail,True
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,1,flip_cmp,7,if (motor == HB_MOTOR_A) {,if (motor != HB_MOTOR_A) {,fail,True
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,2,swap_hilo,51,"digitalWrite(b, HIGH);","digitalWrite(b, LOW);",fail,True
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,3,drop_call,52,"analogWrite(en, speed);",;,pass,False
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,4,drop_call,38,"digitalWrite(b, LOW);",;,pass,False
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,5,negate_cond,47,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,6,swap_hilo,37,"digitalWrite(a, HIGH);","digitalWrite(a, LOW);",fail,True
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,7,negate_cond,34,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,8,const_change,3,"static int8_t g_dir[2] = {0, 0};","static int8_t g_dir[2] = {1, 0};",pass,False
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,9,const_change,4,"static uint8_t g_speed[2] = {0, 0};","static uint8_t g_speed[2] = {1, 0};",pass,False
+dual_hbridge__off__claude-haiku-4-5__20260921-134221,dual_hbridge,off,claude-haiku-4-5,10,flip_cmp,77,if (motor > HB_MOTOR_B) {,if (motor <= HB_MOTOR_B) {,fail,True
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,1,flip_cmp,7,if (motor == HB_MOTOR_A) {,if (motor != HB_MOTOR_A) {,fail,True
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,2,swap_hilo,51,"digitalWrite(b, HIGH);","digitalWrite(b, LOW);",fail,True
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,3,drop_call,52,"analogWrite(en, speed);",;,pass,False
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,4,drop_call,38,"digitalWrite(b, LOW);",;,pass,False
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,5,negate_cond,47,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,6,swap_hilo,37,"digitalWrite(a, HIGH);","digitalWrite(a, LOW);",fail,True
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,7,negate_cond,34,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,8,const_change,3,"static int8_t g_dir[2] = {0, 0};","static int8_t g_dir[2] = {1, 0};",pass,False
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,9,const_change,4,"static uint8_t g_speed[2] = {0, 0};","static uint8_t g_speed[2] = {1, 0};",pass,False
+dual_hbridge__off__claude-sonnet-5__20260921-133649,dual_hbridge,off,claude-sonnet-5,10,flip_cmp,77,if (motor > HB_MOTOR_B) {,if (motor <= HB_MOTOR_B) {,fail,True
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,1,flip_cmp,7,if (motor == HB_MOTOR_A) {,if (motor != HB_MOTOR_A) {,fail,True
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,2,swap_hilo,51,"digitalWrite(b, HIGH);","digitalWrite(b, LOW);",fail,True
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,3,drop_call,52,"analogWrite(en, speed);",;,pass,False
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,4,drop_call,38,"digitalWrite(b, LOW);",;,pass,False
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,5,negate_cond,47,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",timeout,True
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,6,swap_hilo,37,"digitalWrite(a, HIGH);","digitalWrite(a, LOW);",fail,True
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,7,negate_cond,34,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",timeout,True
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,8,const_change,3,"static int8_t g_dir[2] = {0, 0};","static int8_t g_dir[2] = {1, 0};",pass,False
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,9,const_change,4,"static uint8_t g_speed[2] = {0, 0};","static uint8_t g_speed[2] = {1, 0};",pass,False
+dual_hbridge__off__gpt-5.6-terra__20260921-132724,dual_hbridge,off,gpt-5.6-terra,10,flip_cmp,77,if (motor > HB_MOTOR_B) {,if (motor <= HB_MOTOR_B) {,fail,True
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,1,flip_cmp,7,if (motor == HB_MOTOR_A) {,if (motor != HB_MOTOR_A) {,fail,True
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,2,swap_hilo,51,"digitalWrite(b, HIGH);","digitalWrite(b, LOW);",fail,True
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,3,drop_call,52,"analogWrite(en, speed);",;,pass,False
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,4,drop_call,38,"digitalWrite(b, LOW);",;,pass,False
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,5,negate_cond,47,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,6,swap_hilo,37,"digitalWrite(a, HIGH);","digitalWrite(a, LOW);",fail,True
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,7,negate_cond,34,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,8,const_change,3,"static int8_t g_dir[2] = {0, 0};","static int8_t g_dir[2] = {1, 0};",pass,False
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,9,const_change,4,"static uint8_t g_speed[2] = {0, 0};","static uint8_t g_speed[2] = {1, 0};",pass,False
+dual_hbridge__on__claude-sonnet-5__20260921-134011,dual_hbridge,on,claude-sonnet-5,10,flip_cmp,77,if (motor > HB_MOTOR_B) {,if (motor <= HB_MOTOR_B) {,fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,1,flip_cmp,7,if (motor == HB_MOTOR_A) {,if (motor != HB_MOTOR_A) {,fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,2,swap_hilo,51,"digitalWrite(b, HIGH);","digitalWrite(b, LOW);",fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,3,drop_call,52,"analogWrite(en, speed);",;,fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,4,drop_call,38,"digitalWrite(b, LOW);",;,pass,False
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,5,negate_cond,47,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,6,swap_hilo,37,"digitalWrite(a, HIGH);","digitalWrite(a, LOW);",fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,7,negate_cond,34,"if (!hb_pins(motor, a, b, en)) {","if (!(!hb_pins(motor, a, b, en))) {",fail,True
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,8,const_change,3,"static int8_t g_dir[2] = {0, 0};","static int8_t g_dir[2] = {1, 0};",pass,False
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,9,const_change,4,"static uint8_t g_speed[2] = {0, 0};","static uint8_t g_speed[2] = {1, 0};",pass,False
+dual_hbridge__on__gpt-5.6-terra__20260921-134037,dual_hbridge,on,gpt-5.6-terra,10,flip_cmp,77,if (motor > HB_MOTOR_B) {,if (motor <= HB_MOTOR_B) {,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,1,drop_call,46,jm_set_speed(0);,;,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,2,negate_cond,34,if (speed > 255) {,if (!(speed > 255)) {,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,3,swap_hilo,22,"digitalWrite(JM_PIN_DIR_B, HIGH);","digitalWrite(JM_PIN_DIR_B, LOW);",fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,4,flip_cmp,54,return dx > JM_AXIS_CENTER;,return dx <= JM_AXIS_CENTER;,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,5,swap_arith,50,return abs(dx - JM_AXIS_CENTER) / 2;   // ~0..256,return abs(dx - JM_AXIS_CENTER) * 2;   // ~0..256,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,6,swap_hilo,19,"digitalWrite(JM_PIN_DIR_B, LOW);","digitalWrite(JM_PIN_DIR_B, HIGH);",fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,7,flip_cmp,31,if (speed < 0) {,if (speed >= 0) {,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,8,drop_call,68,jm_apply_axis(analogRead(JM_PIN_AXIS));,;,pass,False
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,9,negate_cond,17,if (clockwise) {,if (!(clockwise)) {,fail,True
+joystick_motor__off__claude-sonnet-5__20260921-133312,joystick_motor,off,claude-sonnet-5,10,drop_call,19,"digitalWrite(JM_PIN_DIR_B, LOW);",;,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,1,drop_call,46,jm_set_speed(0);,;,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,2,negate_cond,34,if (speed > 255) {,if (!(speed > 255)) {,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,3,swap_hilo,22,"digitalWrite(JM_PIN_DIR_B, HIGH);","digitalWrite(JM_PIN_DIR_B, LOW);",fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,4,flip_cmp,54,return dx > JM_AXIS_CENTER;,return dx <= JM_AXIS_CENTER;,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,5,swap_arith,50,return abs(dx - JM_AXIS_CENTER) / 2;   // ~0..256,return abs(dx - JM_AXIS_CENTER) * 2;   // ~0..256,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,6,swap_hilo,19,"digitalWrite(JM_PIN_DIR_B, LOW);","digitalWrite(JM_PIN_DIR_B, HIGH);",fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,7,flip_cmp,31,if (speed < 0) {,if (speed >= 0) {,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,8,drop_call,68,jm_apply_axis(analogRead(JM_PIN_AXIS));,;,pass,False
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,9,negate_cond,17,if (clockwise) {,if (!(clockwise)) {,fail,True
+joystick_motor__off__gpt-5.6-terra__20260921-132750,joystick_motor,off,gpt-5.6-terra,10,drop_call,19,"digitalWrite(JM_PIN_DIR_B, LOW);",;,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,1,drop_call,46,jm_set_speed(0);,;,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,2,negate_cond,34,if (speed > 255) {,if (!(speed > 255)) {,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,3,swap_hilo,22,"digitalWrite(JM_PIN_DIR_B, HIGH);","digitalWrite(JM_PIN_DIR_B, LOW);",fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,4,flip_cmp,54,return dx > JM_AXIS_CENTER;,return dx <= JM_AXIS_CENTER;,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,5,swap_arith,50,return abs(dx - JM_AXIS_CENTER) / 2;   // ~0..256,return abs(dx - JM_AXIS_CENTER) * 2;   // ~0..256,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,6,swap_hilo,19,"digitalWrite(JM_PIN_DIR_B, LOW);","digitalWrite(JM_PIN_DIR_B, HIGH);",fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,7,flip_cmp,31,if (speed < 0) {,if (speed >= 0) {,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,8,drop_call,68,jm_apply_axis(analogRead(JM_PIN_AXIS));,;,pass,False
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,9,negate_cond,17,if (clockwise) {,if (!(clockwise)) {,fail,True
+joystick_motor__on__claude-sonnet-5__20260921-134233,joystick_motor,on,claude-sonnet-5,10,drop_call,19,"digitalWrite(JM_PIN_DIR_B, LOW);",;,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,1,drop_call,46,jm_set_speed(0);,;,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,2,negate_cond,34,if (speed > 255) {,if (!(speed > 255)) {,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,3,swap_hilo,22,"digitalWrite(JM_PIN_DIR_B, HIGH);","digitalWrite(JM_PIN_DIR_B, LOW);",fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,4,flip_cmp,54,return dx > JM_AXIS_CENTER;,return dx <= JM_AXIS_CENTER;,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,5,swap_arith,50,return abs(dx - JM_AXIS_CENTER) / 2;   // ~0..256,return abs(dx - JM_AXIS_CENTER) * 2;   // ~0..256,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,6,swap_hilo,19,"digitalWrite(JM_PIN_DIR_B, LOW);","digitalWrite(JM_PIN_DIR_B, HIGH);",fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,7,flip_cmp,31,if (speed < 0) {,if (speed >= 0) {,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,8,drop_call,68,jm_apply_axis(analogRead(JM_PIN_AXIS));,;,pass,False
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,9,negate_cond,17,if (clockwise) {,if (!(clockwise)) {,fail,True
+joystick_motor__on__gpt-5.6-terra__20260921-133235,joystick_motor,on,gpt-5.6-terra,10,drop_call,19,"digitalWrite(JM_PIN_DIR_B, LOW);",;,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,1,drop_call,36,"analogWrite(BREATH_PIN, g_brightness);",;,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,2,off_by_one,32,return g_velocity > 0;,return g_velocity > 1;,pass,False
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,3,negate_cond,18,if (velocity != 0) {,if (!(velocity != 0)) {,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,4,negate_cond,38,if (g_brightness >= BREATH_MAX) {,if (!(g_brightness >= BREATH_MAX)) {,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,5,flip_cmp,41,} else if (g_brightness <= BREATH_MIN) {,} else if (g_brightness > BREATH_MIN) {,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,6,swap_arith,37,g_brightness = g_brightness + g_velocity;,g_brightness = g_brightness - g_velocity;,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,7,drop_call,8,breath_reset();,;,pass,False
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,8,flip_cmp,32,return g_velocity > 0;,return g_velocity <= 0;,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,9,negate_cond,41,} else if (g_brightness <= BREATH_MIN) {,} else if (!(g_brightness <= BREATH_MIN)) {,fail,True
+led_breathing__off__claude-sonnet-5__20260921-133446,led_breathing,off,claude-sonnet-5,10,flip_cmp,18,if (velocity != 0) {,if (velocity == 0) {,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,1,drop_call,36,"analogWrite(BREATH_PIN, g_brightness);",;,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,2,off_by_one,32,return g_velocity > 0;,return g_velocity > 1;,pass,False
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,3,negate_cond,18,if (velocity != 0) {,if (!(velocity != 0)) {,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,4,negate_cond,38,if (g_brightness >= BREATH_MAX) {,if (!(g_brightness >= BREATH_MAX)) {,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,5,flip_cmp,41,} else if (g_brightness <= BREATH_MIN) {,} else if (g_brightness > BREATH_MIN) {,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,6,swap_arith,37,g_brightness = g_brightness + g_velocity;,g_brightness = g_brightness - g_velocity;,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,7,drop_call,8,breath_reset();,;,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,8,flip_cmp,32,return g_velocity > 0;,return g_velocity <= 0;,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,9,negate_cond,41,} else if (g_brightness <= BREATH_MIN) {,} else if (!(g_brightness <= BREATH_MIN)) {,fail,True
+led_breathing__off__gpt-5.6-terra__20260921-133603,led_breathing,off,gpt-5.6-terra,10,flip_cmp,18,if (velocity != 0) {,if (velocity == 0) {,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,1,drop_call,36,"analogWrite(BREATH_PIN, g_brightness);",;,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,2,off_by_one,32,return g_velocity > 0;,return g_velocity > 1;,pass,False
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,3,negate_cond,18,if (velocity != 0) {,if (!(velocity != 0)) {,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,4,negate_cond,38,if (g_brightness >= BREATH_MAX) {,if (!(g_brightness >= BREATH_MAX)) {,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,5,flip_cmp,41,} else if (g_brightness <= BREATH_MIN) {,} else if (g_brightness > BREATH_MIN) {,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,6,swap_arith,37,g_brightness = g_brightness + g_velocity;,g_brightness = g_brightness - g_velocity;,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,7,drop_call,8,breath_reset();,;,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,8,flip_cmp,32,return g_velocity > 0;,return g_velocity <= 0;,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,9,negate_cond,41,} else if (g_brightness <= BREATH_MIN) {,} else if (!(g_brightness <= BREATH_MIN)) {,fail,True
+led_breathing__on__gpt-5.6-terra__20260921-133338,led_breathing,on,gpt-5.6-terra,10,flip_cmp,18,if (velocity != 0) {,if (velocity == 0) {,fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,1,const_change,3,"const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};","const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 14, 8, 9, 10, 11};",pass,False
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,2,flip_cmp,28,"digitalWrite(CHASER_PINS[i], (i == index) ? HIGH : LOW);","digitalWrite(CHASER_PINS[i], (i != index) ? HIGH : LOW);",fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,3,flip_cmp,17,for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= CHASER_NUM_LEDS; i++) {,fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,4,off_by_one,47,} else if (next < 0) {,} else if (next < 1) {,pass,False
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,5,negate_cond,24,if (index >= CHASER_NUM_LEDS) {,if (!(index >= CHASER_NUM_LEDS)) {,fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,6,drop_call,12,chaser_all_off();,;,pass,False
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,7,swap_hilo,18,"digitalWrite(CHASER_PINS[i], LOW);","digitalWrite(CHASER_PINS[i], HIGH);",fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,8,swap_arith,46,next = CHASER_NUM_LEDS - 2;,next = CHASER_NUM_LEDS + 2;,fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,9,drop_call,51,chaser_light_only((uint8_t)next);,;,fail,True
+led_chaser__off__claude-haiku-4-5__20260921-133410,led_chaser,off,claude-haiku-4-5,10,swap_arith,43,int8_t next = g_pos + g_dir;,int8_t next = g_pos - g_dir;,fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,1,const_change,3,"const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};","const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 14, 8, 9, 10, 11};",pass,False
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,2,flip_cmp,28,"digitalWrite(CHASER_PINS[i], (i == index) ? HIGH : LOW);","digitalWrite(CHASER_PINS[i], (i != index) ? HIGH : LOW);",fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,3,flip_cmp,17,for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= CHASER_NUM_LEDS; i++) {,fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,4,off_by_one,47,} else if (next < 0) {,} else if (next < 1) {,fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,5,negate_cond,24,if (index >= CHASER_NUM_LEDS) {,if (!(index >= CHASER_NUM_LEDS)) {,fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,6,drop_call,12,chaser_all_off();,;,pass,False
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,7,swap_hilo,18,"digitalWrite(CHASER_PINS[i], LOW);","digitalWrite(CHASER_PINS[i], HIGH);",fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,8,swap_arith,46,next = CHASER_NUM_LEDS - 2;,next = CHASER_NUM_LEDS + 2;,fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,9,drop_call,51,chaser_light_only((uint8_t)next);,;,fail,True
+led_chaser__off__claude-sonnet-5__20260921-132543,led_chaser,off,claude-sonnet-5,10,swap_arith,43,int8_t next = g_pos + g_dir;,int8_t next = g_pos - g_dir;,fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,1,const_change,3,"const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};","const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 14, 8, 9, 10, 11};",pass,False
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,2,flip_cmp,28,"digitalWrite(CHASER_PINS[i], (i == index) ? HIGH : LOW);","digitalWrite(CHASER_PINS[i], (i != index) ? HIGH : LOW);",fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,3,flip_cmp,17,for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= CHASER_NUM_LEDS; i++) {,fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,4,off_by_one,47,} else if (next < 0) {,} else if (next < 1) {,fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,5,negate_cond,24,if (index >= CHASER_NUM_LEDS) {,if (!(index >= CHASER_NUM_LEDS)) {,fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,6,drop_call,12,chaser_all_off();,;,pass,False
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,7,swap_hilo,18,"digitalWrite(CHASER_PINS[i], LOW);","digitalWrite(CHASER_PINS[i], HIGH);",fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,8,swap_arith,46,next = CHASER_NUM_LEDS - 2;,next = CHASER_NUM_LEDS + 2;,fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,9,drop_call,51,chaser_light_only((uint8_t)next);,;,fail,True
+led_chaser__off__gpt-5.6-terra__20260921-133851,led_chaser,off,gpt-5.6-terra,10,swap_arith,43,int8_t next = g_pos + g_dir;,int8_t next = g_pos - g_dir;,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,1,const_change,3,"const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};","const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 14, 8, 9, 10, 11};",pass,False
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,2,flip_cmp,28,"digitalWrite(CHASER_PINS[i], (i == index) ? HIGH : LOW);","digitalWrite(CHASER_PINS[i], (i != index) ? HIGH : LOW);",fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,3,flip_cmp,17,for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {,for (uint8_t i = 0; i >= CHASER_NUM_LEDS; i++) {,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,4,off_by_one,47,} else if (next < 0) {,} else if (next < 1) {,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,5,negate_cond,24,if (index >= CHASER_NUM_LEDS) {,if (!(index >= CHASER_NUM_LEDS)) {,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,6,drop_call,12,chaser_all_off();,;,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,7,swap_hilo,18,"digitalWrite(CHASER_PINS[i], LOW);","digitalWrite(CHASER_PINS[i], HIGH);",fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,8,swap_arith,46,next = CHASER_NUM_LEDS - 2;,next = CHASER_NUM_LEDS + 2;,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,9,drop_call,51,chaser_light_only((uint8_t)next);,;,fail,True
+led_chaser__on__gpt-5.6-terra__20260921-132810,led_chaser,on,gpt-5.6-terra,10,swap_arith,43,int8_t next = g_pos + g_dir;,int8_t next = g_pos - g_dir;,fail,True
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,1,drop_call,49,"digitalWrite(GATE_PIN_LED_GREEN, LOW);",;,fail,True
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,2,drop_call,81,gate_open();,;,fail,True
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,3,swap_hilo,71,return digitalRead(GATE_PIN_SENSOR1) == LOW;,return digitalRead(GATE_PIN_SENSOR1) == HIGH;,fail,True
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,4,swap_hilo,75,return digitalRead(GATE_PIN_SENSOR2) == LOW;,return digitalRead(GATE_PIN_SENSOR2) == HIGH;,fail,True
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,5,negate_cond,79,if (!g_object_between) {,if (!(!g_object_between)) {,fail,True
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,6,flip_cmp,15,for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos < to; pos -= GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,7,negate_cond,83,} else if (sensor2_detected) {,} else if (!(sensor2_detected)) {,pass,False
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,8,flip_cmp,10,for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos > to; pos += GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,9,drop_call,11,servo.write(pos);,;,pass,False
+railway_gate__off__claude-sonnet-5__20260921-133725,railway_gate,off,claude-sonnet-5,10,drop_call,32,"digitalWrite(GATE_PIN_LED_RED, HIGH);",;,fail,True
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,1,drop_call,49,"digitalWrite(GATE_PIN_LED_GREEN, LOW);",;,pass,False
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,2,drop_call,81,gate_open();,;,fail,True
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,3,swap_hilo,71,return digitalRead(GATE_PIN_SENSOR1) == LOW;,return digitalRead(GATE_PIN_SENSOR1) == HIGH;,fail,True
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,4,swap_hilo,75,return digitalRead(GATE_PIN_SENSOR2) == LOW;,return digitalRead(GATE_PIN_SENSOR2) == HIGH;,fail,True
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,5,negate_cond,79,if (!g_object_between) {,if (!(!g_object_between)) {,fail,True
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,6,flip_cmp,15,for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos < to; pos -= GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,7,negate_cond,83,} else if (sensor2_detected) {,} else if (!(sensor2_detected)) {,pass,False
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,8,flip_cmp,10,for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos > to; pos += GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,9,drop_call,11,servo.write(pos);,;,pass,False
+railway_gate__off__gpt-5.6-terra__20260921-133615,railway_gate,off,gpt-5.6-terra,10,drop_call,32,"digitalWrite(GATE_PIN_LED_RED, HIGH);",;,fail,True
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,1,drop_call,49,"digitalWrite(GATE_PIN_LED_GREEN, LOW);",;,fail,True
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,2,drop_call,81,gate_open();,;,fail,True
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,3,swap_hilo,71,return digitalRead(GATE_PIN_SENSOR1) == LOW;,return digitalRead(GATE_PIN_SENSOR1) == HIGH;,fail,True
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,4,swap_hilo,75,return digitalRead(GATE_PIN_SENSOR2) == LOW;,return digitalRead(GATE_PIN_SENSOR2) == HIGH;,pass,False
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,5,negate_cond,79,if (!g_object_between) {,if (!(!g_object_between)) {,fail,True
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,6,flip_cmp,15,for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos < to; pos -= GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,7,negate_cond,83,} else if (sensor2_detected) {,} else if (!(sensor2_detected)) {,pass,False
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,8,flip_cmp,10,for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos > to; pos += GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,9,drop_call,11,servo.write(pos);,;,pass,False
+railway_gate__on__claude-sonnet-5__20260921-133116,railway_gate,on,claude-sonnet-5,10,drop_call,32,"digitalWrite(GATE_PIN_LED_RED, HIGH);",;,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,1,drop_call,49,"digitalWrite(GATE_PIN_LED_GREEN, LOW);",;,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,2,drop_call,81,gate_open();,;,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,3,swap_hilo,71,return digitalRead(GATE_PIN_SENSOR1) == LOW;,return digitalRead(GATE_PIN_SENSOR1) == HIGH;,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,4,swap_hilo,75,return digitalRead(GATE_PIN_SENSOR2) == LOW;,return digitalRead(GATE_PIN_SENSOR2) == HIGH;,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,5,negate_cond,79,if (!g_object_between) {,if (!(!g_object_between)) {,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,6,flip_cmp,15,for (int pos = from; pos >= to; pos -= GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos < to; pos -= GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,7,negate_cond,83,} else if (sensor2_detected) {,} else if (!(sensor2_detected)) {,fail,True
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,8,flip_cmp,10,for (int pos = from; pos <= to; pos += GATE_SWEEP_STEP_DEG) {,for (int pos = from; pos > to; pos += GATE_SWEEP_STEP_DEG) {,pass,False
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,9,drop_call,11,servo.write(pos);,;,pass,False
+railway_gate__on__gpt-5.6-terra__20260921-133021,railway_gate,on,gpt-5.6-terra,10,drop_call,32,"digitalWrite(GATE_PIN_LED_RED, HIGH);",;,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,1,negate_cond,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (!(step_pos <= 0 || stop_pos < start_pos)) {,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,2,swap_arith,35,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) + 1;,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) - 1;,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,3,flip_cmp,32,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos > 0 || stop_pos < start_pos) {,timeout,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,4,drop_call,49,sweep_write(pos);,;,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,5,flip_cmp,16,if (angle > 180) {,if (angle <= 180) {,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,6,drop_call,45,sweep_write(pos);,;,pass,False
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,7,negate_cond,13,if (angle < 0) {,if (!(angle < 0)) {,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,8,swap_arith,36,return 2 * one_way;,return 2 / one_way;,fail,True
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,9,swap_logic,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos <= 0 && stop_pos < start_pos) {,pass,False
+servo_sweep__off__claude-haiku-4-5__20260921-132454,servo_sweep,off,claude-haiku-4-5,10,negate_cond,16,if (angle > 180) {,if (!(angle > 180)) {,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,1,negate_cond,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (!(step_pos <= 0 || stop_pos < start_pos)) {,timeout,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,2,swap_arith,35,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) + 1;,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) - 1;,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,3,flip_cmp,32,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos > 0 || stop_pos < start_pos) {,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,4,drop_call,49,sweep_write(pos);,;,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,5,flip_cmp,16,if (angle > 180) {,if (angle <= 180) {,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,6,drop_call,45,sweep_write(pos);,;,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,7,negate_cond,13,if (angle < 0) {,if (!(angle < 0)) {,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,8,swap_arith,36,return 2 * one_way;,return 2 / one_way;,fail,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,9,swap_logic,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos <= 0 && stop_pos < start_pos) {,timeout,True
+servo_sweep__off__gpt-5.6-terra__20260921-133053,servo_sweep,off,gpt-5.6-terra,10,negate_cond,16,if (angle > 180) {,if (!(angle > 180)) {,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,1,negate_cond,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (!(step_pos <= 0 || stop_pos < start_pos)) {,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,2,swap_arith,35,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) + 1;,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) - 1;,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,3,flip_cmp,32,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos > 0 || stop_pos < start_pos) {,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,4,drop_call,49,sweep_write(pos);,;,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,5,flip_cmp,16,if (angle > 180) {,if (angle <= 180) {,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,6,drop_call,45,sweep_write(pos);,;,pass,False
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,7,negate_cond,13,if (angle < 0) {,if (!(angle < 0)) {,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,8,swap_arith,36,return 2 * one_way;,return 2 / one_way;,fail,True
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,9,swap_logic,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos <= 0 && stop_pos < start_pos) {,pass,False
+servo_sweep__on__claude-haiku-4-5__20260921-132930,servo_sweep,on,claude-haiku-4-5,10,negate_cond,16,if (angle > 180) {,if (!(angle > 180)) {,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,1,negate_cond,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (!(step_pos <= 0 || stop_pos < start_pos)) {,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,2,swap_arith,35,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) + 1;,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) - 1;,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,3,flip_cmp,32,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos > 0 || stop_pos < start_pos) {,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,4,drop_call,49,sweep_write(pos);,;,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,5,flip_cmp,16,if (angle > 180) {,if (angle <= 180) {,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,6,drop_call,45,sweep_write(pos);,;,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,7,negate_cond,13,if (angle < 0) {,if (!(angle < 0)) {,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,8,swap_arith,36,return 2 * one_way;,return 2 / one_way;,fail,True
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,9,swap_logic,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos <= 0 && stop_pos < start_pos) {,pass,False
+servo_sweep__on__claude-sonnet-5__20260921-132945,servo_sweep,on,claude-sonnet-5,10,negate_cond,16,if (angle > 180) {,if (!(angle > 180)) {,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,1,negate_cond,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (!(step_pos <= 0 || stop_pos < start_pos)) {,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,2,swap_arith,35,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) + 1;,unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) - 1;,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,3,flip_cmp,32,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos > 0 || stop_pos < start_pos) {,timeout,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,4,drop_call,49,sweep_write(pos);,;,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,5,flip_cmp,16,if (angle > 180) {,if (angle <= 180) {,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,6,drop_call,45,sweep_write(pos);,;,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,7,negate_cond,13,if (angle < 0) {,if (!(angle < 0)) {,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,8,swap_arith,36,return 2 * one_way;,return 2 / one_way;,fail,True
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,9,swap_logic,40,if (step_pos <= 0 || stop_pos < start_pos) {,if (step_pos <= 0 && stop_pos < start_pos) {,pass,False
+servo_sweep__on__gpt-5.6-terra__20260921-133939,servo_sweep,on,gpt-5.6-terra,10,negate_cond,16,if (angle > 180) {,if (!(angle > 180)) {,fail,True
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,1,flip_cmp,91,while (steps > 0) {,while (steps <= 0) {,fail,True
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,2,drop_call,69,stepper_apply_phase(g_phase);,;,fail,True
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,3,drop_call,115,"digitalWrite(STEPPER_PIN_IN2, LOW);",;,pass,False
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,4,negate_cond,61,if (g_phase % 2 != 1) {,if (!(g_phase % 2 != 1)) {,fail,True
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,5,negate_cond,66,if (g_phase > 7) {,if (!(g_phase > 7)) {,fail,True
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,6,off_by_one,80,if (g_phase < 1) {,if (g_phase < 2) {,pass,False
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,7,off_by_one,75,if (g_phase % 2 != 1) {,if (g_phase % 2 != 2) {,pass,False
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,8,flip_cmp,39,if (phase >= STEPPER_SEQUENCE_LENGTH) {,if (phase < STEPPER_SEQUENCE_LENGTH) {,fail,True
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,9,const_change,45,"digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 2));","digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 4));",pass,False
+stepper_28byj48__off__claude-sonnet-5__20260921-133713,stepper_28byj48,off,claude-sonnet-5,10,const_change,46,"digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 3));","digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 6));",pass,False
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,1,flip_cmp,91,while (steps > 0) {,while (steps <= 0) {,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,2,drop_call,69,stepper_apply_phase(g_phase);,;,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,3,drop_call,115,"digitalWrite(STEPPER_PIN_IN2, LOW);",;,pass,False
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,4,negate_cond,61,if (g_phase % 2 != 1) {,if (!(g_phase % 2 != 1)) {,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,5,negate_cond,66,if (g_phase > 7) {,if (!(g_phase > 7)) {,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,6,off_by_one,80,if (g_phase < 1) {,if (g_phase < 2) {,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,7,off_by_one,75,if (g_phase % 2 != 1) {,if (g_phase % 2 != 2) {,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,8,flip_cmp,39,if (phase >= STEPPER_SEQUENCE_LENGTH) {,if (phase < STEPPER_SEQUENCE_LENGTH) {,fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,9,const_change,45,"digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 2));","digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 4));",fail,True
+stepper_28byj48__off__gpt-5.6-terra__20260921-132959,stepper_28byj48,off,gpt-5.6-terra,10,const_change,46,"digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 3));","digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 6));",pass,False
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,1,flip_cmp,91,while (steps > 0) {,while (steps <= 0) {,fail,True
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,2,drop_call,69,stepper_apply_phase(g_phase);,;,pass,False
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,3,drop_call,115,"digitalWrite(STEPPER_PIN_IN2, LOW);",;,fail,True
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,4,negate_cond,61,if (g_phase % 2 != 1) {,if (!(g_phase % 2 != 1)) {,fail,True
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,5,negate_cond,66,if (g_phase > 7) {,if (!(g_phase > 7)) {,fail,True
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,6,off_by_one,80,if (g_phase < 1) {,if (g_phase < 2) {,pass,False
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,7,off_by_one,75,if (g_phase % 2 != 1) {,if (g_phase % 2 != 2) {,pass,False
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,8,flip_cmp,39,if (phase >= STEPPER_SEQUENCE_LENGTH) {,if (phase < STEPPER_SEQUENCE_LENGTH) {,fail,True
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,9,const_change,45,"digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 2));","digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 4));",fail,True
+stepper_28byj48__on__claude-sonnet-5__20260921-133325,stepper_28byj48,on,claude-sonnet-5,10,const_change,46,"digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 3));","digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 6));",pass,False
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,1,flip_cmp,91,while (steps > 0) {,while (steps <= 0) {,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,2,drop_call,69,stepper_apply_phase(g_phase);,;,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,3,drop_call,115,"digitalWrite(STEPPER_PIN_IN2, LOW);",;,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,4,negate_cond,61,if (g_phase % 2 != 1) {,if (!(g_phase % 2 != 1)) {,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,5,negate_cond,66,if (g_phase > 7) {,if (!(g_phase > 7)) {,pass,False
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,6,off_by_one,80,if (g_phase < 1) {,if (g_phase < 2) {,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,7,off_by_one,75,if (g_phase % 2 != 1) {,if (g_phase % 2 != 2) {,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,8,flip_cmp,39,if (phase >= STEPPER_SEQUENCE_LENGTH) {,if (phase < STEPPER_SEQUENCE_LENGTH) {,fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,9,const_change,45,"digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 2));","digitalWrite(STEPPER_PIN_IN3, bitRead(pattern, 4));",fail,True
+stepper_28byj48__on__gpt-5.6-terra__20260921-133222,stepper_28byj48,on,gpt-5.6-terra,10,const_change,46,"digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 3));","digitalWrite(STEPPER_PIN_IN4, bitRead(pattern, 6));",fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,1,swap_hilo,25,"digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : LOW);","digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : HIGH);",fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,2,flip_cmp,24,"digitalWrite(TI_PIN_RED[dir], (color == TI_RED) ? HIGH : LOW);","digitalWrite(TI_PIN_RED[dir], (color != TI_RED) ? HIGH : LOW);",fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,3,const_change,5,"const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 2};","const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 4};",fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,4,const_change,4,"const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {12, 9, 6, 3};","const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {24, 9, 6, 3};",pass,False
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,5,flip_cmp,61,for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {,for (uint8_t d = 0; d >= TI_NUM_DIRECTIONS; d++) {,fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,6,drop_call,26,"digitalWrite(TI_PIN_YELLOW[dir], (color == TI_YELLOW) ? HIGH : LOW);",;,fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,7,swap_logic,21,if (dir >= TI_NUM_DIRECTIONS || color > TI_YELLOW) {,if (dir >= TI_NUM_DIRECTIONS && color > TI_YELLOW) {,fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,8,off_by_one,66,return not_red <= 1;,return not_red <= 2;,fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,9,swap_arith,52,ti_apply_phase((g_phase + 1) % TI_NUM_PHASES);,ti_apply_phase((g_phase - 1) % TI_NUM_PHASES);,fail,True
+traffic_intersection__off__claude-sonnet-5__20260921-132644,traffic_intersection,off,claude-sonnet-5,10,negate_cond,39,if (phase >= TI_NUM_PHASES) {,if (!(phase >= TI_NUM_PHASES)) {,fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,1,swap_hilo,25,"digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : LOW);","digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : HIGH);",fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,2,flip_cmp,24,"digitalWrite(TI_PIN_RED[dir], (color == TI_RED) ? HIGH : LOW);","digitalWrite(TI_PIN_RED[dir], (color != TI_RED) ? HIGH : LOW);",fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,3,const_change,5,"const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 2};","const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 4};",fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,4,const_change,4,"const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {12, 9, 6, 3};","const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {24, 9, 6, 3};",fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,5,flip_cmp,61,for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {,for (uint8_t d = 0; d >= TI_NUM_DIRECTIONS; d++) {,fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,6,drop_call,26,"digitalWrite(TI_PIN_YELLOW[dir], (color == TI_YELLOW) ? HIGH : LOW);",;,fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,7,swap_logic,21,if (dir >= TI_NUM_DIRECTIONS || color > TI_YELLOW) {,if (dir >= TI_NUM_DIRECTIONS && color > TI_YELLOW) {,fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,8,off_by_one,66,return not_red <= 1;,return not_red <= 2;,fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,9,swap_arith,52,ti_apply_phase((g_phase + 1) % TI_NUM_PHASES);,ti_apply_phase((g_phase - 1) % TI_NUM_PHASES);,fail,True
+traffic_intersection__on__claude-haiku-4-5__20260921-133300,traffic_intersection,on,claude-haiku-4-5,10,negate_cond,39,if (phase >= TI_NUM_PHASES) {,if (!(phase >= TI_NUM_PHASES)) {,fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,1,swap_hilo,25,"digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : LOW);","digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : HIGH);",fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,2,flip_cmp,24,"digitalWrite(TI_PIN_RED[dir], (color == TI_RED) ? HIGH : LOW);","digitalWrite(TI_PIN_RED[dir], (color != TI_RED) ? HIGH : LOW);",fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,3,const_change,5,"const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 2};","const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 4};",fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,4,const_change,4,"const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {12, 9, 6, 3};","const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {24, 9, 6, 3};",timeout,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,5,flip_cmp,61,for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {,for (uint8_t d = 0; d >= TI_NUM_DIRECTIONS; d++) {,fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,6,drop_call,26,"digitalWrite(TI_PIN_YELLOW[dir], (color == TI_YELLOW) ? HIGH : LOW);",;,fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,7,swap_logic,21,if (dir >= TI_NUM_DIRECTIONS || color > TI_YELLOW) {,if (dir >= TI_NUM_DIRECTIONS && color > TI_YELLOW) {,fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,8,off_by_one,66,return not_red <= 1;,return not_red <= 2;,fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,9,swap_arith,52,ti_apply_phase((g_phase + 1) % TI_NUM_PHASES);,ti_apply_phase((g_phase - 1) % TI_NUM_PHASES);,fail,True
+traffic_intersection__on__claude-sonnet-5__20260921-132824,traffic_intersection,on,claude-sonnet-5,10,negate_cond,39,if (phase >= TI_NUM_PHASES) {,if (!(phase >= TI_NUM_PHASES)) {,fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,1,swap_hilo,25,"digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : LOW);","digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : HIGH);",fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,2,flip_cmp,24,"digitalWrite(TI_PIN_RED[dir], (color == TI_RED) ? HIGH : LOW);","digitalWrite(TI_PIN_RED[dir], (color != TI_RED) ? HIGH : LOW);",fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,3,const_change,5,"const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 2};","const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 4};",fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,4,const_change,4,"const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {12, 9, 6, 3};","const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {24, 9, 6, 3};",fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,5,flip_cmp,61,for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {,for (uint8_t d = 0; d >= TI_NUM_DIRECTIONS; d++) {,fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,6,drop_call,26,"digitalWrite(TI_PIN_YELLOW[dir], (color == TI_YELLOW) ? HIGH : LOW);",;,fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,7,swap_logic,21,if (dir >= TI_NUM_DIRECTIONS || color > TI_YELLOW) {,if (dir >= TI_NUM_DIRECTIONS && color > TI_YELLOW) {,fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,8,off_by_one,66,return not_red <= 1;,return not_red <= 2;,fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,9,swap_arith,52,ti_apply_phase((g_phase + 1) % TI_NUM_PHASES);,ti_apply_phase((g_phase - 1) % TI_NUM_PHASES);,fail,True
+traffic_intersection__on__gpt-5.6-terra__20260921-134156,traffic_intersection,on,gpt-5.6-terra,10,negate_cond,39,if (phase >= TI_NUM_PHASES) {,if (!(phase >= TI_NUM_PHASES)) {,fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,1,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state + 1) / TL_STATE_COUNT;,fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,2,swap_hilo,7,"digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,pass,False
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,4,swap_hilo,65,"digitalWrite(TL_PIN_GREEN, LOW);","digitalWrite(TL_PIN_GREEN, HIGH);",fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,5,flip_cmp,37,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,6,negate_cond,19,if (state >= TL_STATE_COUNT) {,if (!(state >= TL_STATE_COUNT)) {,fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,7,flip_cmp,59,for (uint8_t i = 0; i < times; i++) {,for (uint8_t i = 0; i >= times; i++) {,pass,False
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,8,drop_call,44,tl_set_state(tl_next_state(g_state));,;,fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,9,flip_cmp,19,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__off__claude-haiku-4-5__20260921-134023,traffic_light,off,claude-haiku-4-5,10,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state - 1) % TL_STATE_COUNT;,fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,1,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state + 1) / TL_STATE_COUNT;,fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,2,swap_hilo,7,"digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,pass,False
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,4,swap_hilo,65,"digitalWrite(TL_PIN_GREEN, LOW);","digitalWrite(TL_PIN_GREEN, HIGH);",fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,5,flip_cmp,37,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,6,negate_cond,19,if (state >= TL_STATE_COUNT) {,if (!(state >= TL_STATE_COUNT)) {,fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,7,flip_cmp,59,for (uint8_t i = 0; i < times; i++) {,for (uint8_t i = 0; i >= times; i++) {,pass,False
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,8,drop_call,44,tl_set_state(tl_next_state(g_state));,;,fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,9,flip_cmp,19,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__off__claude-sonnet-5__20260921-132624,traffic_light,off,claude-sonnet-5,10,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state - 1) % TL_STATE_COUNT;,fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,1,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state + 1) / TL_STATE_COUNT;,fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,2,swap_hilo,7,"digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,pass,False
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,4,swap_hilo,65,"digitalWrite(TL_PIN_GREEN, LOW);","digitalWrite(TL_PIN_GREEN, HIGH);",fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,5,flip_cmp,37,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,6,negate_cond,19,if (state >= TL_STATE_COUNT) {,if (!(state >= TL_STATE_COUNT)) {,fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,7,flip_cmp,59,for (uint8_t i = 0; i < times; i++) {,for (uint8_t i = 0; i >= times; i++) {,pass,False
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,8,drop_call,44,tl_set_state(tl_next_state(g_state));,;,fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,9,flip_cmp,19,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__off__gpt-5.6-terra__20260921-133839,traffic_light,off,gpt-5.6-terra,10,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state - 1) % TL_STATE_COUNT;,fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,1,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state + 1) / TL_STATE_COUNT;,fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,2,swap_hilo,7,"digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,pass,False
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,4,swap_hilo,65,"digitalWrite(TL_PIN_GREEN, LOW);","digitalWrite(TL_PIN_GREEN, HIGH);",fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,5,flip_cmp,37,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,6,negate_cond,19,if (state >= TL_STATE_COUNT) {,if (!(state >= TL_STATE_COUNT)) {,fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,7,flip_cmp,59,for (uint8_t i = 0; i < times; i++) {,for (uint8_t i = 0; i >= times; i++) {,pass,False
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,8,drop_call,44,tl_set_state(tl_next_state(g_state));,;,fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,9,flip_cmp,19,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__on__claude-haiku-4-5__20260921-133422,traffic_light,on,claude-haiku-4-5,10,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state - 1) % TL_STATE_COUNT;,fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,1,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state + 1) / TL_STATE_COUNT;,fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,2,swap_hilo,7,"digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,pass,False
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,4,swap_hilo,65,"digitalWrite(TL_PIN_GREEN, LOW);","digitalWrite(TL_PIN_GREEN, HIGH);",fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,5,flip_cmp,37,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,6,negate_cond,19,if (state >= TL_STATE_COUNT) {,if (!(state >= TL_STATE_COUNT)) {,fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,7,flip_cmp,59,for (uint8_t i = 0; i < times; i++) {,for (uint8_t i = 0; i >= times; i++) {,pass,False
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,8,drop_call,44,tl_set_state(tl_next_state(g_state));,;,fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,9,flip_cmp,19,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__on__claude-sonnet-5__20260921-133528,traffic_light,on,claude-sonnet-5,10,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state - 1) % TL_STATE_COUNT;,fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,1,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state + 1) / TL_STATE_COUNT;,fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,2,swap_hilo,7,"digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,3,drop_call,60,"digitalWrite(TL_PIN_GREEN, LOW);",;,pass,False
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,4,swap_hilo,65,"digitalWrite(TL_PIN_GREEN, LOW);","digitalWrite(TL_PIN_GREEN, HIGH);",fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,5,flip_cmp,37,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,6,negate_cond,19,if (state >= TL_STATE_COUNT) {,if (!(state >= TL_STATE_COUNT)) {,fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,7,flip_cmp,59,for (uint8_t i = 0; i < times; i++) {,for (uint8_t i = 0; i >= times; i++) {,timeout,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,8,drop_call,44,tl_set_state(tl_next_state(g_state));,;,fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,9,flip_cmp,19,if (state >= TL_STATE_COUNT) {,if (state < TL_STATE_COUNT) {,fail,True
+traffic_light__on__gpt-5.6-terra__20260921-134129,traffic_light,on,gpt-5.6-terra,10,swap_arith,40,return (state + 1) % TL_STATE_COUNT;,return (state - 1) % TL_STATE_COUNT;,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,1,drop_call,35,"tsg_leds(false, false, true);",;,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,2,flip_cmp,21,if (state >= TSG_STATE_COUNT) {,if (state < TSG_STATE_COUNT) {,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",pass,False
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,4,swap_arith,53,return (state + 1) % TSG_STATE_COUNT;,return (state - 1) % TSG_STATE_COUNT;,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,5,flip_cmp,65,return tsg_gate_angle() >= 90;,return tsg_gate_angle() < 90;,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,6,drop_call,9,"digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",;,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,7,swap_hilo,8,"digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,8,negate_cond,50,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,9,swap_hilo,7,"digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);","digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",fail,True
+traffic_servo_gate__off__claude-haiku-4-5__20260921-133746,traffic_servo_gate,off,claude-haiku-4-5,10,negate_cond,69,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,1,drop_call,35,"tsg_leds(false, false, true);",;,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,2,flip_cmp,21,if (state >= TSG_STATE_COUNT) {,if (state < TSG_STATE_COUNT) {,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",pass,False
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,4,swap_arith,53,return (state + 1) % TSG_STATE_COUNT;,return (state - 1) % TSG_STATE_COUNT;,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,5,flip_cmp,65,return tsg_gate_angle() >= 90;,return tsg_gate_angle() < 90;,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,6,drop_call,9,"digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",;,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,7,swap_hilo,8,"digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,8,negate_cond,50,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,9,swap_hilo,7,"digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);","digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",fail,True
+traffic_servo_gate__off__claude-sonnet-5__20260921-133634,traffic_servo_gate,off,claude-sonnet-5,10,negate_cond,69,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,1,drop_call,35,"tsg_leds(false, false, true);",;,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,2,flip_cmp,21,if (state >= TSG_STATE_COUNT) {,if (state < TSG_STATE_COUNT) {,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",pass,False
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,4,swap_arith,53,return (state + 1) % TSG_STATE_COUNT;,return (state - 1) % TSG_STATE_COUNT;,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,5,flip_cmp,65,return tsg_gate_angle() >= 90;,return tsg_gate_angle() < 90;,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,6,drop_call,9,"digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",;,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,7,swap_hilo,8,"digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,8,negate_cond,50,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,9,swap_hilo,7,"digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);","digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",fail,True
+traffic_servo_gate__off__gpt-5.6-terra__20260921-134050,traffic_servo_gate,off,gpt-5.6-terra,10,negate_cond,69,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,1,drop_call,35,"tsg_leds(false, false, true);",;,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,2,flip_cmp,21,if (state >= TSG_STATE_COUNT) {,if (state < TSG_STATE_COUNT) {,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",pass,False
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,4,swap_arith,53,return (state + 1) % TSG_STATE_COUNT;,return (state - 1) % TSG_STATE_COUNT;,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,5,flip_cmp,65,return tsg_gate_angle() >= 90;,return tsg_gate_angle() < 90;,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,6,drop_call,9,"digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",;,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,7,swap_hilo,8,"digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,8,negate_cond,50,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,9,swap_hilo,7,"digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);","digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",fail,True
+traffic_servo_gate__on__claude-haiku-4-5__20260921-133812,traffic_servo_gate,on,claude-haiku-4-5,10,negate_cond,69,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,1,drop_call,35,"tsg_leds(false, false, true);",;,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,2,flip_cmp,21,if (state >= TSG_STATE_COUNT) {,if (state < TSG_STATE_COUNT) {,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",pass,False
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,4,swap_arith,53,return (state + 1) % TSG_STATE_COUNT;,return (state - 1) % TSG_STATE_COUNT;,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,5,flip_cmp,65,return tsg_gate_angle() >= 90;,return tsg_gate_angle() < 90;,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,6,drop_call,9,"digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",;,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,7,swap_hilo,8,"digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,8,negate_cond,50,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,9,swap_hilo,7,"digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);","digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",fail,True
+traffic_servo_gate__on__claude-sonnet-5__20260921-133158,traffic_servo_gate,on,claude-sonnet-5,10,negate_cond,69,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,1,drop_call,35,"tsg_leds(false, false, true);",;,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,2,flip_cmp,21,if (state >= TSG_STATE_COUNT) {,if (state < TSG_STATE_COUNT) {,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,3,const_change,16,"g_servo.attach(TSG_PIN_SERVO, 500, 2500);","g_servo.attach(TSG_PIN_SERVO, 1000, 2500);",pass,False
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,4,swap_arith,53,return (state + 1) % TSG_STATE_COUNT;,return (state - 1) % TSG_STATE_COUNT;,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,5,flip_cmp,65,return tsg_gate_angle() >= 90;,return tsg_gate_angle() < 90;,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,6,drop_call,9,"digitalWrite(TSG_PIN_RED, red ? HIGH : LOW);",;,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,7,swap_hilo,8,"digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : LOW);","digitalWrite(TSG_PIN_YELLOW, yellow ? HIGH : HIGH);",fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,8,negate_cond,50,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,9,swap_hilo,7,"digitalWrite(TSG_PIN_GREEN, green ? HIGH : LOW);","digitalWrite(TSG_PIN_GREEN, green ? LOW : LOW);",fail,True
+traffic_servo_gate__on__gpt-5.6-terra__20260921-134259,traffic_servo_gate,on,gpt-5.6-terra,10,negate_cond,69,if (state >= TSG_STATE_COUNT) {,if (!(state >= TSG_STATE_COUNT)) {,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,1,drop_call,40,xf_apply(next);,;,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,2,negate_cond,19,if (value > XF_MAX_LEVEL) {,if (!(value > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,3,swap_arith,35,int next = g_value + 1;,int next = g_value - 1;,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,4,off_by_one,16,if (value < 0) {,if (value < 1) {,pass,False
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,5,off_by_one,23,if (g_phase == 0) {,if (g_phase == 1) {,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,6,drop_call,31,"analogWrite(XF_PIN_GREEN, g_green);",;,pass,False
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,7,negate_cond,36,if (next > XF_MAX_LEVEL) {,if (!(next > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,8,flip_cmp,38,g_phase = (g_phase == 0) ? 1 : 0;,g_phase = (g_phase != 0) ? 1 : 0;,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,9,swap_arith,24,g_red = XF_MAX_LEVEL - value;   // red dims,g_red = XF_MAX_LEVEL + value;   // red dims,fail,True
+two_color_crossfade__off__claude-haiku-4-5__20260921-133358,two_color_crossfade,off,claude-haiku-4-5,10,const_change,12,xf_apply(0);,xf_apply(1);,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,1,drop_call,40,xf_apply(next);,;,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,2,negate_cond,19,if (value > XF_MAX_LEVEL) {,if (!(value > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,3,swap_arith,35,int next = g_value + 1;,int next = g_value - 1;,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,4,off_by_one,16,if (value < 0) {,if (value < 1) {,pass,False
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,5,off_by_one,23,if (g_phase == 0) {,if (g_phase == 1) {,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,6,drop_call,31,"analogWrite(XF_PIN_GREEN, g_green);",;,pass,False
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,7,negate_cond,36,if (next > XF_MAX_LEVEL) {,if (!(next > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,8,flip_cmp,38,g_phase = (g_phase == 0) ? 1 : 0;,g_phase = (g_phase != 0) ? 1 : 0;,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,9,swap_arith,24,g_red = XF_MAX_LEVEL - value;   // red dims,g_red = XF_MAX_LEVEL + value;   // red dims,fail,True
+two_color_crossfade__off__gpt-5.6-terra__20260921-133927,two_color_crossfade,off,gpt-5.6-terra,10,const_change,12,xf_apply(0);,xf_apply(1);,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,1,drop_call,40,xf_apply(next);,;,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,2,negate_cond,19,if (value > XF_MAX_LEVEL) {,if (!(value > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,3,swap_arith,35,int next = g_value + 1;,int next = g_value - 1;,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,4,off_by_one,16,if (value < 0) {,if (value < 1) {,pass,False
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,5,off_by_one,23,if (g_phase == 0) {,if (g_phase == 1) {,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,6,drop_call,31,"analogWrite(XF_PIN_GREEN, g_green);",;,pass,False
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,7,negate_cond,36,if (next > XF_MAX_LEVEL) {,if (!(next > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,8,flip_cmp,38,g_phase = (g_phase == 0) ? 1 : 0;,g_phase = (g_phase != 0) ? 1 : 0;,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,9,swap_arith,24,g_red = XF_MAX_LEVEL - value;   // red dims,g_red = XF_MAX_LEVEL + value;   // red dims,fail,True
+two_color_crossfade__on__claude-haiku-4-5__20260921-133959,two_color_crossfade,on,claude-haiku-4-5,10,const_change,12,xf_apply(0);,xf_apply(1);,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,1,drop_call,40,xf_apply(next);,;,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,2,negate_cond,19,if (value > XF_MAX_LEVEL) {,if (!(value > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,3,swap_arith,35,int next = g_value + 1;,int next = g_value - 1;,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,4,off_by_one,16,if (value < 0) {,if (value < 1) {,pass,False
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,5,off_by_one,23,if (g_phase == 0) {,if (g_phase == 1) {,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,6,drop_call,31,"analogWrite(XF_PIN_GREEN, g_green);",;,pass,False
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,7,negate_cond,36,if (next > XF_MAX_LEVEL) {,if (!(next > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,8,flip_cmp,38,g_phase = (g_phase == 0) ? 1 : 0;,g_phase = (g_phase != 0) ? 1 : 0;,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,9,swap_arith,24,g_red = XF_MAX_LEVEL - value;   // red dims,g_red = XF_MAX_LEVEL + value;   // red dims,fail,True
+two_color_crossfade__on__claude-sonnet-5__20260921-133138,two_color_crossfade,on,claude-sonnet-5,10,const_change,12,xf_apply(0);,xf_apply(1);,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,1,drop_call,40,xf_apply(next);,;,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,2,negate_cond,19,if (value > XF_MAX_LEVEL) {,if (!(value > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,3,swap_arith,35,int next = g_value + 1;,int next = g_value - 1;,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,4,off_by_one,16,if (value < 0) {,if (value < 1) {,pass,False
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,5,off_by_one,23,if (g_phase == 0) {,if (g_phase == 1) {,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,6,drop_call,31,"analogWrite(XF_PIN_GREEN, g_green);",;,pass,False
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,7,negate_cond,36,if (next > XF_MAX_LEVEL) {,if (!(next > XF_MAX_LEVEL)) {,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,8,flip_cmp,38,g_phase = (g_phase == 0) ? 1 : 0;,g_phase = (g_phase != 0) ? 1 : 0;,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,9,swap_arith,24,g_red = XF_MAX_LEVEL - value;   // red dims,g_red = XF_MAX_LEVEL + value;   // red dims,fail,True
+two_color_crossfade__on__gpt-5.6-terra__20260921-134104,two_color_crossfade,on,gpt-5.6-terra,10,const_change,12,xf_apply(0);,xf_apply(1);,fail,True

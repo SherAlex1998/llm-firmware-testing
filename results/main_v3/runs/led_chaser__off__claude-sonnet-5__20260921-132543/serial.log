@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_all_off PASS
+@TEST light_only_valid_index PASS
+@TEST light_only_invalid_index PASS
+@TEST all_off_resets_position PASS
+@TEST step_forward PASS
+@TEST step_bounce_at_top PASS
+@TEST step_bounce_at_bottom PASS
+@TEST count_on_always_one_after_light PASS
+@RUN_END 8/8

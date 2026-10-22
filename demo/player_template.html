@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Player</title>
+<!-- Built by demo/build_demo.py from demo/player_template.html; do not edit the generated test_player.html. -->
+<style>
+:root {
+  --bg: #f2f2ef; --panel: #ffffff; --ink: #1c1c1a; --muted: #66655f; --faint: #9b9a94; --line: #e1e0da;
+  --accent: #2a78d6; --accent-soft: #e7f0fb; --cur: #fff1b8; --cur-edge: #e0a800;
+  --pass: #2e7d32; --pass-soft: #e6f3e7; --fail: #c62828; --fail-soft: #fdeceb; --warn: #9a5800; --warn-soft: #fcefd9;
+  --board: #fafaf7;
+  --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { font-size: clamp(12px, 0.74vw, 17px); }
+body {
+  margin: 0; height: 100vh; padding: .6rem 1rem .4rem; display: grid; gap: .55rem;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
+  background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 1rem; overflow: hidden;
+}
+button { font: inherit; color: inherit; }
+h1, h2 { margin: 0; font-weight: 600; }
+
+/* header */
+.top { display: flex; align-items: center; gap: 1.5rem; }
+.brand h1 { font-size: 1.45rem; letter-spacing: -.01em; }
+.brand p { margin: .1rem 0 0; color: var(--muted); font-size: .92rem; }
+.picker { display: flex; align-items: center; gap: .4rem; }
+.picker label { font-weight: 600; font-size: .9rem; color: var(--muted); margin-right: .2rem; }
+.picker select { font: inherit; font-weight: 600; padding: .35rem .6rem; border: 1px solid var(--line);
+  border-radius: .45rem; background: var(--panel); color: var(--ink); min-width: 20rem; cursor: pointer; }
+.picker .nav { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid var(--line);
+  border-radius: .45rem; background: var(--panel); cursor: pointer; color: var(--muted); }
+.picker .nav svg { width: .8rem; height: .8rem; fill: currentColor; }
+.picker .count { color: var(--faint); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.runinfo { margin-left: auto; text-align: right; color: var(--muted); font-size: .85rem; line-height: 1.35; }
+.runinfo b { color: var(--ink); font-weight: 600; }
+.runinfo code { font-family: var(--mono); font-size: .8rem; }
+
+/* run chips: one per model x RAG */
+.runbar { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.runbar .label, .fwbar .label { font-weight: 600; font-size: .9rem; color: var(--muted); margin-right: .2rem; }
+.runs { display: flex; flex-wrap: wrap; gap: .3rem; }
+.run { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .05rem; border: 1px solid var(--line);
+  background: var(--panel); border-radius: .5rem; padding: .22rem .7rem; cursor: pointer; font-size: .88rem;
+  line-height: 1.25; text-align: left; }
+.run .r { color: var(--muted); }
+.run .st { font-size: .78rem; color: var(--muted); display: inline-flex; align-items: center; gap: .35rem; }
+.run .st i { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; background: var(--faint); }
+.run.valid .st i { background: var(--pass); }
+.run.invalid .st i { background: var(--fail); }
+.run.nobuild { cursor: default; opacity: .6; }
+.run[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.filesel { font: inherit; font-family: var(--mono); font-size: .8rem; border: 1px solid var(--line); border-radius: .35rem;
+  background: var(--panel); color: var(--muted); padding: .05rem .3rem; max-width: 12rem; }
+.picker optgroup { font-style: normal; color: var(--muted); }
+.run[aria-pressed="true"] .r, .run[aria-pressed="true"] .st { color: #d9d8d2; }
+
+/* firmware chips */
+.fwbar { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.fwbar .label { font-weight: 600; font-size: .9rem; color: var(--muted); margin-right: .2rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+.chip { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--line); background: var(--panel);
+  border-radius: 999px; padding: .25rem .7rem .25rem .55rem; cursor: pointer; font-size: .88rem; white-space: nowrap; }
+.chip .dot { width: .6rem; height: .6rem; border-radius: 50%; background: var(--faint); flex: none; }
+.chip.caught .dot { background: var(--pass); }
+.chip.missed .dot { background: var(--warn); }
+.chip.missed { border-color: #ecc98f; }
+.chip b { font-weight: 600; }
+.chip .op { color: var(--muted); font-family: var(--mono); font-size: .82rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.chip[aria-pressed="true"] .op { color: #d9d8d2; }
+.legend { margin-left: auto; display: flex; gap: .9rem; color: var(--muted); font-size: .85rem; }
+.legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.legend i { width: .6rem; height: .6rem; border-radius: 50%; display: inline-block; }
+
+/* bug banner */
+.bug { display: flex; align-items: center; gap: 1rem; background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--faint); border-radius: .5rem; padding: .45rem .8rem; min-height: 3.2rem; }
+.bug.mutant { border-left-color: var(--fail); }
+.bug .what { flex: none; max-width: 22rem; font-size: .92rem; line-height: 1.35; }
+.bug .what b { font-weight: 600; }
+.bug:not(.mutant) .what { max-width: none; }
+.bug .what .sub { color: var(--muted); }
+.diff { font-family: var(--mono); font-size: .9rem; line-height: 1.45; overflow: hidden; min-width: 0; }
+.diff div { white-space: pre; overflow: hidden; text-overflow: ellipsis; padding: 0 .4rem; border-radius: .25rem; }
+.diff .del { background: var(--fail-soft); color: #8e1c1c; }
+.diff .add { background: var(--pass-soft); color: #1d5a21; }
+.diff .del::before { content: "\2212  "; } .diff .add::before { content: "+  "; }
+.outcome { margin-left: auto; flex: none; font-weight: 600; font-size: .92rem; padding: .3rem .7rem; border-radius: .4rem;
+  background: #efeee9; color: var(--muted); }
+.outcome.caught { background: var(--pass-soft); color: var(--pass); }
+.outcome.missed { background: var(--warn-soft); color: var(--warn); }
+.outcome.fail { background: var(--fail-soft); color: var(--fail); }
+
+/* main grid */
+.grid { display: grid; gap: .55rem; min-height: 0;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .82fr) minmax(0, 1.3fr);
+  grid-template-rows: minmax(0, 1.55fr) minmax(0, 1fr); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: .55rem; display: flex;
+  flex-direction: column; min-height: 0; overflow: hidden; }
+.panel-head { display: flex; align-items: baseline; gap: .6rem; padding: .45rem .75rem .35rem;
+  border-bottom: 1px solid var(--line); }
+.panel-head h2 { font-size: .95rem; }
+.panel-head h2.mono { font-family: var(--mono); font-weight: 600; font-size: .9rem; }
+.panel-head .hint { color: var(--muted); font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.panel-head .right { margin-left: auto; }
+.board-panel { grid-column: 1; grid-row: 1 / span 2; }
+.tests-panel { grid-column: 2; grid-row: 1; }
+.serial-panel { grid-column: 2; grid-row: 2; }
+.test-code { grid-column: 3; grid-row: 1; }
+.module-code { grid-column: 3; grid-row: 2; }
+
+.board-wrap { position: relative; flex: 1; min-height: 0; background: var(--board);
+  background-image: radial-gradient(#e2e1db 1px, transparent 1px); background-size: 16px 16px; }
+.stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.stage .part { position: absolute; display: block; }
+.stage svg.wires { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.board-note { position: absolute; left: .7rem; bottom: .5rem; right: .7rem; color: var(--muted); font-size: .82rem; }
+
+/* tests */
+.tests { list-style: none; margin: 0; padding: .3rem; overflow: auto; flex: 1; }
+.tests li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); align-items: start; gap: .1rem .3rem;
+  padding: .32rem .45rem; border-radius: .4rem; cursor: pointer; }
+.tests li:hover { background: #f5f5f2; }
+.tests .ic { width: 1.1rem; height: 1.1rem; border-radius: 50%; border: 2px solid #cfcec8; margin-top: .1rem;
+  display: grid; place-items: center; font-size: .72rem; font-weight: 700; color: #fff; }
+.tests .name { font-family: var(--mono); font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tests .msg { grid-column: 2; font-size: .8rem; color: var(--fail); font-family: var(--mono); white-space: normal; }
+.tests li.running { background: var(--accent-soft); }
+.tests li.running .ic { border-color: var(--accent); border-right-color: transparent; animation: spin .9s linear infinite; }
+.tests li.pass .ic { background: var(--pass); border-color: var(--pass); }
+.tests li.pass .ic::after { content: "\2713"; }
+.tests li.fail { background: var(--fail-soft); }
+.tests li.fail .ic { background: var(--fail); border-color: var(--fail); }
+.tests li.fail .ic::after { content: "\2715"; }
+.tests li.skipped .name { color: var(--faint); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.verdict { font-size: .82rem; font-weight: 600; padding: .12rem .5rem; border-radius: .35rem; background: #efeee9; color: var(--muted); }
+.verdict.pass, .verdict.caught { background: var(--pass-soft); color: var(--pass); }
+.verdict.fail { background: var(--fail-soft); color: var(--fail); }
+.verdict.missed { background: var(--warn-soft); color: var(--warn); }
+
+/* serial */
+.serial { margin: 0; padding: .45rem .7rem; overflow: auto; flex: 1; font-family: var(--mono); font-size: .82rem;
+  line-height: 1.45; background: #1f2023; color: #d7d6d0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.serial .pass { color: #8fd694; } .serial .fail { color: #ff9a8f; } .serial .meta { color: #9fb8d8; }
+.serial .typing::after { content: "\2588"; color: #d7d6d0; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* code */
+.code { margin: 0; overflow: auto; flex: 1; font-family: var(--mono); font-size: .84rem; line-height: 1.5; padding: .3rem 0; }
+.code .ln { display: grid; grid-template-columns: 3.1rem minmax(0, 1fr); white-space: pre; border-left: 3px solid transparent; }
+.code .no { color: var(--faint); text-align: right; padding-right: .8rem; user-select: none; }
+.code .src { overflow: hidden; text-overflow: ellipsis; padding-right: .6rem; }
+.code .ln.block { background: #f7f7f4; }
+.code .ln.cur { background: var(--cur); border-left-color: var(--cur-edge); }
+.code .ln.cur .no { color: var(--ink); font-weight: 600; }
+.code .ln.failed { background: var(--fail-soft); border-left-color: var(--fail); }
+.code .ln.failed .src::after { content: attr(data-msg); color: var(--fail); font-style: italic; margin-left: 1.2rem; }
+.code .ln.mut { background: var(--fail-soft); }
+.code .ln.mut .no { color: var(--fail); font-weight: 600; }
+.code .ln.mut.cur { background: #ffd9a8; border-left-color: var(--fail); }
+.code .ln.mut .src::after { content: "  \2190 injected bug"; color: var(--fail); font-style: italic; }
+.tok-c { color: #8a8a83; font-style: italic; } .tok-s { color: #a34f00; } .tok-n { color: #1a6aa8; }
+.tok-k { color: #8233a8; } .tok-t { color: #0f7a6c; } .tok-m { color: #b0005a; font-weight: 600; } .tok-p { color: #7a6a00; }
+
+/* timeline */
+.timeline-panel { padding: .4rem .75rem .5rem; }
+.controls { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+.controls .btn { display: inline-grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: .45rem;
+  border: 1px solid var(--line); background: var(--panel); cursor: pointer; }
+.controls .btn:hover { background: #f3f3ef; }
+.controls .btn.play { width: 2.6rem; background: var(--ink); color: #fff; border-color: var(--ink); }
+.controls .btn svg { width: 1rem; height: 1rem; fill: currentColor; }
+.speed { display: flex; gap: .15rem; margin-left: .8rem; align-items: center; color: var(--muted); font-size: .85rem; }
+.speed button { border: 1px solid var(--line); background: var(--panel); border-radius: .35rem; padding: .2rem .5rem;
+  cursor: pointer; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.speed button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.readout { margin-left: auto; color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; }
+.readout b { color: var(--ink); font-weight: 600; }
+#timeline { display: block; width: 100%; margin-top: .35rem; cursor: pointer; touch-action: none; }
+#timeline text { font-family: var(--sans); }
+footer { display: flex; gap: 1.2rem; color: var(--faint); font-size: .78rem; }
+footer kbd { font-family: var(--mono); font-size: .74rem; border: 1px solid #d6d5cf; border-bottom-width: 2px;
+  border-radius: .25rem; padding: 0 .3rem; color: var(--muted); background: var(--panel); }
+footer .credit { margin-left: auto; }
+
+@media (max-width: 900px) {
+  body { height: auto; overflow: auto; }
+  .grid { grid-template-columns: 1fr; grid-template-rows: none; }
+  .board-panel, .tests-panel, .serial-panel, .test-code, .module-code { grid-column: 1; grid-row: auto; min-height: 18rem; }
+  .top { flex-wrap: wrap; } .runinfo { text-align: left; margin-left: 0; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Test Player</h1>
+    <p>AI-generated unit tests replayed on a simulated Arduino Uno</p>
+  </div>
+  <div class="picker">
+    <label for="module">Module</label>
+    <button class="nav" id="bPrevModule" title="Previous module (Page Up)"><svg viewBox="0 0 16 16"><path d="M11 2v12L4 8z"/></svg></button>
+    <select id="module"></select>
+    <button class="nav" id="bNextModule" title="Next module (Page Down)"><svg viewBox="0 0 16 16"><path d="M5 2v12l7-6z"/></svg></button>
+    <span class="count" id="moduleCount"></span>
+  </div>
+  <div class="runinfo" id="runinfo"></div>
+</header>
+
+<section class="runbar">
+  <span class="label">Test generated by</span>
+  <div class="runs" id="runs"></div>
+  <div class="legend">
+    <span>Mutant chips:</span>
+    <span><i style="background:var(--pass)"></i>bug caught by the tests</span>
+    <span><i style="background:var(--warn)"></i>bug missed</span>
+  </div>
+</section>
+
+<section class="fwbar">
+  <span class="label">Firmware under test</span>
+  <div class="chips" id="chips"></div>
+</section>
+
+<section class="bug" id="bug"></section>
+
+<main class="grid">
+  <section class="panel board-panel">
+    <div class="panel-head"><h2>Board</h2><span class="hint" id="boardHint"></span></div>
+    <div class="board-wrap" id="boardWrap"></div>
+  </section>
+  <section class="panel tests-panel">
+    <div class="panel-head"><h2>Tests</h2><span class="right verdict" id="verdict"></span></div>
+    <ol class="tests" id="tests"></ol>
+  </section>
+  <section class="panel serial-panel">
+    <div class="panel-head"><h2>Serial monitor</h2><span class="hint">9600 baud &middot; what the test prints</span></div>
+    <pre class="serial" id="serial"></pre>
+  </section>
+  <section class="panel test-code">
+    <div class="panel-head"><h2 class="mono">test_main.ino</h2><span class="hint" id="testHint"></span></div>
+    <pre class="code" id="testCode"></pre>
+  </section>
+  <section class="panel module-code">
+    <div class="panel-head"><h2 class="mono" id="moduleFile">logic.cpp</h2><span class="hint" id="moduleHint">module under test</span>
+      <select class="right filesel" id="fileSelect" title="Module file (follows the execution)"></select></div>
+    <pre class="code" id="moduleCode"></pre>
+  </section>
+</main>
+
+<section class="panel timeline-panel">
+  <div class="controls">
+    <button class="btn" id="bRestart" title="Restart (Home)"><svg viewBox="0 0 16 16"><path d="M3 2h2v12H3zM13 2v12L6 8z"/></svg></button>
+    <button class="btn" id="bPrevTest" title="Previous test (Shift+Left)"><svg viewBox="0 0 16 16"><path d="M8 2v12L1 8zM15 2v12L8 8z"/></svg></button>
+    <button class="btn" id="bBack" title="Step back (Left)"><svg viewBox="0 0 16 16"><path d="M11 2v12L4 8z"/></svg></button>
+    <button class="btn play" id="bPlay" title="Play / pause (Space)"><svg viewBox="0 0 16 16" id="playIcon"><path d="M4 2l10 6-10 6z"/></svg></button>
+    <button class="btn" id="bFwd" title="Step forward (Right)"><svg viewBox="0 0 16 16"><path d="M5 2v12l7-6z"/></svg></button>
+    <button class="btn" id="bNextTest" title="Next test (Shift+Right)"><svg viewBox="0 0 16 16"><path d="M1 2v12l7-6zM8 2v12l7-6z"/></svg></button>
+    <div class="speed" id="speed"><span>Speed, steps/s</span></div>
+    <div class="readout" id="readout"></div>
+  </div>
+  <svg id="timeline" role="img" aria-label="Pin timeline"></svg>
+</section>
+
+<footer>
+  <span><kbd>Space</kbd> play/pause</span>
+  <span><kbd>&larr;</kbd><kbd>&rarr;</kbd> step</span>
+  <span><kbd>Shift</kbd>+<kbd>&larr;</kbd><kbd>&rarr;</kbd> test</span>
+  <span><kbd>0</kbd>&ndash;<kbd>9</kbd> firmware (<kbd>Shift</kbd>+<kbd>0</kbd> = mutant 10)</span>
+  <span><kbd>Tab</kbd> next run</span>
+  <span><kbd>PgUp</kbd><kbd>PgDn</kbd> module</span>
+  <span class="credit">Simulator: avr8js 0.21.1 (MIT). Parts: @wokwi/elements 1.9.2 &copy; Uri Shaked, MIT License.</span>
+</footer>
+
+<script>/*__WOKWI_ELEMENTS__*/</script>
+<script type="application/json" id="player-index">__PLAYER_INDEX__</script>
+<!--__RUN_DATA__-->
+<script>/*__PLAYER_JS__*/</script>
+</body>
+</html>

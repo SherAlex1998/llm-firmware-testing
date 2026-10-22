@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 10,
+ "score": 1.0,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "drop_call",
+   "line": 30,
+   "before": "digitalWrite(SEQ_PINS[step], HIGH);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "swap_arith",
+   "line": 28,
+   "before": "uint8_t previous = (step + SEQ_NUM_LEDS - 1) % SEQ_NUM_LEDS;",
+   "after": "uint8_t previous = (step + SEQ_NUM_LEDS + 1) % SEQ_NUM_LEDS;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "negate_cond",
+   "line": 25,
+   "before": "if (step >= SEQ_NUM_LEDS) {",
+   "after": "if (!(step >= SEQ_NUM_LEDS)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "swap_arith",
+   "line": 37,
+   "before": "g_count = (g_count + 1) % SEQ_NUM_LEDS;",
+   "after": "g_count = (g_count - 1) % SEQ_NUM_LEDS;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "drop_call",
+   "line": 36,
+   "before": "seq_apply(g_count);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "flip_cmp",
+   "line": 18,
+   "before": "for (uint8_t i = 0; i < SEQ_NUM_LEDS; i++) {",
+   "after": "for (uint8_t i = 0; i >= SEQ_NUM_LEDS; i++) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "swap_hilo",
+   "line": 29,
+   "before": "digitalWrite(SEQ_PINS[previous], LOW);",
+   "after": "digitalWrite(SEQ_PINS[previous], HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 49,
+   "before": "return digitalRead(SEQ_PIN_BUTTON) == HIGH;",
+   "after": "return digitalRead(SEQ_PIN_BUTTON) != HIGH;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "const_change",
+   "line": 3,
+   "before": "const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 6, 5, 4};",
+   "after": "const uint8_t SEQ_PINS[SEQ_NUM_LEDS] = {7, 12, 5, 4};",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "negate_cond",
+   "line": 53,
+   "before": "if (seq_button_pressed()) {",
+   "after": "if (!(seq_button_pressed())) {",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

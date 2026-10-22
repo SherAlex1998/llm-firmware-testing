@@ -1,0 +1,62 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_moves_to_default_start) {
+  sweep_init();
+  ASSERT_EQ(sweep_angle(), SWEEP_START);
+  ASSERT_EQ(sweep_write_count(), 1);
+}
+
+TEST(clamp_limits_angles_to_servo_range) {
+  sweep_init();
+  ASSERT_EQ(sweep_clamp_angle(-25), 0);
+  ASSERT_EQ(sweep_clamp_angle(0), 0);
+  ASSERT_EQ(sweep_clamp_angle(90), 90);
+  ASSERT_EQ(sweep_clamp_angle(180), 180);
+  ASSERT_EQ(sweep_clamp_angle(250), 180);
+}
+
+TEST(write_clamps_and_tracks_commanded_angle) {
+  sweep_init();
+  sweep_write(-1);
+  ASSERT_EQ(sweep_angle(), 0);
+  sweep_write(90);
+  ASSERT_EQ(sweep_angle(), 90);
+  sweep_write(250);
+  ASSERT_EQ(sweep_angle(), 180);
+  ASSERT_EQ(sweep_write_count(), 4);
+}
+
+TEST(steps_per_cycle_calculates_valid_sweeps) {
+  sweep_init();
+  ASSERT_EQ(sweep_steps_per_cycle(10, 14, 2), 6);
+  ASSERT_EQ(sweep_steps_per_cycle(0, 5, 2), 6);
+  ASSERT_EQ(sweep_steps_per_cycle(30, 30, 1), 2);
+}
+
+TEST(steps_per_cycle_rejects_invalid_arguments) {
+  sweep_init();
+  ASSERT_EQ(sweep_steps_per_cycle(10, 5, 1), 0);
+  ASSERT_EQ(sweep_steps_per_cycle(0, 10, 0), 0);
+  ASSERT_EQ(sweep_steps_per_cycle(0, 10, -1), 0);
+}
+
+TEST(run_completes_cycles_and_returns_to_start) {
+  sweep_init();
+  sweep_run(10, 14, 2, 2, 0);
+  ASSERT_EQ(sweep_angle(), 10);
+  ASSERT_EQ(sweep_write_count(), 13);
+}
+
+TEST(run_ignores_invalid_sweep) {
+  sweep_init();
+  sweep_write(75);
+  sweep_run(20, 10, 1, 1, 0);
+  ASSERT_EQ(sweep_angle(), 75);
+  ASSERT_EQ(sweep_write_count(), 2);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

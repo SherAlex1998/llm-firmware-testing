@@ -1,0 +1,216 @@
+Module: DC motor speed from potentiometer (L298N) (id: dc_motor_pot, category: motor, complexity: simple)
+Pins:
+- 14 INPUT: A0 potentiometer
+- 12 OUTPUT: L298N IN1
+- 13 OUTPUT: L298N IN2
+- 11 OUTPUT: L298N EN (PWM)
+Functions to test:
+- void motor_init()
+- void motor_set_direction(bool forward)
+- bool motor_direction()
+- void motor_set_power(int pwm)
+- int motor_power()
+- int motor_power_from_reading(int raw)
+- void motor_stop()
+- void motor_update()
+
+### logic.h
+```cpp
+// dc_motor_pot: DC motor via L298N; speed from a potentiometer (PWM on EN), direction on IN1/IN2.
+// Adapted from https://github.com/AndreaLombardo/Arduino-L298N-Motore-DC (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define MOTOR_PIN_POT A0    // potentiometer (analog)
+#define MOTOR_PIN_IN1 12    // L298N IN1
+#define MOTOR_PIN_IN2 13    // L298N IN2
+#define MOTOR_PIN_EN  11    // L298N EN (PWM)
+
+void motor_init();                          // pins configured, forward direction, power 0
+void motor_set_direction(bool forward);     // forward: IN1 LOW / IN2 HIGH; reverse: IN1 HIGH / IN2 LOW
+bool motor_direction();                     // true = forward
+void motor_set_power(int pwm);              // clamped to 0..255, written to EN
+int motor_power();                          // last PWM value written
+int motor_power_from_reading(int raw);      // pure: ADC 0..1023 -> PWM 0..255
+void motor_stop();                          // IN1 LOW, IN2 LOW, power 0
+void motor_update();                        // read potentiometer and apply the power
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static bool g_forward = true;
+static int g_power = 0;
+
+void motor_init() {
+  pinMode(MOTOR_PIN_POT, INPUT);
+  pinMode(MOTOR_PIN_IN1, OUTPUT);
+  pinMode(MOTOR_PIN_IN2, OUTPUT);
+  pinMode(MOTOR_PIN_EN, OUTPUT);
+  motor_set_direction(true);
+  motor_set_power(0);
+}
+
+void motor_set_direction(bool forward) {
+  g_forward = forward;
+  if (forward) {
+    digitalWrite(MOTOR_PIN_IN1, LOW);
+    digitalWrite(MOTOR_PIN_IN2, HIGH);
+  } else {
+    digitalWrite(MOTOR_PIN_IN1, HIGH);
+    digitalWrite(MOTOR_PIN_IN2, LOW);
+  }
+}
+
+bool motor_direction() {
+  return g_forward;
+}
+
+void motor_set_power(int pwm) {
+  if (pwm < 0) {
+    pwm = 0;
+  }
+  if (pwm > 255) {
+    pwm = 255;
+  }
+  g_power = pwm;
+  analogWrite(MOTOR_PIN_EN, g_power);
+}
+
+int motor_power() {
+  return g_power;
+}
+
+int motor_power_from_reading(int raw) {
+  if (raw < 0) {
+    raw = 0;
+  }
+  if (raw > 1023) {
+    raw = 1023;
+  }
+  return map(raw, 0, 1023, 0, 255);
+}
+
+void motor_stop() {
+  digitalWrite(MOTOR_PIN_IN1, LOW);
+  digitalWrite(MOTOR_PIN_IN2, LOW);
+  motor_set_power(0);
+}
+
+void motor_update() {
+  int raw = analogRead(MOTOR_PIN_POT);
+  motor_set_power(motor_power_from_reading(raw));
+}
+```
+
+<reference>
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos
+
+# Testing PWM, analog inputs and servos
+
+## analogWrite and what a test can observe
+`analogWrite(pin, value)` sets the pin to `OUTPUT`. `analogWrite(pin, 0)` is implemented as
+`digitalWrite(pin, LOW)` and `analogWrite(pin, 255)` as `digitalWrite(pin, HIGH)`; any other value starts the
+PWM timer (Arduino AVR core, `wiring_analog.c`). On the Uno the PWM frequency is 490 Hz, and 980 Hz on pins 5
+and 6.
+
+Only the two extreme values can be checked with `digitalRead()`. For values 1 to 254 the duty cycle cannot be
+read back, and `digitalRead()` would switch the PWM off. Check intermediate levels through the module's own
+state: a getter that returns the level it wrote, or the value returned by the function that computes the level.
+
+[kb/learn/motor-shield-dc-motor.md]
+Controlling a DC Motor with Motor Shield Rev3 / Circuit
+
+### Circuit
+
+Let's begin by mounting our Arduino Motor Shield Rev3 on top of an Arduino UNO.
+
+Now, let's connect the motor to the A channel, following the image below. The channels are marked next to the screw terminals on the shield.
+
+Finally, we can connect the USB cable to the computer.
+
+## Programming the Board
+
+We will now get to the programming part of this tutorial.
+
+First, let's take a look at some key commands in the code. We are actually not using a library, as the operation is very basic.
+
+- `int directionPin = 12;` - assign direction pin.
+- `int pwmPin = 3;` - assign PWM (work duty) pin.
+- `int brakePin = 9;` - assign brake pin.
+- `digitalWrite(directionPin, state)` - sets the direction of the pin by using HIGH or LOW states.
+- `digitalWrite(brakePin, state)` - release or activate brakes, using HIGH or LOW states.
+- `analogWrite(pwmPin, 30)` - write a value between 0-100 to set the work duty.
+- `directionState = !directionState` - a boolean that switches every time the loop is run.
+
+The sketch can be found in the snippet below. Upload the sketch to the board.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Pin numbers on the Uno
+
+## Pin numbers on the Uno
+- Digital pins 0 to 13. The analog inputs A0 to A5 are also digital pins 14 to 19.
+- Pins 0 and 1 are the Serial RX/TX lines; the test protocol uses Serial, so tests must not drive them.
+- PWM pins: 3, 5, 6, 9, 10, 11. `LED_BUILTIN` is pin 13.
+- Check outputs against the pin numbers in the module's specification (its pin table), not against constants
+  taken from the code under test: a wrong pin number in the code is only detected if the test uses the pin
+  number the hardware is actually wired to.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno
+
+# Testing digital pins on the Arduino Uno
+
+## Reading back an output pin
+`digitalRead(pin)` reads the port input register (PINx), which reflects the actual level of the pin. For a pin
+configured as `OUTPUT` it therefore returns the level the sketch last wrote with `digitalWrite()`, so a test can
+check an output with `digitalRead()` right after calling the function under test.
+
+On pins with a PWM timer (3, 5, 6, 9, 10, 11) both `digitalRead()` and `digitalWrite()` first switch the PWM
+off (Arduino AVR core, `wiring_digital.c`). Reading a pin that is currently producing PWM stops the PWM.
+
+[kb/learn/stepper-motors.md]
+Arduino and Stepper Motor Configurations / StepperSpeedControl
+
+### StepperSpeedControl
+
+The motor will rotate in a clockwise direction. The higher the potentiometer value, the faster the motor speed. Because setSpeed() sets the delay between steps,
+you may notice the motor is less responsive to changes in the sensor value at low speeds.
+
+```arduino
+#include <Stepper.h>
+
+const int stepsPerRevolution = 200;  // change this to fit the number of steps per revolution
+// for your motor
+
+// initialize the stepper library on pins 8 through 11:
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
+
+int stepCount = 0;  // number of steps the motor has taken
+
+void setup() {
+  // nothing to do inside the setup
+}
+
+void loop() {
+  // read the sensor value:
+  int sensorReading = analogRead(A0);
+  // map it to a range from 0 to 100:
+  int motorSpeed = map(sensorReading, 0, 1023, 0, 100);
+  // set the motor speed:
+  if (motorSpeed > 0) {
+    myStepper.setSpeed(motorSpeed);
+    // step 1/100 of a revolution:
+    myStepper.step(stepsPerRevolution / 100);
+  }
+}
+```
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

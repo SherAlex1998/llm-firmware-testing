@@ -1,0 +1,33 @@
+id: max7219_scoreboard
+name: "Two-player scoreboard on four MAX7219 matrices with short/long button presses"
+source_url: https://github.com/TrevisanGMW/arduino-scoreboard
+license: MIT
+repo_created: 2019-02-23
+experiment: 2
+category: display
+complexity: medium
+backend: avr8js
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "MD_MAX72XX", version: "2.10.0"}
+interrupts: false
+pins:
+  - {pin: 4, mode: INPUT, role: "left button, HIGH = pressed (not connected in the test setup: reads LOW)"}
+  - {pin: 2, mode: INPUT, role: "right button, HIGH = pressed (not connected: reads LOW)"}
+  - {pin: 10, mode: OUTPUT, role: "MAX7219 CS (hardware SPI: MOSI 11, SCK 13); score_column() reads the pixels back"}
+entry_functions:
+  - "void score_reset_state()"
+  - "void score_init()"
+  - "void score_loop()"
+  - "void score_loop_with(int buttonStateLeft, int buttonStateRight, unsigned long now)"
+  - "void printText(uint8_t modStart, uint8_t modEnd, char *pMsg)"
+  - "uint8_t score_column(uint8_t col)"
+loc: 165
+metrics: {nloc: 165, ccn_sum: 35, ccn_max: 22, functions: 6}
+notes: >-
+  Source: Score_Keeper_01.ino (single sketch, 2019-2020). Functions copied into logic.cpp; #defines and globals
+  moved to logic.h. Changes: setup() -> score_init() (also resets scores and button state); loop() ->
+  score_loop(), which reads the buttons and millis() and runs score_loop_with(left, right, now); the debug
+  Serial.println of the right button was removed (Serial carries the test protocol); score_column() exposes
+  MD_MAX72XX::getColumn for checking the display. MD_MAX72XX pinned to 2.10.0, the last version with the
+  MD_MAX72XX(csPin, numDevices) constructor the sketch uses. avr8js backend (hardware SPI without a slave).

@@ -1,0 +1,63 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(clamp_angle_low) {
+  int result = sweep_clamp_angle(-10);
+  ASSERT_EQ(result, 0);
+}
+
+TEST(clamp_angle_high) {
+  int result = sweep_clamp_angle(200);
+  ASSERT_EQ(result, 180);
+}
+
+TEST(clamp_angle_valid) {
+  int result = sweep_clamp_angle(90);
+  ASSERT_EQ(result, 90);
+}
+
+TEST(init_and_write) {
+  sweep_init();
+  ASSERT_EQ(sweep_angle(), SWEEP_START);
+  ASSERT_EQ(sweep_write_count(), 1);
+}
+
+TEST(write_and_read) {
+  sweep_init();
+  sweep_write(45);
+  ASSERT_EQ(sweep_angle(), 45);
+  sweep_write(135);
+  ASSERT_EQ(sweep_angle(), 135);
+  ASSERT_EQ(sweep_write_count(), 3);
+}
+
+TEST(write_clamps) {
+  sweep_init();
+  sweep_write(-50);
+  ASSERT_EQ(sweep_angle(), 0);
+  sweep_write(200);
+  ASSERT_EQ(sweep_angle(), 180);
+  ASSERT_EQ(sweep_write_count(), 3);
+}
+
+TEST(steps_per_cycle) {
+  unsigned int steps = sweep_steps_per_cycle(100, 120, 10);
+  ASSERT_EQ(steps, 6);
+}
+
+TEST(sweep_run_basic) {
+  sweep_init();
+  sweep_run(100, 110, 5, 1, 10);
+  ASSERT_EQ(sweep_angle(), 100);
+  unsigned long count = sweep_write_count();
+  ASSERT_TRUE(count > 1);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```

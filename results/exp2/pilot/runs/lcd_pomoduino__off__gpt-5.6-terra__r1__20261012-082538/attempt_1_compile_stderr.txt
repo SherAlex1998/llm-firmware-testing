@@ -1,0 +1,6 @@
+test_main.ino: In function 'void test_fn_timer_period_and_utils_values()':
+test_main.ino:77:27: error: 'Utils' has not been declared
+   const char *time_text = Utils::ms_to_m_s(125000);
+                           ^~~~~
+
+Error during build: exit status 1

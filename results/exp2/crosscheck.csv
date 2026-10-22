@@ -1,0 +1,11 @@
+module_id,test_source,avr8js_verdict,wokwi_verdict,avr8js_passed,wokwi_passed,total,match
+washer_safety,benchmark/washer_safety/tests/smoke_test.ino,pass,pass,4,4,4,True
+neopixel_pomodoro,benchmark/neopixel_pomodoro/tests/smoke_test.ino,pass,pass,3,3,3,True
+lcd_pomoduino,benchmark/lcd_pomoduino/tests/smoke_test.ino,pass,pass,2,2,2,True
+lcd_kitchen_timer,benchmark/lcd_kitchen_timer/tests/smoke_test.ino,pass,pass,2,2,2,True
+pedestrian_traffic_light,benchmark/pedestrian_traffic_light/tests/smoke_test.ino,pass,pass,2,2,2,True
+pet_feeding_timer,benchmark/pet_feeding_timer/tests/smoke_test.ino,pass,pass,3,3,3,True
+lcd_murasaki_dice,benchmark/lcd_murasaki_dice/tests/smoke_test.ino,pass,fail,3,2,3,False
+max7219_scoreboard,benchmark/max7219_scoreboard/tests/smoke_test.ino,pass,pass,3,3,3,True
+pcd8544_2048,benchmark/pcd8544_2048/tests/smoke_test.ino,pass,pass,3,3,3,True
+led_cube_8x8x8,benchmark/led_cube_8x8x8/tests/smoke_test.ino,pass,pass,3,3,3,True

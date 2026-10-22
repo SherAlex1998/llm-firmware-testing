@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST initial_state_after_init PASS
+@TEST step_advances_brightness PASS
+@TEST set_velocity_ignores_zero PASS
+@TEST bounce_at_max_flips_velocity PASS
+@TEST bounce_at_min_after_max PASS
+@TEST reset_restores_defaults PASS
+@RUN_END 6/6

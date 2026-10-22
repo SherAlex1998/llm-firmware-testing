@@ -1,0 +1,20 @@
+module_id,backend,mutants,files,operators,smoke_backend,smoke_original,trivial,not_trivial,unchecked
+lcd_param_menu,wokwi,10,logic.cpp,const_change:1 drop_call:2 flip_cmp:2 negate_cond:2 swap_arith:2 swap_logic:1,wokwi,pass,5,5,0
+pomodoro_rtc,wokwi,10,click.cpp logic.cpp rtsl.cpp soundbuzz.cpp state_machine.cpp,const_change:2 drop_call:2 flip_cmp:2 negate_cond:2 off_by_one:2,wokwi,pass,1,9,0
+max7219_snake,wokwi,10,game.cpp logic.cpp,const_change:1 drop_call:2 flip_cmp:2 negate_cond:1 off_by_one:1 swap_arith:2 swap_hilo:1,wokwi,pass,2,8,0
+washer_safety,avr8js,10,logic.cpp,const_change:1 drop_call:1 flip_cmp:2 negate_cond:2 swap_arith:1 swap_hilo:2 swap_logic:1,avr8js,pass,1,9,0
+max7219_tetris,wokwi,10,logic.cpp,const_change:1 drop_call:2 flip_cmp:2 negate_cond:2 off_by_one:1 swap_arith:1 swap_hilo:1,wokwi,pass,1,9,0
+lcd_morse_writer,wokwi,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:2 negate_cond:1 swap_arith:2 swap_logic:1,wokwi,pass,2,8,0
+neopixel_pomodoro,avr8js,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:2 negate_cond:2 swap_arith:2,avr8js,pass,3,7,0
+lcd_pomoduino,avr8js,10,Beeper.hpp Button_Logic.cpp Display.cpp Pomodoro.cpp UI.cpp Utils.cpp logic.cpp,const_change:2 drop_call:2 negate_cond:2 off_by_one:2 swap_arith:2,avr8js,pass,1,9,0
+lcd_kitchen_timer,avr8js,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:2 negate_cond:2 off_by_one:1 swap_arith:1,avr8js,pass,3,7,0
+ultrasonic_parking,wokwi,10,led_controller.h logic.cpp sonar_controller.h,const_change:2 drop_call:2 flip_cmp:1 off_by_one:1 swap_arith:2 swap_logic:2,wokwi,pass,3,7,0
+ds18b20_thermostat,wokwi,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:2 negate_cond:2 swap_hilo:1 swap_logic:1,wokwi,pass,2,8,0
+pedestrian_traffic_light,avr8js,10,logic.cpp,const_change:1 drop_call:2 flip_cmp:1 negate_cond:2 swap_arith:2 swap_hilo:2,avr8js,pass,0,10,0
+ir_wakeup_light,wokwi,10,logic.cpp,drop_call:2 flip_cmp:2 negate_cond:2 off_by_one:2 swap_arith:1 swap_logic:1,wokwi,pass,1,9,0
+pet_feeding_timer,avr8js,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:2 negate_cond:1 off_by_one:1 swap_arith:1 swap_hilo:1,avr8js,pass,3,7,0
+lcd_murasaki_dice,avr8js,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:1 negate_cond:1 swap_arith:2 swap_hilo:1 swap_logic:1,avr8js,pass,4,6,0
+max7219_scoreboard,avr8js,10,logic.cpp,const_change:2 drop_call:1 flip_cmp:2 negate_cond:2 swap_arith:2 swap_logic:1,avr8js,pass,3,7,0
+pcd8544_2048,avr8js,10,base.h board.h display.h,drop_call:2 flip_cmp:2 negate_cond:2 off_by_one:2 swap_arith:1 swap_hilo:1,avr8js,pass,1,9,0
+lcd_endless_runner,wokwi,10,logic.cpp,const_change:2 drop_call:2 flip_cmp:2 off_by_one:2 swap_arith:2,wokwi,pass,0,10,0
+led_cube_8x8x8,avr8js,10,logic.cpp,const_change:1 drop_call:1 flip_cmp:2 negate_cond:2 off_by_one:1 swap_arith:2 swap_hilo:1,avr8js,pass,1,9,0

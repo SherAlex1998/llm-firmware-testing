@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_pins_and_stops_motors PASS
+@TEST motor_a_forward FAIL line 25: pin 6 is LOW, expected HIGH
+@TEST motor_b_forward FAIL line 40: pin 5 is LOW, expected HIGH
+@TEST motor_a_backward FAIL line 51: pin 6 is LOW, expected HIGH
+@TEST motor_b_backward PASS
+@TEST stop_individual_motor PASS
+@TEST stop_all_motors PASS
+@TEST invalid_motor_operations PASS
+@RUN_END 5/8

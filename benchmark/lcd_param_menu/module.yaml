@@ -1,0 +1,61 @@
+id: lcd_param_menu
+name: "Parameter menu on a 20x4 I2C LCD with rotary encoder and EEPROM"
+source_url: https://github.com/cotestatnt/menu_lcd
+license: MIT
+repo_created: 2018-09-12
+experiment: 2
+category: display
+complexity: medium
+backend: wokwi
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal I2C", version: "1.1.2"}
+  - {name: "RotaryEncoder", version: "1.6.0"}
+devices:
+  - part: wokwi-lcd2004
+    id: lcd
+    pins: {SDA: A4, SCL: A5}
+    attrs: {pins: "i2c"}
+    test_visible: "20x4 character LCD at I2C address 0x27; it cannot be read back, menu_lcd_line() returns what was written"
+  - part: wokwi-ky-040
+    id: encoder
+    pins: {CLK: 3, DT: 2, SW: 4}
+    attrs: {}
+    test_visible: "rotary encoder at rest for the whole run (not turned, button released)"
+interrupts: true
+pins:
+  - {pin: 3, mode: INPUT_PULLUP, role: "encoder CLK (external interrupt)"}
+  - {pin: 2, mode: INPUT_PULLUP, role: "encoder DT (external interrupt)"}
+  - {pin: 4, mode: INPUT_PULLUP, role: "encoder push button SW (LOW = pressed)"}
+  - {pin: 18, mode: I2C, role: "LCD SDA (A4)"}
+  - {pin: 19, mode: I2C, role: "LCD SCL (A5)"}
+entry_functions:
+  - "void menu_init()"
+  - "void menu_check_button(uint16_t enter_pause_ms, uint16_t save_pause_ms)"
+  - "void menu_button_event(uint16_t held_ms, uint16_t enter_pause_ms, uint16_t save_pause_ms)"
+  - "void menu_long_click(uint16_t enter_pause_ms, uint16_t save_pause_ms)"
+  - "void menu_single_click()"
+  - "void menu_edit_vars()"
+  - "void menu_apply_delta(int16_t delta)"
+  - "void menu_render()"
+  - "void menu_idle_screen()"
+  - "void menu_write_eeprom()"
+  - "void menu_read_eeprom()"
+  - "void menu_encoder_isr()"
+  - "bool menu_setup_mode()"
+  - "uint8_t menu_selected()"
+  - "MenuVarType menu_var_type(uint8_t index)"
+  - "float menu_value(uint8_t index)"
+  - "const char* menu_lcd_line(uint8_t row)"
+loc: 264
+metrics: {nloc: 264, ccn_sum: 53, ccn_max: 7, functions: 21}
+notes: >-
+  Source file: menu_lcd2.ino (single sketch). All logic moved to logic.cpp unchanged in structure (pointer array
+  of menu variables, PROGMEM labels, paged rendering, EEPROM layout). Changes: menu_init() also restores the
+  power-up values of the variables and menu state so tests are independent; the 1000/2000 ms pauses of LongClick
+  became parameters (the sketch passes the original values); added the pure twins menu_button_event(held_ms, ...)
+  and menu_apply_delta(delta), getters menu_setup_mode/menu_selected/menu_var_type/menu_value and an LCD shadow
+  buffer menu_lcd_line(row); Serial prints removed (Serial carries the test protocol); the idle-screen delay(100)
+  moved to the sketch. Bugs fixed: the encoder delta was stored in a uint16_t, so one step counter-clockwise added
+  655.35 to a float parameter (now int16_t); `varSel = ++varSel % NUM_VAR` (unsequenced) rewritten; UINT values
+  printed with %05d showed values above 32767 as negative (now %05u).

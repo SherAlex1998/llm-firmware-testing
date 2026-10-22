@@ -1,0 +1,21 @@
+{
+ "module_id": "stepper_28byj48",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3800,
+ "tokens_out": 949,
+ "cost_usd": 0.008545,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3800,
+   "tokens_out": 949,
+   "latency_s": 5.02912712097168,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_clockwise_and_stops PASS
+@TEST direction_controls_both_direction_pins PASS
+@TEST speed_clamps_and_reports_written_value PASS
+@TEST stop_sets_speed_to_zero PASS
+@TEST axis_conversion_functions_handle_center_and_ends PASS
+@TEST apply_axis_stops_in_dead_zone_and_drives_outside PASS
+@TEST update_keeps_state_and_direction_outputs_consistent PASS
+@RUN_END 7/7

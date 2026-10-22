@@ -1,0 +1,169 @@
+{
+ "version": 1,
+ "author": "benchmark",
+ "editor": "wokwi",
+ "parts": [
+  {
+   "type": "wokwi-arduino-uno",
+   "id": "uno",
+   "top": 0,
+   "left": 0,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-lcd1602",
+   "id": "lcd",
+   "top": -150,
+   "left": 0,
+   "attrs": {
+    "pins": "i2c"
+   }
+  },
+  {
+   "type": "wokwi-pushbutton",
+   "id": "dash",
+   "top": 260,
+   "left": 40,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_dash",
+   "top": 330,
+   "left": 40,
+   "attrs": {
+    "value": "10000"
+   }
+  },
+  {
+   "type": "wokwi-pushbutton",
+   "id": "dot",
+   "top": 260,
+   "left": 160,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_dot",
+   "top": 330,
+   "left": 160,
+   "attrs": {
+    "value": "10000"
+   }
+  },
+  {
+   "type": "wokwi-pushbutton",
+   "id": "sep",
+   "top": 260,
+   "left": 280,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_sep",
+   "top": 330,
+   "left": 280,
+   "attrs": {
+    "value": "10000"
+   }
+  }
+ ],
+ "connections": [
+  [
+   "uno:GND.1",
+   "lcd:GND",
+   "black",
+   []
+  ],
+  [
+   "uno:5V",
+   "lcd:VCC",
+   "red",
+   []
+  ],
+  [
+   "uno:A4",
+   "lcd:SDA",
+   "green",
+   []
+  ],
+  [
+   "uno:A5",
+   "lcd:SCL",
+   "blue",
+   []
+  ],
+  [
+   "uno:5V",
+   "dash:1.l",
+   "red",
+   []
+  ],
+  [
+   "uno:12",
+   "dash:2.l",
+   "green",
+   []
+  ],
+  [
+   "dash:2.r",
+   "r_dash:1",
+   "green",
+   []
+  ],
+  [
+   "r_dash:2",
+   "uno:GND.2",
+   "black",
+   []
+  ],
+  [
+   "uno:5V",
+   "dot:1.l",
+   "red",
+   []
+  ],
+  [
+   "uno:8",
+   "dot:2.l",
+   "green",
+   []
+  ],
+  [
+   "dot:2.r",
+   "r_dot:1",
+   "green",
+   []
+  ],
+  [
+   "r_dot:2",
+   "uno:GND.2",
+   "black",
+   []
+  ],
+  [
+   "uno:5V",
+   "sep:1.l",
+   "red",
+   []
+  ],
+  [
+   "uno:10",
+   "sep:2.l",
+   "green",
+   []
+  ],
+  [
+   "sep:2.r",
+   "r_sep:1",
+   "green",
+   []
+  ],
+  [
+   "r_sep:2",
+   "uno:GND.2",
+   "black",
+   []
+  ]
+ ]
+}

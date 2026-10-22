@@ -1,0 +1,108 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_enters_green_with_open_gate) {
+  tsg_init();
+
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+  ASSERT_PIN(11, HIGH);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, LOW);
+  ASSERT_EQ(tsg_gate_angle(), 180);
+  ASSERT_TRUE(tsg_gate_open());
+}
+
+TEST(set_yellow_closes_gate_and_sets_only_yellow) {
+  tsg_init();
+
+  ASSERT_TRUE(tsg_set_state(TSG_YELLOW));
+  ASSERT_EQ(tsg_state(), TSG_YELLOW);
+  ASSERT_PIN(11, LOW);
+  ASSERT_PIN(12, HIGH);
+  ASSERT_PIN(13, LOW);
+  ASSERT_EQ(tsg_gate_angle(), 0);
+  ASSERT_FALSE(tsg_gate_open());
+}
+
+TEST(set_red_and_off_leds_and_gate_behavior) {
+  tsg_init();
+
+  ASSERT_TRUE(tsg_set_state(TSG_RED));
+  ASSERT_EQ(tsg_state(), TSG_RED);
+  ASSERT_PIN(11, LOW);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, HIGH);
+  ASSERT_EQ(tsg_gate_angle(), 0);
+  ASSERT_FALSE(tsg_gate_open());
+
+  ASSERT_TRUE(tsg_set_state(TSG_GREEN));
+  ASSERT_TRUE(tsg_set_state(TSG_OFF));
+  ASSERT_EQ(tsg_state(), TSG_OFF);
+  ASSERT_PIN(11, LOW);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, LOW);
+  ASSERT_EQ(tsg_gate_angle(), 180);
+  ASSERT_TRUE(tsg_gate_open());
+}
+
+TEST(invalid_state_is_rejected_without_changes) {
+  tsg_init();
+
+  ASSERT_FALSE(tsg_set_state(TSG_STATE_COUNT));
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+  ASSERT_PIN(11, HIGH);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, LOW);
+  ASSERT_EQ(tsg_gate_angle(), 180);
+}
+
+TEST(next_state_is_cyclic_and_invalid_defaults_green) {
+  tsg_init();
+
+  ASSERT_EQ(tsg_next_state(TSG_GREEN), TSG_YELLOW);
+  ASSERT_EQ(tsg_next_state(TSG_YELLOW), TSG_RED);
+  ASSERT_EQ(tsg_next_state(TSG_RED), TSG_OFF);
+  ASSERT_EQ(tsg_next_state(TSG_OFF), TSG_GREEN);
+  ASSERT_EQ(tsg_next_state(TSG_STATE_COUNT), TSG_GREEN);
+}
+
+TEST(next_advances_states_and_outputs) {
+  tsg_init();
+
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_YELLOW);
+  ASSERT_PIN(11, LOW);
+  ASSERT_PIN(12, HIGH);
+  ASSERT_PIN(13, LOW);
+  ASSERT_EQ(tsg_gate_angle(), 0);
+
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_RED);
+  ASSERT_PIN(11, LOW);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, HIGH);
+
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_OFF);
+  ASSERT_PIN(11, LOW);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, LOW);
+
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+  ASSERT_PIN(11, HIGH);
+  ASSERT_PIN(12, LOW);
+  ASSERT_PIN(13, LOW);
+  ASSERT_EQ(tsg_gate_angle(), 180);
+}
+
+TEST(state_durations_cover_valid_and_invalid_states) {
+  tsg_init();
+
+  ASSERT_EQ(tsg_state_duration_ms(TSG_GREEN), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_OFF), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_STATE_COUNT), 0);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

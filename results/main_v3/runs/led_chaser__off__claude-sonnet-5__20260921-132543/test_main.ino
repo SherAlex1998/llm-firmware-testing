@@ -1,0 +1,86 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_all_off) {
+  chaser_init();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_EQ(chaser_count_on(), 0);
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(light_only_valid_index) {
+  chaser_init();
+  ASSERT_TRUE(chaser_light_only(3));
+  ASSERT_EQ(chaser_position(), 3);
+  ASSERT_EQ(chaser_count_on(), 1);
+  ASSERT_PIN(CHASER_PINS[3], HIGH);
+  ASSERT_PIN(CHASER_PINS[2], LOW);
+  ASSERT_PIN(CHASER_PINS[4], LOW);
+}
+
+TEST(light_only_invalid_index) {
+  chaser_init();
+  chaser_light_only(5);
+  ASSERT_FALSE(chaser_light_only(10));
+  ASSERT_EQ(chaser_position(), 5);
+  ASSERT_PIN(CHASER_PINS[5], HIGH);
+}
+
+TEST(all_off_resets_position) {
+  chaser_init();
+  chaser_light_only(7);
+  chaser_all_off();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_count_on(), 0);
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(step_forward) {
+  chaser_init();
+  chaser_light_only(0);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_PIN(CHASER_PINS[1], HIGH);
+  ASSERT_PIN(CHASER_PINS[0], LOW);
+}
+
+TEST(step_bounce_at_top) {
+  chaser_init();
+  chaser_light_only(9);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 8);
+  ASSERT_EQ(chaser_direction(), -1);
+  ASSERT_PIN(CHASER_PINS[8], HIGH);
+  ASSERT_PIN(CHASER_PINS[9], LOW);
+}
+
+TEST(step_bounce_at_bottom) {
+  chaser_init();
+  chaser_light_only(9);
+  chaser_step(); // pos=8, dir=-1
+  for (uint8_t i = 0; i < 8; i++) {
+    chaser_step();
+  }
+  ASSERT_EQ(chaser_position(), 0);
+  ASSERT_EQ(chaser_direction(), -1);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+}
+
+TEST(count_on_always_one_after_light) {
+  chaser_init();
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    chaser_light_only(i);
+    ASSERT_EQ(chaser_count_on(), 1);
+  }
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

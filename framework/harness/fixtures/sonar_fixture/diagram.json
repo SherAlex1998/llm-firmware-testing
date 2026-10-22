@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "author": "harness",
+  "editor": "wokwi",
+  "parts": [
+    {"type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {}},
+    {"type": "wokwi-hc-sr04", "id": "sonar", "top": -150, "left": 100, "attrs": {"distance": "100"}}
+  ],
+  "connections": [
+    ["uno:5V", "sonar:VCC", "red", []],
+    ["uno:GND.1", "sonar:GND", "black", []],
+    ["uno:9", "sonar:TRIG", "green", []],
+    ["uno:10", "sonar:ECHO", "blue", []]
+  ]
+}

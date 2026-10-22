@@ -1,0 +1,21 @@
+{
+ "module_id": "joystick_motor",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4477,
+ "tokens_out": 1093,
+ "cost_usd": 0.009942,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4477,
+   "tokens_out": 1093,
+   "latency_s": 6.192262649536133,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

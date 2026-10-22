@@ -1,0 +1,1787 @@
+Module: Pomodoro timer with a 16x2 LCD, two buttons, beeper and EEPROM count (object-oriented) (id: lcd_pomoduino, category: mixed, complexity: complex)
+Pins:
+- 2 OUTPUT: beeper
+- 3 INPUT_PULLUP: button B1 to GND, LOW = pressed (not connected in the test setup: reads HIGH)
+- 4 INPUT_PULLUP: button B2 to GND, LOW = pressed (not connected in the test setup: reads HIGH)
+- 7 OUTPUT: LCD 16x2 RS (E 8, D4..D7 = 9..12)
+Libraries available: LiquidCrystal 1.0.7
+Functions to test:
+- void pomo2_setup()
+- void pomo2_loop_at(uint32_t a_time)
+- void pomo2_step(uint32_t a_time, bool b1_down, bool b2_down)
+- const char *pomo2_lcd_line(uint8_t a_y)
+- MO::Pomodoro: Run, Get_State, Get_Timer_Type, Get_Pomodoros, Get_Current_Period_Minutes, Get_Time_Left_Ms, Get_Time_Max_Ms, Is_Pomodoro
+- MO::Button_Logic: Update(time, active), Pressed, Released, On, Duration, Last_Duration, Reset
+- MO::Timer, MO::Period, MO::Counter, MO::Beeper, MO::Utils::ms_to_m_s (see headers)
+
+### logic.h
+```cpp
+// Pomodoro timer with a 16x2 LCD, two buttons, a beeper and the pomodoro count kept in EEPROM.
+// Source: https://github.com/opokatech/pomoduino2 (src/ + src-alternative/ui/lcd), MIT License,
+// Copyright (c) 2016 Miroslaw Opoka. Refactored for testability (see module.yaml notes).
+//
+// Classes (namespace MO): Pomodoro (state machine), Button / Button_Logic (press, release, durations), Timer,
+// Period, Counter, Beeper, Display, UI (LCD user interface), Eeprom. Pins and periods: Const.hpp.
+// Buttons: B1 short release cycles the period type (25 / 5 / 15 min); B2 short click (< 250 ms) starts, B2
+// release while running pauses; holding B2 over 3 s in READY clears the pomodoro count.
+#pragma once
+#include <Arduino.h>
+#include "Const.hpp"
+#include "Pomodoro.hpp"
+#include "Button.hpp"
+#include "Eeprom.hpp"
+#include "UI.hpp"
+
+extern MO::Button   the_b1;        // pin 3, INPUT_PULLUP, LOW = pressed
+extern MO::Button   the_b2;        // pin 4, INPUT_PULLUP, LOW = pressed
+extern MO::Eeprom   the_eeprom;
+extern MO::UI       the_ui;
+extern MO::Pomodoro the_pomodoro;
+
+#define POM_READY 0
+#define POM_RUNNING 1
+#define POM_FINISHED 2
+#define POM_PAUSED 3
+
+void pomo2_setup();                 // setup(): buttons, UI; pomodoro object re-created (count read from EEPROM)
+void pomo2_loop_at(uint32_t a_time);  // one loop() pass at time a_time (ms): buttons read from the pins, Run()
+void pomo2_step(uint32_t a_time, bool b1_down, bool b2_down);  // the same pass with given button states
+const char *pomo2_lcd_line(uint8_t a_y);  // last text written to LCD line 0 or 1
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+#include <new.h>
+
+// Global objects of the original sketch.ino
+MO::Button the_b1(MO::Const::PIN_B1);
+MO::Button the_b2(MO::Const::PIN_B2);
+MO::Eeprom the_eeprom;
+MO::UI     the_ui;
+
+// for MO::Pomodoro it does not matter what UI it uses
+MO::Pomodoro the_pomodoro(&the_ui, &the_b1, &the_b2, &the_eeprom);
+
+void pomo2_setup()
+{
+    // power-up state (testability: pomo2_setup() can be called again)
+    the_b1.Reset();
+    the_b2.Reset();
+    // re-construct in place: Pomodoro keeps pointers to its own Period members, so it must not be copied
+    the_pomodoro.~Pomodoro();
+    new (&the_pomodoro) MO::Pomodoro(&the_ui, &the_b1, &the_b2, &the_eeprom);
+
+    the_b1.Setup();
+    the_b2.Setup();
+    the_pomodoro.Setup();
+}
+
+void pomo2_loop_at(uint32_t a_time)
+{
+    the_b1.Update(a_time);
+    the_b2.Update(a_time);
+    the_pomodoro.Run(a_time);
+}
+
+void pomo2_step(uint32_t a_time, bool b1_down, bool b2_down)
+{
+    the_b1.Button_Logic::Update(a_time, b1_down);
+    the_b2.Button_Logic::Update(a_time, b2_down);
+    the_pomodoro.Run(a_time);
+}
+
+const char *pomo2_lcd_line(uint8_t a_y)
+{
+    return the_ui.Line(a_y);
+}
+```
+
+### Const.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __CONST_HPP__
+#define __CONST_HPP__
+
+#include <stdint.h>
+
+namespace MO
+{
+    namespace Const
+    {
+        const uint8_t PIN_BEEPER            = 2;  // beeper
+        const uint8_t PIN_B1                = 3;  // button 1
+        const uint8_t PIN_B2                = 4;  // button 2
+        const uint8_t PIN_LCD_CONTRAST      = 5;  // button contrast
+        const uint8_t PIN_LCD_BRIGHTNESS    = 6;  // button brighness up
+
+        // display
+        const uint8_t PIN_RS                = 7;
+        const uint8_t PIN_ENABLE            = 8;
+        const uint8_t PIN_D4                = 9;
+        const uint8_t PIN_D5                = 10;
+        const uint8_t PIN_D6                = 11;
+        const uint8_t PIN_D7                = 12;
+
+        // pomodoro constants
+        const uint8_t POM_WORK_MIN          = 25;
+        const uint8_t POM_BREAK_SHORT_MIN   = 5;
+        const uint8_t POM_BREAK_LONG_MIN    = 15;
+
+        const uint8_t POM_WORK_BEEPS        = 5;
+        const uint8_t POM_BREAK_SHORT_BEEPS = 1;
+        const uint8_t POM_BREAK_LONG_BEEPS  = 3;
+
+        // eeprom address for saving pomodoros
+        const int     POM_SAVE_ADDRESS      = 0;
+    }
+}
+
+#endif
+```
+
+### Pomodoro.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __POMODORO_HPP__
+#define __POMODORO_HPP__
+
+#include <stdint.h>
+
+#include "Button_Logic.hpp"
+#include "Timer.hpp"
+#include "Period.hpp"
+#include "State_IF.hpp"
+#include "UI_IF.hpp"
+#include "Eeprom_IF.hpp"
+
+namespace MO
+{
+    /** Pomodoro logic.
+     *
+     * Uses a state machine for handling different states of the system.
+     * As output of the state it uses an instance of UI_IF object which should
+     * know how to present the state.
+     * A state object is an instance of a class derived from the abstract (just
+     * like UI_IF) State_IF class. This class implements the interface defined
+     * in State_IF.
+     *
+     * As inputs it uses 2 buttons.
+     */
+
+    class Pomodoro: public State_IF
+    {
+        public:
+            Pomodoro(UI_IF *a_ui, Button_Logic *a_b1, Button_Logic *a_b2,
+                     Eeprom_IF *a_eeprom);
+
+            /// Called once.
+            void Setup();
+
+            /// Called from main loop every 100ms.
+            void Run(uint32_t a_time);
+
+            // <State interface>
+            uint8_t Get_Pomodoros() const { return the_pomodoros; }
+            uint8_t Get_Current_Period_Minutes() const
+            { return the_pom[the_timer_type]->Get_Time_In_Min(); }
+            uint32_t Get_Time_Left_Ms() const
+            { return the_timer.Get_Time_Left(); }
+            uint32_t Get_Time_Max_Ms() const { return the_timer.Get_Max(); }
+
+            // testability getters: state machine (0 READY, 1 RUNNING, 2 FINISHED, 3 PAUSED)
+            // and timer type (0 work 25 min, 1 short break 5 min, 2 long break 15 min)
+            uint8_t Get_State() const { return the_state; }
+            uint8_t Get_Timer_Type() const { return the_timer_type; }
+            bool Is_Pomodoro() const { return the_timer_type == T_POM25; }
+            // </State interface>
+        private:
+            /// Shortcut for current period.
+            const Period & p() { return *the_pom[the_timer_type]; }
+
+            void run_ready();
+            void run_running(uint32_t a_time);
+            void run_finished();
+            void run_pause();
+
+            void reset_timer() { the_timer.Reset(p().Get_Time_In_Ms()); }
+            void continue_timer() { the_timer.Reset(the_timer.Get_Time_Left()); }
+
+            // type of pomodoro periods
+            enum
+            {
+                T_POM25,
+                T_POM5,
+                T_POM15,
+
+                T_SIZE
+            };
+
+            enum STATE
+            {
+                READY,
+                RUNNING,
+                FINISHED,
+                PAUSED
+            };
+
+            uint8_t the_timer_type; //!< Current timer type (T_POM25, etc.)
+            STATE   the_state;
+            Timer   the_timer;
+            uint8_t the_pomodoros;  //!< Number of pomodoros done so far.
+
+            UI_IF        *the_ui;
+            Button_Logic *the_b1;
+            Button_Logic *the_b2;
+            Eeprom_IF    *the_eeprom;
+
+            Period  the_pom25;
+            Period  the_pom5;
+            Period  the_pom15;
+            Period* the_pom[T_SIZE];
+    };
+}
+
+#endif
+```
+
+### Pomodoro.cpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "Pomodoro.hpp"
+#include "Utils.hpp"
+#include "Const.hpp"
+
+namespace MO
+{
+    Pomodoro::Pomodoro(UI_IF *a_ui, Button_Logic *a_b1, Button_Logic *a_b2,
+                       Eeprom_IF *a_eeprom):
+        the_timer_type(T_POM25), the_state(READY),
+        the_timer(0), the_pomodoros(0),
+
+        the_ui(a_ui),
+        the_b1(a_b1),
+        the_b2(a_b2),
+        the_eeprom(a_eeprom),
+
+        the_pom25(Const::POM_WORK_MIN, Const::POM_WORK_BEEPS),
+        the_pom5(Const::POM_BREAK_SHORT_MIN, Const::POM_BREAK_SHORT_BEEPS),
+        the_pom15(Const::POM_BREAK_LONG_MIN, Const::POM_BREAK_LONG_BEEPS)
+    {
+        the_pom[T_POM25] = &the_pom25;
+        the_pom[T_POM5]  = &the_pom5;
+        the_pom[T_POM15] = &the_pom15;
+
+        // read pomodoros from eeprom
+        the_pomodoros = the_eeprom->Read(Const::POM_SAVE_ADDRESS);
+
+        reset_timer();
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Pomodoro::Setup()
+    {
+        the_ui->Setup();
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Pomodoro::Run(uint32_t a_time)
+    {
+        if (the_state == READY)
+            run_ready();
+        else if (the_state == RUNNING)
+            run_running(a_time);
+        else if (the_state == FINISHED)
+            run_finished();
+        else if (the_state == PAUSED)
+            run_pause();
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Pomodoro::run_ready()
+    {
+        the_ui->Show_Ready(*this);
+
+        // if B1 pressed then cycle through times in timer
+        if (the_b1->Released())
+        {
+            the_timer_type = (the_timer_type + 1) % T_SIZE;
+            reset_timer();
+            Utils::debug("next timer idx = %u", the_timer_type);
+        }
+
+        if (the_b2->On())
+        {
+            // if B2 was pressed longer than 3s then reset pomodoros
+            if (the_b2->Duration() > 3000)
+            {
+                the_pomodoros = 0;
+
+                // save pomodoros to eeprom
+                the_eeprom->Write(Const::POM_SAVE_ADDRESS, the_pomodoros);
+
+                the_timer_type = T_POM25;
+                reset_timer();
+                Utils::debug("cleared pomorodos");
+            }
+        }
+        // b2 is off
+        else if (the_b2->Released())
+        {
+            if (the_b2->Last_Duration() < 250)
+            {
+                the_ui->Set_Beeper(p().Get_Beeps());
+                reset_timer();
+                Utils::debug("going to running state");
+
+                the_state = RUNNING;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Pomodoro::run_running(uint32_t a_time)
+    {
+        // update counter
+        the_timer.Update(a_time);
+
+        the_ui->Show_Running(*this);
+
+        if (the_timer.Elapsed())
+        {
+            the_state = FINISHED;
+        }
+        else if (the_b2->Released())
+        {
+            the_state = PAUSED;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Pomodoro::run_finished()
+    {
+        the_ui->Show_Finished(*this);
+
+        // play beeper until it is done
+        if (the_ui->Showing() == false)
+        {
+            if (the_timer_type == T_POM25)
+            {
+                the_pomodoros += 1;
+                // save pomodoros to eeprom
+                the_eeprom->Write(Const::POM_SAVE_ADDRESS, the_pomodoros);
+
+                the_timer_type = T_POM5;
+                if (the_pomodoros % 4 == 0)
+                {
+                    the_timer_type = T_POM15;
+                }
+            }
+            else
+            {
+                the_timer_type = T_POM25;
+            }
+            reset_timer();
+            the_state = READY;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Pomodoro::run_pause()
+    {
+        the_ui->Show_Paused(*this);
+
+        // if B2 pressed then go to running
+        if (the_b2->On())
+        {
+            // if B2 was pressed longer than 3s then cancel the pomodoro
+            if (the_b2->Duration() > 3000)
+            {
+                reset_timer();
+                the_state = READY;
+                the_b2->Reset();
+            }
+        }
+        // b2 is off
+        else if (the_b2->Released())
+        {
+            if (the_b2->Last_Duration() < 250)
+            {
+                continue_timer();
+                the_state = RUNNING;
+            }
+        }
+    }
+}
+```
+
+### State_IF.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __STATE_IF_HPP__
+#define __STATE_IF_HPP__
+
+namespace MO
+{
+    /** State of the system - abstract class.
+     *
+     * It is uses to pass the state to an instance of UI.
+     * It should contain enough information for the UI to show something.
+     */
+    class State_IF
+    {
+        public:
+            virtual ~State_IF() { }
+
+            virtual uint8_t  Get_Pomodoros() const = 0;
+            virtual uint8_t  Get_Current_Period_Minutes() const = 0;
+            virtual uint32_t Get_Time_Left_Ms() const = 0;
+            virtual uint32_t Get_Time_Max_Ms() const = 0;
+            virtual bool     Is_Pomodoro() const = 0;
+    };
+}
+
+#endif
+```
+
+### UI_IF.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __UI_IF_HPP__
+#define __UI_IF_HPP__
+
+#include <stdint.h>
+
+namespace MO
+{
+    class State_IF;
+
+    /// Interface class for UI - the pomodoro class will use that for showing something.
+    class UI_IF
+    {
+        public:
+            virtual ~UI_IF() { }
+
+            /// Visualize states.
+            virtual void Show_Ready(const State_IF &) = 0;
+            virtual void Show_Running(const State_IF &) = 0;
+            virtual void Show_Paused(const State_IF &) = 0;
+            virtual void Show_Finished(const State_IF &) = 0;
+
+            /// Sets up the beeper of the UI object.
+            virtual void Set_Beeper(uint8_t) = 0;
+
+            /// True if the state is being shown (it can take some time).
+            virtual bool Showing() const = 0;
+
+            /// Called once at startup.
+            virtual void Setup() = 0;
+    };
+}
+
+#endif
+```
+
+### UI.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __UI_HPP__
+#define __UI_HPP__
+
+#include "UI_IF.hpp"
+#include "Display.hpp"
+#include "Beeper.hpp"
+#include "State_IF.hpp"
+
+namespace MO
+{
+    /// UI using LCD display and a beeper.
+    class UI: public UI_IF
+    {
+        public:
+            UI();
+
+            virtual void Show_Ready(const State_IF &);
+            virtual void Show_Running(const State_IF &);
+            virtual void Show_Paused(const State_IF &);
+            virtual void Show_Finished(const State_IF &);
+
+            virtual void Set_Beeper(uint8_t);
+            virtual bool Showing() const;
+
+            virtual void Setup();
+
+            /// Testability: last text written to LCD line a_y.
+            const char *Line(uint8_t a_y) const { return the_display.Line(a_y); }
+        private:
+            /// Fills the string for the bottom line (the progress).
+            void create_progress(const State_IF&);
+
+            enum
+            {
+                CHAR_POM = 1,       //!< Character for pomodoro.
+                CHAR_SQUARE = 255   //!< Character for filled square.
+            };
+
+            uint8_t the_timer;
+
+            Beeper  the_beeper;
+            Display the_display;
+            char    the_progress[Display::BUF_SIZE];
+    };
+}
+
+#endif
+```
+
+### UI.cpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "UI.hpp"
+#include "Utils.hpp"
+#include "Const.hpp"
+
+namespace MO
+{
+    UI::UI(): the_timer(0), the_beeper(Const::PIN_BEEPER, 1)
+    {
+
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::Show_Ready(const State_IF &a_state)
+    {
+        the_display.Write(0, "P%02u READY    %c%02u",
+                          a_state.Get_Current_Period_Minutes(),
+                          char(CHAR_POM),
+                          a_state.Get_Pomodoros());
+
+        create_progress(a_state);
+        the_display.Write(1, the_progress);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::Show_Running(const State_IF &a_state)
+    {
+        uint8_t pom = a_state.Get_Pomodoros();
+        the_display.Write(0, "P%02u %5s    %c%02u",
+                          a_state.Get_Current_Period_Minutes(),
+                          Utils::ms_to_m_s(a_state.Get_Time_Left_Ms()),
+                          char(CHAR_POM),
+                          pom);
+        create_progress(a_state);
+
+        if (a_state.Is_Pomodoro())
+        {
+            if (pom < Display::MAX_CHARS) // we have space
+                the_progress[pom] = 126; // this is the arrow char
+        }
+        the_display.Write(1, the_progress);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::Show_Paused(const State_IF &a_state)
+    {
+        uint8_t pom = a_state.Get_Pomodoros();
+        // alternate those 2 lines
+        if (the_timer < 5)
+        {
+            the_display.Write(0, "P%02u %5s    %c%02u",
+                              a_state.Get_Current_Period_Minutes(),
+                              Utils::ms_to_m_s(a_state.Get_Time_Left_Ms()),
+                              char(CHAR_POM),
+                              pom);
+        }
+        else
+        {
+            the_display.Write(0, "P%02u %5s    %c%02u",
+                              a_state.Get_Current_Period_Minutes(),
+                              "",
+                              char(CHAR_POM),
+                              pom);
+        }
+
+        the_timer += 1;
+        if (the_timer >= 10)
+            the_timer = 0;
+
+        create_progress(a_state);
+        the_display.Write(1, the_progress);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::Show_Finished(const State_IF &a_state)
+    {
+        // display pomodoro done while playing beeper
+        if (a_state.Is_Pomodoro())
+        {
+            the_display.Write(0, "!POMODORO!");
+            the_display.Write(1, "well done!");
+        }
+        else
+        {
+            the_display.Write(0, "end of break");
+            the_display.Write(1, "back to work");
+        }
+
+        the_beeper.Update();
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::Set_Beeper(uint8_t a_val)
+    {
+        the_beeper.Reset(a_val);
+    }
+
+    // -------------------------------------------------------------------------
+
+    bool UI::Showing() const
+    {
+        // we are done when beeper stoped.
+        return the_beeper.Done() == false;
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::Setup()
+    {
+        uint8_t pomodoro[8] =
+		{
+		  B10000,
+		  B01010,
+		  B00100,
+		  B01110,
+		  B11111,
+		  B11111,
+		  B11111,
+		  B01110,
+        };
+
+        the_display.Setup_Char(CHAR_POM, pomodoro);
+
+        the_display.Setup();
+        the_beeper.Setup();
+    }
+
+    // -------------------------------------------------------------------------
+
+    void UI::create_progress(const State_IF &a_state)
+    {
+        memset(the_progress, 0, Display::BUF_SIZE);
+        uint8_t pos = 0;
+        for (pos = 0; pos < a_state.Get_Pomodoros() &&
+                      pos < Display::MAX_CHARS; ++pos)
+        {
+            the_progress[pos] = CHAR_POM;
+        }
+    }
+}
+```
+
+### Display.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __DISPLAY_HPP__
+#define __DISPLAY_HPP__
+
+#include <stdint.h>
+#include <LiquidCrystal.h>
+
+namespace MO
+{
+    /** Wrapper class for writing to LCD display 16x2.
+     *
+     * It allows calling Write() with any number of arguments, like printf(...)
+     * for writing something to the LCD display.
+     * One version of Write takes both x and y starting position. Onother one
+     * takes just y (i.e. the line).
+     * It also keeps track of what what written at given line before so if new
+     * content is the same as previous then it does not really writes it again.
+     * This needs to be improved to take in account "x" position when comparing
+     * strings.
+     */
+    class Display
+    {
+        public:
+            enum
+            {
+                MAX_LINES = 2,
+                MAX_CHARS = 16,
+                BUF_SIZE = MAX_CHARS + 1
+            };
+
+            /// Initialize the object.
+            Display();
+
+            /// Called once.
+            void Setup();
+
+            /// Allows setting up a_char with given dot matrix of size 8.
+            void Setup_Char(uint8_t a_char, uint8_t *a_matrix);
+
+            /// Writes a string at (a_x, a_y) location.
+            void Write(uint8_t a_x, uint8_t a_y, const char *a_format, ...);
+
+            /// Writes a string at (0, a_y) location.
+            void Write(uint8_t a_y, const char *a_format, ...);
+
+            /// Testability: last text written to line a_y (the LCD cannot be read back).
+            const char *Line(uint8_t a_y) const { return the_old_line[a_y % MAX_LINES]; }
+        private:
+            void write(uint8_t a_x, uint8_t a_y, const char *a_format, va_list &a_vl);
+
+            LiquidCrystal the_lcd;
+            char          the_buf[BUF_SIZE];                 //!< Tmp buffer.
+            char          the_old_line[MAX_LINES][BUF_SIZE]; //!< Old strings.
+    };
+}
+
+#endif
+```
+
+### Display.cpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include <stdarg.h>
+#include <Arduino.h>
+#include "Display.hpp"
+#include "Const.hpp"
+
+namespace MO
+{
+    Display::Display():
+        the_lcd(Const::PIN_RS, Const::PIN_ENABLE,
+                Const::PIN_D4, Const::PIN_D5, Const::PIN_D6, Const::PIN_D7)
+    {
+        for (uint8_t i = 0; i < MAX_LINES; ++i)
+            memset(the_old_line[i], 0, BUF_SIZE);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Display::Setup()
+    {
+        the_lcd.begin(MAX_CHARS, MAX_LINES);   // 16x2 format
+        pinMode(MO::Const::PIN_LCD_BRIGHTNESS, OUTPUT); // uses PWM pin
+        pinMode(MO::Const::PIN_LCD_CONTRAST, OUTPUT); // uses PWM pin
+
+        // delivers 80/255 duty cycle PWM
+        analogWrite(MO::Const::PIN_LCD_BRIGHTNESS, 80);
+
+        // there is a condesator 22uF between this pin and GND
+        analogWrite(MO::Const::PIN_LCD_CONTRAST, 80);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Display::Setup_Char(uint8_t a_char, uint8_t *a_matrix)
+    {
+        the_lcd.createChar(a_char, a_matrix);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Display::Write(uint8_t a_x, uint8_t a_y, const char *a_format, ...)
+    {
+        va_list vl;
+        va_start(vl, a_format);
+        write(a_x, a_y, a_format, vl);
+        va_end(vl);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Display::Write(uint8_t a_y, const char *a_format, ...)
+    {
+        va_list vl;
+        va_start(vl, a_format);
+        write(0, a_y, a_format, vl);
+        va_end(vl);
+    }
+
+    // -------------------------------------------------------------------------
+
+    void Display::write(uint8_t a_x, uint8_t a_y, const char *a_format, va_list &a_vl)
+    {
+        if (a_y >= MAX_LINES)
+            return;
+
+        int written = vsnprintf(the_buf, BUF_SIZE, a_format, a_vl);
+
+        if (written >= 0) // even if we don't write chars - we still clean the line
+        {
+            // fill up the rest with spaces
+            for (int i = written; i < MAX_CHARS; ++i)
+                the_buf[i] = ' ';
+            the_buf[MAX_CHARS] = 0;
+        }
+        else
+        {
+            memset(the_buf, 0, BUF_SIZE);
+        }
+
+        if (strcmp(the_buf, the_old_line[a_y]) != 0)
+        {
+            the_lcd.setCursor(0, a_y);
+            the_lcd.print(the_buf);
+            memcpy(the_old_line[a_y], the_buf, BUF_SIZE);
+        }
+    }
+}
+```
+
+### Button_Logic.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __BUTTON_LOGIC_HPP__
+#define __BUTTON_LOGIC_HPP__
+
+#include <stdint.h>
+
+namespace MO
+{
+    /** Button functionality - a logical layer.
+     *
+     * It wraps a logic around activation and deactivation some input.
+     *
+     * It should be called with Update(time) where time is a current time (can
+     * be in ms).  It comes handy for detecting presses, releases, state and
+     * times of current and previous state. See comments at particular methods.
+     *
+     * The time can be given in ms or any other units. The whole computation of
+     * Duration is using those units too.
+     */
+    class Button_Logic
+    {
+        public:
+            Button_Logic() { Reset(); }
+            virtual ~Button_Logic() { }
+
+            /// Called once.
+            virtual void Setup() { }
+
+            /// The logic always sets state false - overwritten in Button.
+            virtual void Update(uint32_t a_time) { Update(a_time, false); }
+
+            /// Sets internal state using the current time and given new state.
+            void Update(uint32_t a_time, bool a_pin_active);
+
+            /// Returns true on rising edge - cleared with next call of Update.
+            bool Pressed() const { return the_pressed == 1; }
+
+            /// Returns true on falling edge - cleared with next call of Update.
+            bool Released() const { return the_released == 1; }
+
+            /// Actual state of the pin.
+            bool On() const { return the_state; }
+
+            /// Reset status to the initial.
+            void Reset()
+            {
+                the_state = 0;
+                the_pressed = 0;
+                the_released = 0;
+                the_start_time = 0;
+                the_duration = 0;
+                the_last_duration = 0;
+            }
+
+            /// Duration of current state.
+            uint32_t Duration() const { return the_duration; }
+
+            /// Duration of previous state.
+            uint32_t Last_Duration() const { return the_last_duration; }
+
+        private:
+            uint8_t  the_state:1;
+            uint8_t  the_pressed:1;
+            uint8_t  the_released:1;
+
+            uint32_t the_start_time;
+            uint32_t the_duration;      //!< Duration of current state.
+            uint32_t the_last_duration; //!< Duration of previous state.
+    };
+}
+
+#endif
+```
+
+### Button_Logic.cpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "Button_Logic.hpp"
+#include "Utils.hpp"
+
+namespace MO
+{
+    void Button_Logic::Update(uint32_t a_time, bool a_pin_active)
+    {
+        uint8_t state = a_pin_active; // current state of the pin
+
+        if (the_start_time == 0) // first run
+        {
+            the_start_time = a_time;
+            the_state = state;
+        }
+
+        if (the_state == state) // most common condition first
+        {
+            the_duration = a_time - the_start_time;
+            the_pressed = 0; // clear this since it is the same as before
+            the_released = 0; // clear this since it is the same as before
+        }
+        else // state has changed
+        {
+            // as a last duraion we take the difference between now and last
+            // set start time (before we change it in the next line).
+            the_last_duration = a_time - the_start_time;
+            the_start_time = a_time;
+            the_duration = 0;
+
+            if (state) // new state is ON
+            {
+                the_pressed = 1;
+                the_released = 0;
+                Utils::debug("PRESS");
+            }
+            else // new state is OFF
+            {
+                the_pressed = 0;
+                the_released = 1;
+                Utils::debug("RELEASE");
+            }
+            the_state = state;
+        }
+    }
+}
+```
+
+### Button.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __BUTTON_HPP__
+#define __BUTTON_HPP__
+
+#include <Arduino.h>
+#include "Button_Logic.hpp"
+
+namespace MO
+{
+    /** Wrappers a digital pin with button functionality.
+     *
+     * It adds a hardware layer (setting up pin, reading its value) to a logical
+     * button class.
+     */
+    class Button: public Button_Logic
+    {
+        public:
+            Button(uint8_t a_pin): the_pin(a_pin) { }
+
+            /// Called once to setup pin mode.
+            virtual void Setup() { pinMode(the_pin, INPUT_PULLUP); }
+
+            /// Sets internal state given the current time and state of the pin.
+            virtual void Update(uint32_t a_time)
+            {
+                // since it is PULLUP then active (pressed) state is when we
+                // read LOW
+                Button_Logic::Update(a_time, digitalRead(the_pin) == LOW);
+            }
+
+        private:
+            uint8_t  the_pin;           //!< Used digital input pin.
+    };
+}
+
+#endif
+```
+
+### Timer.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __TIMER_HPP__
+#define __TIMER_HPP__
+
+#include "Counter.hpp"
+
+namespace MO
+{
+    /** Capped Counter class.
+     *
+     * It extends the Counter class with a maximum value and methods for
+     * checking if timer elapsed and how much time is left.
+     */
+    class Timer: public Counter
+    {
+        public:
+            Timer(uint32_t a_max): the_max(a_max) { }
+
+            /// True if current counter last at least the given maximum.
+            bool Elapsed() const { return Duration() >= the_max; }
+
+            /// Resets the timer to new maximum.
+            void Reset(uint32_t a_max)
+            {
+                Counter::Reset();
+                the_max = a_max;
+            }
+
+            /// Returns the maximum.
+            uint32_t Get_Max() const { return the_max; }
+
+            /// Returns left time or 0 if the timer elapsed.
+            uint32_t Get_Time_Left() const
+            {
+                if (Duration() < the_max)
+                    return the_max - Duration();
+                else
+                    return 0;
+            }
+
+        private:
+            uint32_t the_max;
+    };
+}
+
+#endif
+```
+
+### Period.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __PERIOD_HPP__
+#define __PERIOD_HPP__
+
+#include <stdint.h>
+
+namespace MO
+{
+    /** Stores data for each period of pomodoro technique.
+     * Those data are time in minutes and number of beeps for notification about
+     * finishing.
+     */
+    class Period
+    {
+        public:
+            Period(uint8_t a_time = 0, uint8_t a_beeps = 0):
+                the_time_in_minutes(a_time), the_beeps(a_beeps)
+            {
+            }
+
+            /// Returns plain number of minutes.
+            uint8_t Get_Time_In_Min() const { return the_time_in_minutes; }
+
+            /// Returns the number of minutes but in msec.
+            uint32_t Get_Time_In_Ms() const
+            {
+#ifdef MO_DEBUG
+                return (uint32_t)the_time_in_minutes * 1000;
+#else
+                return (uint32_t)the_time_in_minutes * 60 * 1000;
+#endif
+            }
+
+            /// Returns the beeps count for the period.
+            uint8_t Get_Beeps() const { return the_beeps; }
+        private:
+            uint8_t the_time_in_minutes;
+            uint8_t the_beeps;           //!< How many beeps to emit at the end
+    };
+}
+
+#endif
+```
+
+### Counter.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __COUNTER_HPP__
+#define __COUNTER_HPP__
+
+#include <stdint.h>
+
+namespace MO
+{
+    /** Counts elapsed time.
+     *
+     * When Update(time) is called an object of this class updates its duration
+     * value, so it can tell for how long it is counting.
+     */
+    class Counter
+    {
+        public:
+            Counter() { Reset(); }
+            virtual ~Counter() { } // virtual because Timer derives from it
+
+            void Update(uint32_t a_time)
+            {
+                if (the_start_time == 0) // first run
+                {
+                    the_start_time = a_time;
+                }
+
+                // so it will be 0 when we just started (see above)
+                the_duration = a_time - the_start_time;
+            }
+
+            void Reset()
+            {
+                the_start_time = 0;
+                the_duration = 0;
+            }
+
+            uint32_t Duration() const { return the_duration; }
+
+        private:
+            uint32_t the_start_time;
+            uint32_t the_duration;
+    };
+}
+
+#endif
+```
+
+### Beeper.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __BEEPER_HPP__
+#define __BEEPER_HPP__
+
+#include <Arduino.h>
+
+namespace MO
+{
+    /** Handles switching on and off a few times some digital output.
+     *
+     * It can be used for example with a buzzer like TMB12A05 or a LED to turn
+     * it on/off predefined number of times.
+     *
+     * Everytime Update() is called it switches state between on and off.
+     */
+
+    class Beeper
+    {
+        public:
+            Beeper(uint8_t a_pin, uint16_t a_max_beeps):
+                the_pin(a_pin), the_cycle(0), the_max_beeps(a_max_beeps)
+            {
+            }
+
+            void Setup() { pinMode(the_pin, OUTPUT); }
+
+            bool Done() const { return the_cycle >= (the_max_beeps << 1); }
+
+            void Update()
+            {
+                if (!Done())
+                {
+                    digitalWrite(the_pin, (the_cycle & 1)? LOW : HIGH);
+                    the_cycle += 1;
+                }
+            }
+
+            void Reset(uint16_t a_max_beeps = 0)
+            {
+                the_cycle = 0;
+                if (a_max_beeps > 0)
+                {
+                    the_max_beeps = a_max_beeps;
+                }
+                digitalWrite(the_pin, LOW);
+            }
+        private:
+            uint8_t  the_pin;        //!< Used digital input.
+            uint16_t the_cycle;      //!< Counts calls of Update().
+            uint16_t the_max_beeps;  //!< Stores maximum of allowed 'beeps'.
+    };
+}
+
+#endif
+```
+
+### Eeprom_IF.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __EEPROM_IF_HPP__
+#define __EEPROM_IF_HPP__
+
+#include <stdint.h>
+
+namespace MO
+{
+    /** Interface to EEPROM.
+     * 
+     * Simple functions to write and read bytes.
+     * finishing.
+     */
+    class Eeprom_IF
+    {
+        public:
+            /// Virtual destructor, since we will inherit from this class.
+            virtual ~Eeprom_IF() { }
+
+            /// Reads a byte from given eeprom address.
+            virtual uint8_t Read(int a_addr) const = 0;
+
+            /// Writes a byte to given eeprom address.
+            virtual void Write(int a_addr, uint8_t a_value) = 0;
+    };
+}
+
+#endif
+```
+
+### Eeprom.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __EEPROM_HPP__
+#define __EEPROM_HPP__
+
+#include <EEPROM.h>
+#include "Eeprom_IF.hpp"
+
+namespace MO
+{
+    /** Arduino version of Eeprom interface.
+     *
+     * Implements reading and writing from/to EEPROM.
+     */
+    class Eeprom: public Eeprom_IF
+    {
+        public:
+            /// Reads a byte from given eeprom address.
+            virtual uint8_t Read(int a_addr) const
+            {
+                return EEPROM.read(a_addr);
+            }
+
+            /// Writes a byte to given eeprom address.
+            virtual void Write(int a_addr, uint8_t a_value)
+            {
+                EEPROM.write(a_addr, a_value);
+            }
+    };
+}
+
+#endif
+```
+
+### Utils.hpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#ifndef __UTILS_HPP__
+#define __UTILS_HPP__
+
+#include <stdint.h>
+
+namespace Utils
+{
+    /// Converts ms value to string in form "mm:ss".
+    const char *ms_to_m_s(uint32_t a_ms);
+
+    /// Writes a message on serial console - must be enabled with MO_DEBUG.
+    void debug(const char *a_format, ...);
+}
+
+#endif
+```
+
+### Utils.cpp
+```cpp
+/*
+Copyright (c) 2016 Miroslaw Opoka <mirek@opoki.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "Utils.hpp"
+#include <stdio.h>
+#include <stdarg.h>
+#ifdef MO_DEBUG
+// it is only needed if we want to print via Serial, so not for gtests
+#include <Arduino.h>
+#endif
+
+namespace Utils
+{
+    const char *ms_to_m_s(uint32_t a_ms)
+    {
+        static const uint8_t B_SIZE = 64;
+        static char buf[B_SIZE];
+
+        uint32_t s = a_ms / 1000;
+        uint32_t m = s / 60;
+        s -= m * 60;
+
+        snprintf(buf, B_SIZE, "%02lu:%02lu", m, s);
+        return buf;
+    }
+
+    // -------------------------------------------------------------------------
+
+    void debug(const char *a_format, ...)
+    {
+#ifdef MO_DEBUG
+        const unsigned int B_SIZE = 256;
+        char buf[B_SIZE];
+
+        va_list vl;
+
+        va_start(vl, a_format);
+        int written = vsnprintf(buf, B_SIZE, a_format, vl);
+        va_end(vl);
+
+        if (written > 0)
+        {
+            Serial.println(buf);
+        }
+#else
+        (a_format); // to avoid warning about not used variable
+                    // when compiled without MO_DEBUG
+#endif
+    }
+}
+```
+
+The test sketch below failed to compile. Fix it and reply with ONLY the complete corrected sketch in a single ```cpp code block.
+
+### Sketch
+```cpp
+
+```
+
+### Compiler output (arduino-cli, arduino:avr:uno)
+```
+C:\Users\<user>\AppData\Local\Temp\ccU13CGI.ltrans0.ltrans.o: In function `main':
+C:\Users\<user>\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.8\cores\arduino/main.cpp:43: undefined reference to `setup'
+C:\Users\<user>\AppData\Local\Arduino15\packages\arduino\hardware\avr\1.8.8\cores\arduino/main.cpp:46: undefined reference to `loop'
+collect2.exe: error: ld returned 1 exit status
+
+Error during build: exit status 1
+```

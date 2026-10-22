@@ -1,0 +1,111 @@
+// test_runner.h - tiny test framework for Arduino Uno test sketches.
+//
+// Serial protocol (9600 baud):
+//   @RUN_BEGIN <total>
+//   @TEST <name> PASS
+//   @TEST <name> FAIL <message>
+//   @RUN_END <passed>/<total>
+//
+// Test sketch:
+//   #include "logic.h"
+//   #include "test_runner.h"
+//   TEST(led_turns_on) { led_on(); ASSERT_PIN(13, HIGH); }
+//   void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+//   void loop() {}
+//
+// Assertions (only directly inside a TEST body; the first failure ends that test):
+//   ASSERT_TRUE(cond)   ASSERT_FALSE(cond)   ASSERT_EQ(a, b)   ASSERT_NE(a, b)
+//   ASSERT_NEAR(a, b, tol)   ASSERT_PIN(pin, HIGH|LOW)
+// Limits: up to TEST_MAX_TESTS (40) tests, names are C identifiers (kept in flash), no dynamic
+// memory, the whole run must finish within 15 s.
+#ifndef TEST_RUNNER_H
+#define TEST_RUNNER_H
+#include <Arduino.h>
+
+#ifndef TEST_MAX_TESTS
+#define TEST_MAX_TESTS 40
+#endif
+
+typedef void (*test_fn_t)();
+struct TestCase_ { const char* name; test_fn_t fn; };
+
+static TestCase_ g_tests_[TEST_MAX_TESTS];
+static uint8_t g_test_count_ = 0, g_test_overflow_ = 0;
+static const char* g_test_name_;
+static bool g_test_failed_;
+
+struct TestRegistrar_ {
+  TestRegistrar_(const char* name, test_fn_t fn) {
+    if (g_test_count_ < TEST_MAX_TESTS) g_tests_[g_test_count_++] = {name, fn};
+    else g_test_overflow_++;
+  }
+};
+
+static inline void test_fail_(int line) {
+  g_test_failed_ = true;
+  Serial.print(F("@TEST ")); Serial.print((const __FlashStringHelper*)g_test_name_);
+  Serial.print(F(" FAIL line ")); Serial.print(line); Serial.print(F(": "));
+}
+
+static inline void test_fail_expr_(const __FlashStringHelper* what, int line) {
+  test_fail_(line);
+  Serial.println(what);
+}
+
+static inline void test_fail_values_(const __FlashStringHelper* what, long a, long b, int line) {
+  test_fail_(line);
+  Serial.print(what); Serial.print(F(" (got ")); Serial.print(a);
+  Serial.print(F(" vs ")); Serial.print(b); Serial.println(')');
+}
+
+static inline void test_fail_pin_(int pin, int actual, int line) {
+  test_fail_(line);
+  Serial.print(F("pin ")); Serial.print(pin);
+  Serial.println(actual == HIGH ? F(" is HIGH, expected LOW") : F(" is LOW, expected HIGH"));
+}
+
+static inline void run_all_tests_() {
+  Serial.print(F("@RUN_BEGIN ")); Serial.println(g_test_count_);
+  uint8_t passed = 0;
+  for (uint8_t i = 0; i < g_test_count_; i++) {
+    g_test_name_ = g_tests_[i].name;
+    g_test_failed_ = false;
+    g_tests_[i].fn();
+    if (!g_test_failed_) {
+      Serial.print(F("@TEST ")); Serial.print((const __FlashStringHelper*)g_test_name_); Serial.println(F(" PASS"));
+      passed++;
+    }
+  }
+  if (g_test_overflow_) {
+    Serial.print(F("@WARN ")); Serial.print(g_test_overflow_); Serial.println(F(" tests over TEST_MAX_TESTS skipped"));
+  }
+  Serial.print(F("@RUN_END ")); Serial.print(passed); Serial.print('/'); Serial.println(g_test_count_);
+  Serial.flush();
+}
+
+#define TEST(name) \
+  static void test_fn_##name(); \
+  static const char test_name_##name[] PROGMEM = #name; \
+  static TestRegistrar_ test_reg_##name(test_name_##name, test_fn_##name); \
+  static void test_fn_##name()
+
+#define RUN_ALL_TESTS() run_all_tests_()
+
+#define ASSERT_TRUE(cond) \
+  do { if (!(cond)) { test_fail_expr_(F("expected true: " #cond), __LINE__); return; } } while (0)
+#define ASSERT_FALSE(cond) \
+  do { if (cond) { test_fail_expr_(F("expected false: " #cond), __LINE__); return; } } while (0)
+#define ASSERT_EQ(a, b) \
+  do { long a_ = (long)(a), b_ = (long)(b); \
+       if (a_ != b_) { test_fail_values_(F("expected " #a " == " #b), a_, b_, __LINE__); return; } } while (0)
+#define ASSERT_NE(a, b) \
+  do { long a_ = (long)(a), b_ = (long)(b); \
+       if (a_ == b_) { test_fail_values_(F("expected " #a " != " #b), a_, b_, __LINE__); return; } } while (0)
+#define ASSERT_NEAR(a, b, tol) \
+  do { long a_ = (long)(a), b_ = (long)(b), d_ = a_ > b_ ? a_ - b_ : b_ - a_; \
+       if (d_ > (long)(tol)) { test_fail_values_(F("expected " #a " ~= " #b), a_, b_, __LINE__); return; } } while (0)
+#define ASSERT_PIN(pin, level) \
+  do { int l_ = digitalRead(pin); \
+       if (l_ != (level)) { test_fail_pin_((pin), l_, __LINE__); return; } } while (0)
+
+#endif

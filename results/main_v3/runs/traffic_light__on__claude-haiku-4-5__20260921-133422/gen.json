@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_light",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4855,
+ "tokens_out": 1675,
+ "cost_usd": 0.01323,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4855,
+   "tokens_out": 1675,
+   "latency_s": 9.565206527709961,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

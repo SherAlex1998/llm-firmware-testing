@@ -1,0 +1,30 @@
+@RUN_BEGIN 28
+@TEST init_sets_purple PASS
+@TEST init_resets_sonar PASS
+@TEST away_from_target_zone_is_purple PASS
+@TEST in_target_zone_is_green PASS
+@TEST past_target_zone_is_yellow PASS
+@TEST too_close_is_red PASS
+@TEST idle_timeout_turns_off FAIL line 55: expected led.color() == (uint32_t)0xFF00FF (got 65280 vs 16711935)
+@TEST button_sets_target PASS
+@TEST object_out_of_range PASS
+@TEST in_zone_lower_bound PASS
+@TEST in_zone_upper_bound PASS
+@TEST in_zone_exact PASS
+@TEST away_zone_boundary PASS
+@TEST away_zone_upper PASS
+@TEST past_zone_lower PASS
+@TEST past_zone_upper PASS
+@TEST too_close_boundary PASS
+@TEST too_close_very_close PASS
+@TEST idle_timeout_not_reached_initially PASS
+@TEST idle_timeout_movement_resets PASS
+@TEST sonar_getters PASS
+@TEST led_rgb_custom PASS
+@TEST led_red PASS
+@TEST led_green PASS
+@TEST led_yellow PASS
+@TEST led_off PASS
+@TEST loop_processes_reading PASS
+@TEST loop_no_button_press PASS
+@RUN_END 27/28

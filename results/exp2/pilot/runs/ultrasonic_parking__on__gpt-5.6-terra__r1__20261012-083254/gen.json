@@ -1,0 +1,21 @@
+{
+ "module_id": "ultrasonic_parking",
+ "model_id": "gpt-5.6-terra",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 5129,
+ "tokens_out": 3451,
+ "cost_usd": 0.05167,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 5129,
+   "tokens_out": 3451,
+   "latency_s": 40.71392774581909,
+   "cached": false,
+   "stop_reason": "completed"
+  }
+ ]
+}

@@ -1,0 +1,124 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_pins_and_stops_motors) {
+  hb_init();
+  // After init, both motors should be stopped
+  ASSERT_PIN(8, LOW);   // IN1
+  ASSERT_PIN(9, LOW);   // IN2
+  ASSERT_PIN(6, LOW);   // ENA
+  ASSERT_PIN(10, LOW);  // IN3
+  ASSERT_PIN(11, LOW);  // IN4
+  ASSERT_PIN(5, LOW);   // ENB
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 0);
+}
+
+TEST(motor_a_forward) {
+  hb_init();
+  bool ret = hb_forward(HB_MOTOR_A, 200);
+  ASSERT_TRUE(ret);
+  ASSERT_PIN(8, HIGH);   // IN1 HIGH for forward
+  ASSERT_PIN(9, LOW);    // IN2 LOW for forward
+  ASSERT_PIN(6, HIGH);   // ENA PWM (analogWrite 200 reads as HIGH)
+  ASSERT_PIN(10, LOW);   // IN3 unchanged
+  ASSERT_PIN(11, LOW);   // IN4 unchanged
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 200);
+}
+
+TEST(motor_b_forward) {
+  hb_init();
+  bool ret = hb_forward(HB_MOTOR_B, 150);
+  ASSERT_TRUE(ret);
+  ASSERT_PIN(8, LOW);    // IN1 unchanged
+  ASSERT_PIN(9, LOW);    // IN2 unchanged
+  ASSERT_PIN(10, HIGH);  // IN3 HIGH for forward
+  ASSERT_PIN(11, LOW);   // IN4 LOW for forward
+  ASSERT_PIN(5, HIGH);   // ENB PWM (analogWrite 150 reads as HIGH)
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 150);
+}
+
+TEST(motor_a_backward) {
+  hb_init();
+  bool ret = hb_backward(HB_MOTOR_A, 100);
+  ASSERT_TRUE(ret);
+  ASSERT_PIN(8, LOW);    // IN1 LOW for backward
+  ASSERT_PIN(9, HIGH);   // IN2 HIGH for backward
+  ASSERT_PIN(6, HIGH);   // ENA PWM (analogWrite 100 reads as HIGH)
+  ASSERT_PIN(10, LOW);   // IN3 unchanged
+  ASSERT_PIN(11, LOW);   // IN4 unchanged
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), -1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 100);
+}
+
+TEST(motor_b_backward) {
+  hb_init();
+  bool ret = hb_backward(HB_MOTOR_B, 255);
+  ASSERT_TRUE(ret);
+  ASSERT_PIN(8, LOW);    // IN1 unchanged
+  ASSERT_PIN(9, LOW);    // IN2 unchanged
+  ASSERT_PIN(10, LOW);   // IN3 LOW for backward
+  ASSERT_PIN(11, HIGH);  // IN4 HIGH for backward
+  ASSERT_PIN(5, HIGH);   // ENB PWM (analogWrite 255 reads as HIGH)
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), -1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 255);
+}
+
+TEST(stop_individual_motor) {
+  hb_init();
+  hb_forward(HB_MOTOR_A, 200);
+  hb_forward(HB_MOTOR_B, 150);
+  bool ret = hb_stop(HB_MOTOR_A);
+  ASSERT_TRUE(ret);
+  ASSERT_PIN(8, LOW);    // IN1
+  ASSERT_PIN(9, LOW);    // IN2
+  ASSERT_PIN(6, LOW);    // ENA
+  ASSERT_PIN(10, HIGH);  // IN3 unchanged (motor B still forward)
+  ASSERT_PIN(11, LOW);   // IN4 unchanged
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 1);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 150);
+}
+
+TEST(stop_all_motors) {
+  hb_init();
+  hb_forward(HB_MOTOR_A, 200);
+  hb_backward(HB_MOTOR_B, 100);
+  hb_stop_all();
+  ASSERT_PIN(8, LOW);   // IN1
+  ASSERT_PIN(9, LOW);   // IN2
+  ASSERT_PIN(6, LOW);   // ENA
+  ASSERT_PIN(10, LOW);  // IN3
+  ASSERT_PIN(11, LOW);  // IN4
+  ASSERT_PIN(5, LOW);   // ENB
+  ASSERT_EQ(hb_direction(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_direction(HB_MOTOR_B), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_A), 0);
+  ASSERT_EQ(hb_speed(HB_MOTOR_B), 0);
+}
+
+TEST(invalid_motor_operations) {
+  hb_init();
+  bool ret_fwd = hb_forward(2, 100);
+  ASSERT_FALSE(ret_fwd);
+  bool ret_bwd = hb_backward(3, 100);
+  ASSERT_FALSE(ret_bwd);
+  bool ret_stop = hb_stop(255);
+  ASSERT_FALSE(ret_stop);
+  ASSERT_EQ(hb_direction(2), 0);
+  ASSERT_EQ(hb_direction(255), 0);
+  ASSERT_EQ(hb_speed(2), 0);
+  ASSERT_EQ(hb_speed(255), 0);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}

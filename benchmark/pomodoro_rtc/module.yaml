@@ -1,0 +1,79 @@
+id: pomodoro_rtc
+name: "Pomodoro timer with TM1637 display, DS1307 statistics and a single button"
+source_url: https://github.com/2CoderOK/pomodoro
+license: MIT
+repo_created: 2022-12-12
+experiment: 2
+category: mixed
+complexity: complex
+backend: wokwi
+sources: [logic.h, logic.cpp, state_machine.h, state_machine.cpp, click.h, click.cpp, display4.h, display4.cpp,
+          rtsl.h, rtsl.cpp, soundbuzz.h, soundbuzz.cpp, pace.h, pitches.h]
+libraries:
+  - {name: "Rtc by Makuna", version: "2.5.0"}
+  - {name: "Grove 4-Digit Display", version: "2.0.0"}
+  - {name: "TimerOne", version: "1.1.1"}
+devices:
+  - part: wokwi-ds1307
+    id: rtc
+    pins: {SDA: A4, SCL: A5}
+    attrs: {initTime: "2030-03-11T10:00:00Z"}
+    test_visible: "DS1307 RTC on I2C; every run starts at Monday 2030-03-11 10:00:00 with its RAM empty (all zero)"
+  - part: wokwi-tm1637-7segment
+    id: disp
+    pins: {CLK: 3, DIO: 4}
+    attrs: {}
+    test_visible: "TM1637 4-digit display (write-only; pomo_display_digits/dot/text return what was sent)"
+  - part: wokwi-pushbutton
+    id: btn
+    pins: {"2.l": 6}
+    attrs: {}
+    test_visible: "button on pin 6 with a pull-down resistor, released for the whole run (pin 6 reads LOW)"
+  - part: wokwi-buzzer
+    id: bz
+    pins: {"2": 9}
+    attrs: {}
+    test_visible: "passive buzzer on pin 9 (output only)"
+interrupts: true
+pins:
+  - {pin: 3, mode: OUTPUT, role: "TM1637 CLK"}
+  - {pin: 4, mode: OUTPUT, role: "TM1637 DIO"}
+  - {pin: 6, mode: INPUT, role: "button (HIGH = pressed, external pull-down)"}
+  - {pin: 9, mode: OUTPUT, role: "buzzer (tone)"}
+  - {pin: 18, mode: I2C, role: "DS1307 SDA (A4)"}
+  - {pin: 19, mode: I2C, role: "DS1307 SCL (A5)"}
+entry_functions:
+  - "void pomo_set_delay_scale(uint8_t percent)"
+  - "void pomo_init()"
+  - "void pomo_start_timer()"
+  - "void pomo_tick()"
+  - "void pomo_update()"
+  - "void pomo_handle_action(uint8_t action)"
+  - "uint8_t pomo_read_click()"
+  - "uint8_t pomo_status()"
+  - "uint8_t pomo_prev_status()"
+  - "int8_t pomo_minute()"
+  - "int8_t pomo_second()"
+  - "int8_t pomo_completed()"
+  - "bool pomo_seconds_event()"
+  - "uint16_t pomo_user_data(uint8_t index)"
+  - "void pomo_load_user_data()"
+  - "void pomo_apply_rollover(uint16_t data[5], uint16_t year, uint8_t month, uint8_t day, uint8_t day_of_week)"
+  - "uint8_t pomo_calc_weekday(int year, int month, int day)"
+  - "const int8_t* pomo_display_digits()"
+  - "bool pomo_display_dot()"
+  - "const char* pomo_display_text()"
+loc: 767
+metrics: {nloc: 767, ccn_sum: 168, ccn_max: 10, functions: 87}
+notes: >-
+  Source: src/ (multi-.ino sketch, Arduino Pro Mini = ATmega328P). Each .ino became a .cpp next to its header; the
+  StateMachine/Click/Display4/RTSL/SoundBuzz classes are unchanged in logic. logic.h is a C API over one global
+  StateMachine (pomo_init re-creates it so tests start from power-up values). Changes: all Serial prints removed
+  (Serial carries the test protocol; the original used 57600 baud for logs); Timer1 start split into
+  pomo_start_timer() so tests drive the half-second tick with pomo_tick(); HandleClick body exposed as
+  pomo_handle_action(action) and the date rollover of LoadUserData as the pure pomo_apply_rollover(); one delay
+  scale (pace.h, default 100 %) for the blocking pauses of melodies, TM1637 text scrolling and statistics pages,
+  which last up to ~8 s in the original; Display4 keeps the last digits/colon/text for getters. Bugs fixed:
+  RTSL::Init used the global `Rtc` instead of its member; GetData had `return num;` in a void function;
+  PlayCancel passed note numbers where Play() expects arrays (read random memory); HardResetData took the day from
+  the compile date instead of the RTC; UpdatePomodoro repeated its default argument in the definition.

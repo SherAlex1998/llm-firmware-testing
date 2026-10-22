@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_state_and_leds_off PASS
+@TEST apply_lights_requested_led_and_turns_previous_off PASS
+@TEST apply_rejects_out_of_range_step PASS
+@TEST advance_cycles_leds_and_count PASS
+@TEST all_off_preserves_count PASS
+@TEST button_read_and_poll_advance_when_high PASS
+@RUN_END 6/6

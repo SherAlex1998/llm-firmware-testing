@@ -1,0 +1,18 @@
+id: servo_sweep
+name: "Servo sweep between two angles"
+source_url: https://github.com/gwappa/arduino-servo-sweep
+license: MIT
+category: motor
+complexity: simple
+pins:
+  - {pin: 9, mode: OUTPUT, role: "servo signal (Servo library)"}
+entry_functions:
+  - "void sweep_init()"
+  - "void sweep_write(int angle)"
+  - "int sweep_angle()"
+  - "int sweep_clamp_angle(int angle)"
+  - "unsigned int sweep_steps_per_cycle(int start_pos, int stop_pos, int step_pos)"
+  - "void sweep_run(int start_pos, int stop_pos, int step_pos, int cycles, int step_delay_ms)"
+  - "unsigned long sweep_write_count()"
+loc: 64
+notes: "run_with_settings() kept as sweep_run(start, stop, step, cycles, delay_ms); Serial trigger and #ifdef frequency table removed; added clamping, a write counter and a pure steps-per-cycle helper. sweep_run() duration depends on its arguments: tests should use 1 cycle and a 1-2 ms delay. Servo::read() returns the last commanded angle."

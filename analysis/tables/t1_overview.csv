@@ -1,0 +1,7 @@
+model,rag,runs,compile_at_1,compile_at_k,valid_tests,valid_rate,ci_low,ci_high,mean_tests,mutation_score_mean,mutation_score_n,cost_usd,cost_per_valid_test
+claude-haiku-4-5,off,15,0.933,1.0,9,0.6,0.357,0.802,8.3,0.811,9,0.127,0.0141
+claude-haiku-4-5,on,15,1.0,1.0,6,0.4,0.198,0.643,8.5,0.833,6,0.159,0.0266
+claude-sonnet-5,off,15,1.0,1.0,13,0.867,0.621,0.963,6.9,0.785,13,0.557,0.0428
+claude-sonnet-5,on,15,1.0,1.0,13,0.867,0.621,0.963,7.0,0.808,13,0.63,0.0485
+gpt-5.6-terra,off,15,1.0,1.0,13,0.867,0.621,0.963,6.2,0.846,13,0.282,0.0217
+gpt-5.6-terra,on,15,1.0,1.0,15,1.0,0.796,1.0,6.7,0.88,15,0.348,0.0232

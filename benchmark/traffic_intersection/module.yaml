@@ -1,0 +1,29 @@
+id: traffic_intersection
+name: "4-way intersection with 12 LEDs"
+source_url: https://github.com/rajeshThakare/Arduino-UNO-for-Absolute-Beginners
+license: MIT
+category: led
+complexity: medium
+pins:
+  - {pin: 13, mode: OUTPUT, role: "A red"}
+  - {pin: 12, mode: OUTPUT, role: "A green"}
+  - {pin: 11, mode: OUTPUT, role: "A yellow"}
+  - {pin: 10, mode: OUTPUT, role: "B red"}
+  - {pin: 9, mode: OUTPUT, role: "B green"}
+  - {pin: 8, mode: OUTPUT, role: "B yellow"}
+  - {pin: 7, mode: OUTPUT, role: "C red"}
+  - {pin: 6, mode: OUTPUT, role: "C green"}
+  - {pin: 5, mode: OUTPUT, role: "C yellow"}
+  - {pin: 4, mode: OUTPUT, role: "D red"}
+  - {pin: 3, mode: OUTPUT, role: "D green"}
+  - {pin: 2, mode: OUTPUT, role: "D yellow"}
+entry_functions:
+  - "void ti_init()"
+  - "bool ti_set_direction(uint8_t dir, uint8_t color)"
+  - "uint8_t ti_direction_color(uint8_t dir)"
+  - "bool ti_apply_phase(uint8_t phase)"
+  - "void ti_next_phase()"
+  - "uint8_t ti_phase()"
+  - "bool ti_is_safe()"
+loc: 75
+notes: "Source file: Codes/1_LED/traffic signals.ino. 96 digitalWrite lines collapsed into pin tables plus ti_apply_phase(phase) (8 phases: each direction green then yellow, all others red); start-up all-yellow state kept in ti_init(); added ti_is_safe() invariant (at most one non-red direction); delay(1000) moved to the main sketch."

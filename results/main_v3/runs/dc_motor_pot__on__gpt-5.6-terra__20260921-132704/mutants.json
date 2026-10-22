@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 8,
+ "score": 0.8,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "swap_hilo",
+   "line": 21,
+   "before": "digitalWrite(MOTOR_PIN_IN1, HIGH);",
+   "after": "digitalWrite(MOTOR_PIN_IN1, LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "negate_cond",
+   "line": 31,
+   "before": "if (pwm < 0) {",
+   "after": "if (!(pwm < 0)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "swap_hilo",
+   "line": 18,
+   "before": "digitalWrite(MOTOR_PIN_IN1, LOW);",
+   "after": "digitalWrite(MOTOR_PIN_IN1, HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "const_change",
+   "line": 52,
+   "before": "return map(raw, 0, 1023, 0, 255);",
+   "after": "return map(raw, 0, 1023, 1, 255);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "negate_cond",
+   "line": 46,
+   "before": "if (raw < 0) {",
+   "after": "if (!(raw < 0)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "drop_call",
+   "line": 57,
+   "before": "digitalWrite(MOTOR_PIN_IN2, LOW);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 7,
+   "operator": "drop_call",
+   "line": 22,
+   "before": "digitalWrite(MOTOR_PIN_IN2, LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 34,
+   "before": "if (pwm > 255) {",
+   "after": "if (pwm <= 255) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "off_by_one",
+   "line": 49,
+   "before": "if (raw > 1023) {",
+   "after": "if (raw > 1024) {",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 10,
+   "operator": "const_change",
+   "line": 58,
+   "before": "motor_set_power(0);",
+   "after": "motor_set_power(1);",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

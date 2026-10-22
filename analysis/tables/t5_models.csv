@@ -1,0 +1,4 @@
+model_a,model_b,valid_a,valid_b,valid_a_only,valid_b_only,p_valid,mutants_paired,killed_a_only,killed_b_only,p_mutants,p_valid_holm,p_valid_holm_significant,p_mutants_holm,p_mutants_holm_significant
+claude-sonnet-5,gpt-5.6-terra,26,28,2,4,0.6875,240,2,18,0.0004,0.6875,False,0.0012,True
+claude-sonnet-5,claude-haiku-4-5,26,15,13,2,0.0074,130,2,3,1.0,0.0148,True,1.0,False
+gpt-5.6-terra,claude-haiku-4-5,28,15,14,1,0.001,140,8,0,0.0078,0.003,True,0.0156,True

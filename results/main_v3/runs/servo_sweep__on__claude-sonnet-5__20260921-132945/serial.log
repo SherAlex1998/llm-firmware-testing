@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_start_angle PASS
+@TEST clamp_angle_bounds PASS
+@TEST write_clamps_and_updates_angle PASS
+@TEST write_count_increments PASS
+@TEST steps_per_cycle_valid_and_invalid PASS
+@TEST run_sweep_reaches_endpoints_and_stays_in_range PASS
+@TEST run_sweep_invalid_args_no_writes PASS
+@RUN_END 7/7

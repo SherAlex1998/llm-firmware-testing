@@ -1,0 +1,214 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_purple) {
+  park_init();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+}
+
+TEST(init_resets_sonar) {
+  sonar.setTargetDistance(50);
+  sonar.applyReading(100);
+  park_init();
+  ASSERT_EQ(sonar.getTargetDistance(), 30);
+  ASSERT_EQ(sonar.getDistance(), 0);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+TEST(away_from_target_zone_is_purple) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(60);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+}
+
+TEST(in_target_zone_is_green) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(30);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+}
+
+TEST(past_target_zone_is_yellow) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(20);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+}
+
+TEST(too_close_is_red) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(10);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+}
+
+TEST(idle_timeout_turns_off) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(40);
+  park_loop_with(40, false, 0);
+  ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+  
+  park_loop_with(40, false, 35000);
+  ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+}
+
+TEST(button_sets_target) {
+  park_init();
+  sonar.applyReading(50);
+  park_loop_with(50, true, 0);
+  ASSERT_EQ(sonar.getTargetDistance(), 50);
+}
+
+TEST(object_out_of_range) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(500);
+  ASSERT_TRUE(sonar.objectOutOfRange());
+}
+
+TEST(in_zone_lower_bound) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(25);
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(in_zone_upper_bound) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(45);
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(in_zone_exact) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(30);
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(away_zone_boundary) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(46);
+  ASSERT_TRUE(sonar.objectAwayFromTargetZone());
+}
+
+TEST(away_zone_upper) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(80);
+  ASSERT_TRUE(sonar.objectAwayFromTargetZone());
+}
+
+TEST(past_zone_lower) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(15);
+  ASSERT_TRUE(sonar.objectPastTargetZone());
+}
+
+TEST(past_zone_upper) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(24);
+  ASSERT_TRUE(sonar.objectPastTargetZone());
+}
+
+TEST(too_close_boundary) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(14);
+  ASSERT_TRUE(sonar.objectTooCloseToSensor());
+}
+
+TEST(too_close_very_close) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(5);
+  ASSERT_TRUE(sonar.objectTooCloseToSensor());
+}
+
+TEST(idle_timeout_not_reached_initially) {
+  park_init();
+  sonar.applyReading(40);
+  ASSERT_FALSE(sonar.idleTimeoutReached(0));
+}
+
+TEST(idle_timeout_movement_resets) {
+  park_init();
+  sonar.applyReading(40);
+  sonar.idleTimeoutReached(10000);
+  sonar.applyReading(50);
+  sonar.idleTimeoutReached(11000);
+  ASSERT_FALSE(sonar.idleTimeoutReached(40000));
+}
+
+TEST(sonar_getters) {
+  park_init();
+  sonar.setTargetDistance(40);
+  sonar.applyReading(50);
+  ASSERT_EQ(sonar.getTargetDistance(), 40);
+  ASSERT_EQ(sonar.getDistance(), 50);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+TEST(led_rgb_custom) {
+  park_init();
+  led.rgb(100, 150, 200);
+  ASSERT_EQ(led.color(), led.Color(100, 150, 200));
+}
+
+TEST(led_red) {
+  park_init();
+  led.red();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+}
+
+TEST(led_green) {
+  park_init();
+  led.green();
+  ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+}
+
+TEST(led_yellow) {
+  park_init();
+  led.yellow();
+  ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+}
+
+TEST(led_off) {
+  park_init();
+  led.purple();
+  led.off();
+  ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+}
+
+TEST(loop_processes_reading) {
+  park_init();
+  sonar.setTargetDistance(30);
+  park_loop_with(30, false, 0);
+  ASSERT_EQ(sonar.getDistance(), 30);
+  ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+}
+
+TEST(loop_no_button_press) {
+  park_init();
+  sonar.applyReading(40);
+  int orig_target = sonar.getTargetDistance();
+  park_loop_with(40, false, 0);
+  ASSERT_EQ(sonar.getTargetDistance(), orig_target);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}

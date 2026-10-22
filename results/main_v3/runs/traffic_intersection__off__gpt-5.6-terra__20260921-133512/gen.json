@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_intersection",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2756,
+ "tokens_out": 1362,
+ "cost_usd": 0.021856,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2756,
+   "tokens_out": 1362,
+   "latency_s": 17.065877437591553,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

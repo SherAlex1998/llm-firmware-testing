@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_forward_direction_and_zero_power PASS
+@TEST direction_controls_direction_pins PASS
+@TEST power_is_clamped_and_extremes_drive_enable PASS
+@TEST reading_to_power_maps_and_clamps PASS
+@TEST stop_disables_motor_without_changing_direction_state PASS
+@TEST update_applies_potentiometer_reading PASS
+@RUN_END 6/6

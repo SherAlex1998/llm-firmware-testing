@@ -1,0 +1,125 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(initialization_sets_defaults) {
+  db_init();
+  ASSERT_PIN(DB_PIN_LED, HIGH);
+  ASSERT_EQ(db_led_state(), HIGH);
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_debounce_delay(), DB_DEFAULT_DEBOUNCE_MS);
+  ASSERT_EQ(db_last_change_ms(), 0);
+}
+
+TEST(delay_can_be_changed_and_requires_strictly_more_time) {
+  db_init();
+  db_set_debounce_delay(7);
+
+  ASSERT_EQ(db_debounce_delay(), 7);
+
+  db_update(HIGH, 100);
+  ASSERT_EQ(db_last_change_ms(), 100);
+  ASSERT_EQ(db_button_state(), LOW);
+
+  db_update(HIGH, 107);
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_led_state(), HIGH);
+
+  db_update(HIGH, 108);
+  ASSERT_EQ(db_button_state(), HIGH);
+  ASSERT_EQ(db_led_state(), LOW);
+  ASSERT_PIN(DB_PIN_LED, LOW);
+}
+
+TEST(press_toggles_led_once_after_debounce) {
+  db_init();
+
+  db_update(HIGH, 10);
+  ASSERT_EQ(db_last_change_ms(), 10);
+  ASSERT_EQ(db_button_state(), LOW);
+
+  db_update(HIGH, 60);
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_led_state(), HIGH);
+
+  db_update(HIGH, 61);
+  ASSERT_EQ(db_button_state(), HIGH);
+  ASSERT_EQ(db_led_state(), LOW);
+  ASSERT_PIN(DB_PIN_LED, LOW);
+
+  db_update(HIGH, 200);
+  ASSERT_EQ(db_led_state(), LOW);
+  ASSERT_PIN(DB_PIN_LED, LOW);
+}
+
+TEST(release_is_debounced_without_toggling_led) {
+  db_init();
+
+  db_update(HIGH, 1);
+  db_update(HIGH, 52);
+  ASSERT_EQ(db_button_state(), HIGH);
+  ASSERT_EQ(db_led_state(), LOW);
+
+  db_update(LOW, 60);
+  ASSERT_EQ(db_last_change_ms(), 60);
+  ASSERT_EQ(db_button_state(), HIGH);
+
+  db_update(LOW, 110);
+  ASSERT_EQ(db_button_state(), HIGH);
+  ASSERT_EQ(db_led_state(), LOW);
+
+  db_update(LOW, 111);
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_led_state(), LOW);
+  ASSERT_PIN(DB_PIN_LED, LOW);
+}
+
+TEST(raw_bounce_restarts_debounce_timer) {
+  db_init();
+
+  db_update(HIGH, 10);
+  ASSERT_EQ(db_last_change_ms(), 10);
+
+  db_update(LOW, 20);
+  ASSERT_EQ(db_last_change_ms(), 20);
+
+  db_update(HIGH, 30);
+  ASSERT_EQ(db_last_change_ms(), 30);
+
+  db_update(HIGH, 80);
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_led_state(), HIGH);
+
+  db_update(HIGH, 81);
+  ASSERT_EQ(db_button_state(), HIGH);
+  ASSERT_EQ(db_led_state(), LOW);
+}
+
+TEST(debounce_time_handles_millis_rollover) {
+  db_init();
+
+  db_update(HIGH, 4294967280UL);
+  ASSERT_EQ(db_last_change_ms(), 4294967280UL);
+  ASSERT_EQ(db_button_state(), LOW);
+
+  db_update(HIGH, 40);
+  ASSERT_EQ(db_button_state(), HIGH);
+  ASSERT_EQ(db_led_state(), LOW);
+  ASSERT_PIN(DB_PIN_LED, LOW);
+}
+
+TEST(poll_keeps_idle_low_button_and_led_state) {
+  db_init();
+
+  db_poll();
+  delay(60);
+  db_poll();
+
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_led_state(), HIGH);
+  ASSERT_PIN(DB_PIN_LED, HIGH);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

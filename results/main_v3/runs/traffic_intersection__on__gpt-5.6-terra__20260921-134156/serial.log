@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_all_directions_yellow PASS
+@TEST set_direction_controls_leds_and_safety PASS
+@TEST set_direction_rejects_invalid_arguments PASS
+@TEST apply_first_phase_sets_a_green PASS
+@TEST apply_last_phase_and_rejects_invalid_phase PASS
+@TEST next_phase_advances_and_wraps PASS
+@RUN_END 6/6

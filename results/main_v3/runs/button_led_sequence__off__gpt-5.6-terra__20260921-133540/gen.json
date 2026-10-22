@@ -1,0 +1,21 @@
+{
+ "module_id": "button_led_sequence",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2419,
+ "tokens_out": 1452,
+ "cost_usd": 0.022262,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2419,
+   "tokens_out": 1452,
+   "latency_s": 27.072766065597534,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

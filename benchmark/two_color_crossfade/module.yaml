@@ -1,0 +1,19 @@
+id: two_color_crossfade
+name: "Red/green 2-color LED cross-fade"
+source_url: https://github.com/Projectslearner/Arduino-uno-2-color-LED-module
+license: MIT
+category: led
+complexity: simple
+pins:
+  - {pin: 11, mode: OUTPUT, role: "red channel (PWM)"}
+  - {pin: 10, mode: OUTPUT, role: "green channel (PWM)"}
+entry_functions:
+  - "void xf_init()"
+  - "void xf_apply(int value)"
+  - "void xf_step()"
+  - "int xf_value()"
+  - "uint8_t xf_phase()"
+  - "int xf_red_level()"
+  - "int xf_green_level()"
+loc: 63
+notes: "Two blocking while-loops with delay(100) replaced by xf_step() plus a phase flag; last PWM levels exposed via getters. Original file has a .C extension but is an Arduino sketch."

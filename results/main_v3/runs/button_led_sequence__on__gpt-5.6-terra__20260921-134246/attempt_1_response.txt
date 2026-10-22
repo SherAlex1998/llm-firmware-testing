@@ -1,0 +1,126 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_configures_off_state) {
+  seq_init();
+
+  ASSERT_EQ(seq_count(), 0);
+  ASSERT_EQ(seq_current_led(), -1);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+}
+
+TEST(apply_first_led) {
+  seq_init();
+
+  ASSERT_TRUE(seq_apply(0));
+  ASSERT_EQ(seq_current_led(), 0);
+  ASSERT_EQ(seq_count(), 0);
+  ASSERT_PIN(7, HIGH);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+}
+
+TEST(apply_last_led) {
+  seq_init();
+
+  ASSERT_TRUE(seq_apply(3));
+  ASSERT_EQ(seq_current_led(), 3);
+  ASSERT_EQ(seq_count(), 0);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(apply_out_of_range_does_not_change_state) {
+  seq_init();
+
+  ASSERT_FALSE(seq_apply(4));
+  ASSERT_EQ(seq_current_led(), -1);
+  ASSERT_EQ(seq_count(), 0);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+}
+
+TEST(advance_cycles_through_all_leds) {
+  seq_init();
+
+  seq_advance();
+  ASSERT_EQ(seq_current_led(), 0);
+  ASSERT_EQ(seq_count(), 1);
+  ASSERT_PIN(7, HIGH);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+
+  seq_advance();
+  ASSERT_EQ(seq_current_led(), 1);
+  ASSERT_EQ(seq_count(), 2);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, HIGH);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+
+  seq_advance();
+  ASSERT_EQ(seq_current_led(), 2);
+  ASSERT_EQ(seq_count(), 3);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, HIGH);
+  ASSERT_PIN(4, LOW);
+
+  seq_advance();
+  ASSERT_EQ(seq_current_led(), 3);
+  ASSERT_EQ(seq_count(), 0);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(all_off_preserves_count) {
+  seq_init();
+
+  seq_advance();
+  seq_all_off();
+
+  ASSERT_EQ(seq_count(), 1);
+  ASSERT_EQ(seq_current_led(), -1);
+  ASSERT_PIN(7, LOW);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+}
+
+TEST(button_and_poll_control_sequence) {
+  seq_init();
+
+  pinMode(2, OUTPUT);
+  digitalWrite(2, LOW);
+  ASSERT_FALSE(seq_button_pressed());
+  seq_poll();
+  ASSERT_EQ(seq_count(), 0);
+  ASSERT_EQ(seq_current_led(), -1);
+  ASSERT_PIN(7, LOW);
+
+  digitalWrite(2, HIGH);
+  ASSERT_TRUE(seq_button_pressed());
+  seq_poll();
+  ASSERT_EQ(seq_count(), 1);
+  ASSERT_EQ(seq_current_led(), 0);
+  ASSERT_PIN(7, HIGH);
+  ASSERT_PIN(6, LOW);
+  ASSERT_PIN(5, LOW);
+  ASSERT_PIN(4, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

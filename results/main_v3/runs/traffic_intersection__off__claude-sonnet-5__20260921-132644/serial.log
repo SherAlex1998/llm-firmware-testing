@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_all_yellow PASS
+@TEST set_direction_valid PASS
+@TEST set_direction_invalid PASS
+@TEST apply_phase_even_green PASS
+@TEST apply_phase_odd_yellow PASS
+@TEST apply_phase_invalid PASS
+@TEST next_phase_wraps PASS
+@TEST is_safe_checks PASS
+@RUN_END 8/8

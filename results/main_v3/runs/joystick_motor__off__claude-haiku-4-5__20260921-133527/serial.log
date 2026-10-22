@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_pins_and_defaults PASS
+@TEST set_direction_clockwise PASS
+@TEST set_direction_counter_clockwise PASS
+@TEST speed_clamping PASS
+@TEST speed_from_axis PASS
+@TEST clockwise_from_axis PASS
+@TEST apply_axis_with_deadzone PASS
+@TEST apply_axis_direction_change FAIL line 75: expected jm_speed() == 44 (got 56 vs 44)
+@RUN_END 7/8

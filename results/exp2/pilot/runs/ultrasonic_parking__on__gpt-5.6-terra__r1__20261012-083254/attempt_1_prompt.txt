@@ -1,0 +1,408 @@
+Module: Garage parking assistant: HC-SR04 distance zones shown on a NeoPixel, button sets the target (id: ultrasonic_parking, category: sensor, complexity: medium)
+Pins:
+- 4 OUTPUT: HC-SR04 TRIG
+- 3 INPUT: HC-SR04 ECHO
+- 6 OUTPUT: NeoPixel data (1 LED, RGB order)
+- 2 INPUT_PULLUP: setup button, LOW = pressed
+External devices (simulated; their readings are fixed for the whole run):
+- sonar (wokwi-hc-sr04), pins TRIG=4 ECHO=3: HC-SR04 ultrasonic sensor; the object is fixed at 40 cm for the whole run
+- pixel (wokwi-neopixel), pins DIN=6: one NeoPixel on pin 6; led.color() reads its colour back (0x00RRGGBB)
+- btn (wokwi-pushbutton), pins 1.l=2: setup button on pin 2 to GND (INPUT_PULLUP), released for the whole run
+Libraries available: NewPing 1.9.7, Adafruit NeoPixel 1.15.5, Button 1.2.0
+Functions to test:
+- void park_init()
+- void park_loop()
+- void park_loop_with(int distance, bool button_released, unsigned long now_ms)
+- void setLedColor()
+- SonarController: readDistance, applyReading, setTargetDistance, idleTimeoutReached([now]), objectOutOfRange, objectAwayFromTargetZone, objectInTargetZone, objectPastTargetZone, objectTooCloseToSensor, getDistance, getLastDistance, getTargetDistance, reset
+- LedController: rgb, red, green, yellow, purple, flashRed, flashGreen, off, color
+- ButtonController: wasPressed
+
+### logic.h
+```cpp
+// Garage parking assistant: HC-SR04 distance -> colour of one NeoPixel; a button stores the current distance as target.
+// Source: https://github.com/acheaito/arduino-garage-parking, MIT License, Copyright (c) 2016 Ali Cheaito.
+// Refactored for testability (see module.yaml notes). Classes: sonar_controller.h, led_controller.h,
+// button_controller.h (included as .cpp files by the original sketch).
+#pragma once
+#include <Arduino.h>
+#include "led_controller.h"
+#include "sonar_controller.h"
+#include "button_controller.h"
+
+//I/O pins (LED and button moved off pins 0/1, which carry Serial on the Uno)
+#define TRIGGER_PIN 4
+#define ECHO_PIN 3
+#define LED_PIN 6
+#define SETUP_BUTTON_PIN 2
+
+extern SonarController sonar;          // zones relative to the target distance (default 30 cm), idle timeout 30 s
+extern LedController led;              // purple: approaching, green: in zone, yellow: past zone, flashing red: too close
+extern ButtonController setupButton;   // released() of the button (INPUT_PULLUP, LOW = pressed)
+
+void park_init();                      // setup(): LED purple; also resets the sonar state (target, readings, idle timer)
+void park_loop();                      // one loop() pass: sensor reading, idle check, LED colour, setup button
+void park_loop_with(int distance, bool button_released, unsigned long now_ms);  // the same pass with a given reading, button and time
+void setLedColor();                    // LED colour for the current zone
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+SonarController sonar = SonarController(TRIGGER_PIN, ECHO_PIN);
+LedController led = LedController(LED_PIN);
+ButtonController setupButton = ButtonController(SETUP_BUTTON_PIN);
+
+void park_init()
+{
+  sonar.reset();
+  led.purple();
+}
+
+static void process(int distance, bool pressed, unsigned long now)
+{
+  if (sonar.idleTimeoutReached(now)) {
+    led.off();
+  } else {
+    setLedColor();
+  }
+
+  if (pressed) {
+    sonar.setTargetDistance(distance);
+    for (int i = 0; i < 3; i++) {
+      led.flashGreen(50);
+    }
+  }
+}
+
+void park_loop() {
+  int distance = sonar.readDistance();
+  process(distance, setupButton.wasPressed(), millis());
+}
+
+void park_loop_with(int distance, bool button_released, unsigned long now_ms) {
+  sonar.applyReading(distance);
+  process(distance, button_released, now_ms);
+}
+
+void setLedColor() {
+  if (sonar.objectAwayFromTargetZone()) {
+    led.purple();
+  } else if (sonar.objectInTargetZone()) {
+    led.green();
+  } else if (sonar.objectPastTargetZone()) {
+    led.yellow();
+  } else if (sonar.objectTooCloseToSensor()) {
+    led.flashRed(100);
+  }
+}
+```
+
+### sonar_controller.h
+```cpp
+#pragma once
+#include <Arduino.h>
+#include <NewPing.h>
+
+#define MAX_DISTANCE_CM 500
+#define DEFAULT_TARGET_DISTANCE_CM 30
+#define PURPLE_ZONE_UPPER_BOUND_CM 100
+#define INNER_TOLERANCE_CM 5
+#define OUTER_TOLERANCE_CM 15
+#define POWER_SAVE_MODE_THRESHOLD_MS 30000l
+#define PING_ITERATIONS 10
+#define ACCEPTABLE_CONSECUTIVE_READING_DIFF 50
+#define MAX_ATTEMPTS 5
+
+class SonarController {
+  private:
+    int triggerPin;
+    int echoPin;
+    int targetDistance;
+    int distance;
+    int lastDistance;
+    NewPing sonar;
+    unsigned long lastMovementMs;
+
+    bool validReading(int distance, int lastDistance) {
+      if (distance == 0) {
+        return false;
+      }
+      if (lastDistance > 0 && abs(distance - lastDistance) > ACCEPTABLE_CONSECUTIVE_READING_DIFF) {
+        return false;
+      }
+      return true;
+    }
+
+  public:
+    SonarController(int triggerPin, int echoPin)
+      : sonar (NewPing(triggerPin, echoPin, MAX_DISTANCE_CM))
+      , targetDistance (DEFAULT_TARGET_DISTANCE_CM)
+      , distance (0)
+      , lastDistance (0)
+      , lastMovementMs (0) {
+    }
+
+    int readDistance() {
+      lastDistance = distance;
+      int reading = MAX_DISTANCE_CM;
+      int attempts = 0;
+      do {
+        reading = sonar.convert_cm(sonar.ping_median(PING_ITERATIONS));
+        delay(100);
+      } while (!validReading(reading, lastDistance) && attempts++ < MAX_ATTEMPTS);
+      distance = reading;
+      return reading;
+    }
+
+    // Testability: store a reading as readDistance() does, without the sensor.
+    void applyReading(int reading) {
+      lastDistance = distance;
+      distance = reading;
+    }
+
+    void setTargetDistance(int newTargetDistance) {
+      targetDistance = newTargetDistance;
+    }
+
+    boolean idleTimeoutReached() {
+      return idleTimeoutReached(millis());
+    }
+
+    // Testability: the same with the current time as an argument.
+    boolean idleTimeoutReached(unsigned long nowMs) {
+      if (!((distance >= lastDistance - INNER_TOLERANCE_CM) && (distance <= lastDistance + OUTER_TOLERANCE_CM))) {
+        lastMovementMs = nowMs;
+      }
+      return (nowMs - lastMovementMs) > POWER_SAVE_MODE_THRESHOLD_MS;
+    }
+
+    // Testability getters.
+    int getDistance() { return distance; }
+    int getLastDistance() { return lastDistance; }
+    int getTargetDistance() { return targetDistance; }
+    void reset() {
+      targetDistance = DEFAULT_TARGET_DISTANCE_CM;
+      distance = lastDistance = 0;
+      lastMovementMs = 0;
+    }
+
+    bool objectOutOfRange() {
+      return distance >= MAX_DISTANCE_CM;
+    }
+
+    bool objectAwayFromTargetZone() {
+      return (distance > targetDistance + OUTER_TOLERANCE_CM) && (distance < targetDistance + PURPLE_ZONE_UPPER_BOUND_CM);
+    }
+
+    bool objectInTargetZone() {
+      return (distance >= targetDistance - INNER_TOLERANCE_CM) && (distance <= targetDistance + OUTER_TOLERANCE_CM);
+    }
+
+    bool objectPastTargetZone() {
+      return (distance >= targetDistance - OUTER_TOLERANCE_CM) && (distance <= targetDistance - INNER_TOLERANCE_CM);
+    }
+
+    bool objectTooCloseToSensor() {
+      return distance < targetDistance - OUTER_TOLERANCE_CM;
+    }
+};
+```
+
+### led_controller.h
+```cpp
+#pragma once
+#include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
+
+class LedController {
+  private:
+    Adafruit_NeoPixel led;
+    void setColor(int red, int green, int blue) {
+      led.setPixelColor(0, led.Color(red , green , blue));
+      led.show();
+    }
+
+  public:
+    LedController(int dataPin)
+      : led (Adafruit_NeoPixel(1, dataPin, NEO_RGB + NEO_KHZ800)) {
+      led.begin();
+    }
+
+    void rgb(int red, int green, int blue) {
+      setColor(red, green, blue);
+    }
+
+    void red() {
+      setColor(255 , 0 , 0);
+    }
+
+    void green() {
+      setColor(0 , 255 , 0);
+    }
+
+    void yellow() {
+      setColor(200 , 50 , 0);
+    }
+
+    void purple() {
+      setColor(255 , 0 , 255);
+    }
+
+    void flashRed(int delayMs) {
+      off();
+      delay(delayMs);
+      red();
+      delay(delayMs);
+    }
+
+    void flashGreen(int delayMs) {
+      off();
+      delay(delayMs);
+      green();
+      delay(delayMs);
+    }
+
+    // Testability: colour of the LED (0x00RRGGBB).
+    uint32_t color() {
+      return led.getPixelColor(0);
+    }
+
+    void off() {
+      led.setPixelColor(0, led.Color(0 , 0 , 0 ));
+      led.show();
+    }
+};
+```
+
+### button_controller.h
+```cpp
+#pragma once
+#include <Arduino.h>
+#include <Button.h>
+
+#define DEBOUNCING_TIME_MS 15000
+
+class ButtonController {
+  private:
+    Button button;
+  public:
+    ButtonController(int pin)
+      : button (Button(pin)) {
+      button.begin();
+    }
+
+    bool wasPressed() {
+      return button.released();
+    }
+};
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/exp2/devices/wokwi-hc-sr04.md]
+wokwi-hc-sr04 (Wokwi simulator part) / Simulator examples
+
+## Simulator examples
+
+- [Distance sensor and LED](https://wokwi.com/projects/290056311044833800)
+- [Display distance on LCD screen](https://wokwi.com/projects/290043622233997832)
+- [Seven segment distance display](https://wokwi.com/projects/295030553275532810)
+- [Franzininho ultrasonic sensor](https://wokwi.com/projects/302020345098928648)
+- [Parking sensor](https://wokwi.com/projects/290964046833779209)
+- [Multiple Sensor Array](https://wokwi.com/projects/412101524873288705)
+
+[kb/exp2/libraries/adafruit_neopixel_api.md]
+Adafruit NeoPixel library: API / Adafruit_NeoPixel.h
+
+```cpp
+    82,  84,  85,  86,  88,  89,  90,  92,  93,  94,  96,  97,  99,  100, 102,
+    103, 105, 106, 108, 109, 111, 112, 114, 115, 117, 119, 120, 122, 124, 125,
+    127, 129, 130, 132, 134, 136, 137, 139, 141, 143, 145, 146, 148, 150, 152,
+    154, 156, 158, 160, 162, 164, 166, 168, 170, 172, 174, 176, 178, 180, 182,
+    184, 186, 188, 191, 193, 195, 197, 199, 202, 204, 206, 209, 211, 213, 215,
+    218, 220, 223, 225, 227, 230, 232, 235, 237, 240, 242, 245, 247, 250, 252,
+    255};
+
+/* Declare external methods required by the Adafruit_NeoPixel implementation
+    for specific hardware/library versions
+*/
+#if defined(ESP32)
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+extern "C" void espInit();
+#endif
+#endif
+
+/*!
+    @brief  Class that stores state and functions for interacting with
+            Adafruit NeoPixels and compatible devices.
+*/
+class Adafruit_NeoPixel {
+
+public:
+  // Constructor: number of LEDs, pin number, LED type
+  Adafruit_NeoPixel(uint16_t n, int16_t pin = 6,
+                    neoPixelType type = NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel(void);
+  ~Adafruit_NeoPixel();
+
+  bool begin(void);
+  void show(void);
+  void setPin(int16_t p);
+  void setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b);
+  void setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+  void setPixelColor(uint16_t n, uint32_t c);
+  void fill(uint32_t c = 0, uint16_t first = 0, uint16_t count = 0);
+  void setBrightness(uint8_t);
+```
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Pin numbers on the Uno
+
+## Pin numbers on the Uno
+- Digital pins 0 to 13. The analog inputs A0 to A5 are also digital pins 14 to 19.
+- Pins 0 and 1 are the Serial RX/TX lines; the test protocol uses Serial, so tests must not drive them.
+- PWM pins: 3, 5, 6, 9, 10, 11. `LED_BUILTIN` is pin 13.
+- Check outputs against the pin numbers in the module's specification (its pin table), not against constants
+  taken from the code under test: a wrong pin number in the code is only detected if the test uses the pin
+  number the hardware is actually wired to.
+
+[kb/exp2/devices/wokwi-neopixel.md]
+wokwi-neopixel (Wokwi simulator part) / Arduino code example
+
+## Arduino code example
+
+```cpp
+#include <Adafruit_NeoPixel.h>
+
+#define LED_PIN 6
+
+Adafruit_NeoPixel pixel(1, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  pixel.begin();
+  pixel.setPixelColor(0, pixel.Color(150, 0, 0)); // Red
+  pixel.show();
+}
+
+void loop() {
+  delay(100);
+}
+```
+
+## Simulator examples
+
+- [NeoPixel Red-Yellow-Green](https://wokwi.com/projects/456120200854327297)
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

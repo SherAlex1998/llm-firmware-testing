@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_closes_gates_and_red_led PASS
+@TEST gate_open_moves_servos_and_leds PASS
+@TEST gate_close_moves_servos_and_leds PASS
+@TEST sensor_detection_and_update FAIL line 38: expected false: gate_sensor1_detected()
+@TEST object_between_transitions FAIL line 80: expected true: gate_object_between()
+@TEST gate_servo_angles_defined PASS
+@TEST poll_reads_sensors_and_updates PASS
+@RUN_END 5/7

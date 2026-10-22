@@ -1,0 +1,77 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_configures_led_off) {
+  toggle_init();
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, LOW);
+  ASSERT_PIN(TOGGLE_PIN_BUTTON, HIGH);
+}
+
+TEST(button_pressed_reads_active_low) {
+  toggle_init();
+
+  pinMode(TOGGLE_PIN_BUTTON, OUTPUT);
+  digitalWrite(TOGGLE_PIN_BUTTON, LOW);
+  ASSERT_TRUE(toggle_button_pressed());
+
+  pinMode(TOGGLE_PIN_BUTTON, INPUT_PULLUP);
+  ASSERT_FALSE(toggle_button_pressed());
+}
+
+TEST(set_led_updates_state_and_pin) {
+  toggle_init();
+
+  toggle_set_led(true);
+  ASSERT_TRUE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, HIGH);
+
+  toggle_set_led(false);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, LOW);
+}
+
+TEST(update_toggles_on_release_only) {
+  toggle_init();
+
+  toggle_update(true);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, LOW);
+
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, HIGH);
+
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());
+}
+
+TEST(update_toggles_each_press_release_cycle) {
+  toggle_init();
+
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_TRUE(toggle_led_state());
+
+  toggle_update(true);
+  toggle_update(false);
+  ASSERT_FALSE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, LOW);
+}
+
+TEST(poll_reads_button_and_toggles_on_release) {
+  toggle_init();
+
+  pinMode(TOGGLE_PIN_BUTTON, OUTPUT);
+  digitalWrite(TOGGLE_PIN_BUTTON, LOW);
+  toggle_poll();
+  ASSERT_FALSE(toggle_led_state());
+
+  pinMode(TOGGLE_PIN_BUTTON, INPUT_PULLUP);
+  toggle_poll();
+  ASSERT_TRUE(toggle_led_state());
+  ASSERT_PIN(TOGGLE_PIN_LED, HIGH);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

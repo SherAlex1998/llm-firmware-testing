@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "author": "benchmark",
+  "editor": "wokwi",
+  "parts": [
+    {"type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {}},
+    {"type": "wokwi-tm1637-7segment", "id": "disp", "top": -130, "left": 0, "attrs": {"color": "red"}},
+    {"type": "wokwi-ds1307", "id": "rtc", "top": -130, "left": 250, "attrs": {"initTime": "2030-03-11T10:00:00Z"}},
+    {"type": "wokwi-pushbutton", "id": "btn", "top": 260, "left": 60, "attrs": {"color": "green"}},
+    {"type": "wokwi-resistor", "id": "rpd", "top": 320, "left": 60, "attrs": {"value": "10000"}},
+    {"type": "wokwi-buzzer", "id": "bz", "top": 250, "left": 250, "attrs": {}}
+  ],
+  "connections": [
+    ["uno:3", "disp:CLK", "orange", []],
+    ["uno:4", "disp:DIO", "yellow", []],
+    ["uno:5V", "disp:VCC", "red", []],
+    ["uno:GND.1", "disp:GND", "black", []],
+    ["uno:A4", "rtc:SDA", "green", []],
+    ["uno:A5", "rtc:SCL", "blue", []],
+    ["uno:5V", "rtc:5V", "red", []],
+    ["uno:GND.2", "rtc:GND", "black", []],
+    ["uno:5V", "btn:1.l", "red", []],
+    ["uno:6", "btn:2.l", "green", []],
+    ["btn:2.r", "rpd:1", "green", []],
+    ["rpd:2", "uno:GND.3", "black", []],
+    ["uno:9", "bz:2", "purple", []],
+    ["bz:1", "uno:GND.3", "black", []]
+  ]
+}

@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_all_yellow PASS
+@TEST set_direction_valid PASS
+@TEST set_direction_invalid PASS
+@TEST apply_phase_green PASS
+@TEST apply_phase_yellow PASS
+@TEST apply_phase_invalid PASS
+@TEST next_phase_sequence PASS
+@TEST is_safe_conditions FAIL line 127: expected true: ti_is_safe()
+@RUN_END 7/8

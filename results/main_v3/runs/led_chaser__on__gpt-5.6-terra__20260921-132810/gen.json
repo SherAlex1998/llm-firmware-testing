@@ -1,0 +1,21 @@
+{
+ "module_id": "led_chaser",
+ "model_id": "gpt-5.6-terra",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3971,
+ "tokens_out": 1783,
+ "cost_usd": 0.029338,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3971,
+   "tokens_out": 1783,
+   "latency_s": 24.967485904693604,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

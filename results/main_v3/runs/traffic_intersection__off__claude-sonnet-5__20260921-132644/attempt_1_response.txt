@@ -1,0 +1,84 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_all_yellow) {
+  ti_init();
+  for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {
+    ASSERT_EQ(ti_direction_color(d), TI_YELLOW);
+  }
+  ASSERT_PIN(TI_PIN_YELLOW[0], HIGH);
+  ASSERT_PIN(TI_PIN_RED[0], LOW);
+  ASSERT_PIN(TI_PIN_GREEN[0], LOW);
+  ASSERT_EQ(ti_phase(), 0);
+}
+
+TEST(set_direction_valid) {
+  ti_init();
+  ASSERT_TRUE(ti_set_direction(1, TI_GREEN));
+  ASSERT_EQ(ti_direction_color(1), TI_GREEN);
+  ASSERT_PIN(TI_PIN_GREEN[1], HIGH);
+  ASSERT_PIN(TI_PIN_RED[1], LOW);
+  ASSERT_PIN(TI_PIN_YELLOW[1], LOW);
+}
+
+TEST(set_direction_invalid) {
+  ti_init();
+  ASSERT_FALSE(ti_set_direction(4, TI_RED));
+  ASSERT_FALSE(ti_set_direction(0, 3));
+  ASSERT_EQ(ti_direction_color(4), TI_RED);
+}
+
+TEST(apply_phase_even_green) {
+  ti_init();
+  ASSERT_TRUE(ti_apply_phase(2));
+  ASSERT_EQ(ti_phase(), 2);
+  ASSERT_EQ(ti_direction_color(1), TI_GREEN);
+  ASSERT_PIN(TI_PIN_GREEN[1], HIGH);
+  for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {
+    if (d != 1) {
+      ASSERT_EQ(ti_direction_color(d), TI_RED);
+      ASSERT_PIN(TI_PIN_RED[d], HIGH);
+    }
+  }
+}
+
+TEST(apply_phase_odd_yellow) {
+  ti_init();
+  ASSERT_TRUE(ti_apply_phase(3));
+  ASSERT_EQ(ti_phase(), 3);
+  ASSERT_EQ(ti_direction_color(1), TI_YELLOW);
+  ASSERT_PIN(TI_PIN_YELLOW[1], HIGH);
+  for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {
+    if (d != 1) {
+      ASSERT_EQ(ti_direction_color(d), TI_RED);
+    }
+  }
+}
+
+TEST(apply_phase_invalid) {
+  ti_init();
+  ASSERT_FALSE(ti_apply_phase(8));
+  ASSERT_EQ(ti_phase(), 0);
+}
+
+TEST(next_phase_wraps) {
+  ti_init();
+  ti_apply_phase(7);
+  ASSERT_EQ(ti_phase(), 7);
+  ti_next_phase();
+  ASSERT_EQ(ti_phase(), 0);
+  ASSERT_EQ(ti_direction_color(0), TI_GREEN);
+}
+
+TEST(is_safe_checks) {
+  ti_init();
+  ti_apply_phase(0);
+  ASSERT_TRUE(ti_is_safe());
+  ti_set_direction(2, TI_GREEN);
+  ASSERT_FALSE(ti_is_safe());
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

@@ -1,0 +1,21 @@
+{
+ "module_id": "led_breathing",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2166,
+ "tokens_out": 800,
+ "cost_usd": 0.013932,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2166,
+   "tokens_out": 800,
+   "latency_s": 13.548802614212036,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

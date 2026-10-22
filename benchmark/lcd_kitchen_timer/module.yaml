@@ -1,0 +1,42 @@
+id: lcd_kitchen_timer
+name: "Kitchen timer with 8x2 LCD, two buttons, buzzer, battery gauge and EEPROM"
+source_url: https://github.com/SlimTim10/kitchen-timer
+license: MIT
+repo_created: 2016-12-20
+experiment: 2
+category: mixed
+complexity: medium
+backend: avr8js
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal", version: "1.0.7"}
+interrupts: false
+pins:
+  - {pin: 3, mode: INPUT, role: "BUTTON1 start, HIGH = pressed (not connected in the test setup: reads LOW)"}
+  - {pin: 2, mode: INPUT, role: "BUTTON2 +1 minute, HIGH = pressed (not connected in the test setup: reads LOW)"}
+  - {pin: 5, mode: OUTPUT, role: "buzzer (tone)"}
+  - {pin: 14, mode: INPUT, role: "battery voltage A0 (not connected: reads 0)"}
+  - {pin: 7, mode: OUTPUT, role: "LCD 8x2 RS (E 8, DB4..DB7 = 9..12)"}
+entry_functions:
+  - "void ktimer_set_delay_scale(uint8_t percent)"
+  - "void ktimer_init()"
+  - "void ktimer_loop()"
+  - "void ktimer_loop_with(boolean button1, boolean button2)"
+  - "void count_down(void)"
+  - "void display_alarm_time(void)"
+  - "void alarm(void)"
+  - "void increase_alarm_time(void)"
+  - "boolean button_press(uint8_t pin)"
+  - "int battery_voltage(void)"
+  - "void display_battery(void)"
+  - "const char* ktimer_lcd_line(uint8_t row)"
+loc: 268
+metrics: {nloc: 268, ccn_sum: 41, ccn_max: 8, functions: 17}
+notes: >-
+  Source: kitchen-timer/kitchen-timer.ino (single sketch, last commit 2017). Functions copied into logic.cpp; enums
+  and state globals declared in logic.h. Changes: setup() -> ktimer_init() (also zeroes the running time);
+  loop() -> ktimer_loop(), which reads the buttons with button_press() exactly as before (BUTTON2 only when BUTTON1
+  is not pressed, both only in IDLE) and runs ktimer_loop_with(button1, button2); the blocking pauses (1 s per
+  count-down step, 0.1 s key repeat, ~5.4 s alarm) are scaled by ktimer_set_delay_scale() (default 100 %); LCD calls
+  go through wrappers that keep a shadow of the 8x2 display. Kept as in the original: an erased EEPROM gives an
+  alarm time of -1:-1. avr8js backend.

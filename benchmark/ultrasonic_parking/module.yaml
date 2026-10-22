@@ -1,0 +1,54 @@
+id: ultrasonic_parking
+name: "Garage parking assistant: HC-SR04 distance zones shown on a NeoPixel, button sets the target"
+source_url: https://github.com/acheaito/arduino-garage-parking
+license: MIT
+repo_created: 2016-10-19
+experiment: 2
+category: sensor
+complexity: medium
+backend: wokwi
+sources: [logic.h, logic.cpp, sonar_controller.h, led_controller.h, button_controller.h]
+libraries:
+  - {name: "NewPing", version: "1.9.7"}
+  - {name: "Adafruit NeoPixel", version: "1.15.5"}
+  - {name: "Button", version: "1.2.0"}
+devices:
+  - part: wokwi-hc-sr04
+    id: sonar
+    pins: {TRIG: 4, ECHO: 3}
+    attrs: {distance: "40"}
+    test_visible: "HC-SR04 ultrasonic sensor; the object is fixed at 40 cm for the whole run"
+  - part: wokwi-neopixel
+    id: pixel
+    pins: {DIN: 6}
+    attrs: {}
+    test_visible: "one NeoPixel on pin 6; led.color() reads its colour back (0x00RRGGBB)"
+  - part: wokwi-pushbutton
+    id: btn
+    pins: {"1.l": 2}
+    attrs: {}
+    test_visible: "setup button on pin 2 to GND (INPUT_PULLUP), released for the whole run"
+interrupts: false
+pins:
+  - {pin: 4, mode: OUTPUT, role: "HC-SR04 TRIG"}
+  - {pin: 3, mode: INPUT, role: "HC-SR04 ECHO"}
+  - {pin: 6, mode: OUTPUT, role: "NeoPixel data (1 LED, RGB order)"}
+  - {pin: 2, mode: INPUT_PULLUP, role: "setup button, LOW = pressed"}
+entry_functions:
+  - "void park_init()"
+  - "void park_loop()"
+  - "void park_loop_with(int distance, bool button_released, unsigned long now_ms)"
+  - "void setLedColor()"
+  - "SonarController: readDistance, applyReading, setTargetDistance, idleTimeoutReached([now]), objectOutOfRange, objectAwayFromTargetZone, objectInTargetZone, objectPastTargetZone, objectTooCloseToSensor, getDistance, getLastDistance, getTargetDistance, reset"
+  - "LedController: rgb, red, green, yellow, purple, flashRed, flashGreen, off, color"
+  - "ButtonController: wasPressed"
+loc: 195
+metrics: {nloc: 195, ccn_sum: 51, ccn_max: 5, functions: 34}
+notes: >-
+  Source: garageParkingAssistant.ino + SonarController.cpp/LedController.cpp/ButtonController.cpp (the sketch
+  includes the .cpp files; here they are headers). Classes unchanged except testability additions:
+  SonarController::applyReading(), idleTimeoutReached(nowMs) (the original overload calls it with millis()),
+  getters and reset(); LedController::color(). The sketch's loop body is split into park_loop() (sensor, millis(),
+  button as before) and park_loop_with(distance, button_released, now_ms); the Serial log messages were removed
+  (Serial carries the test protocol; the ATtiny85 branch of the original has none either). LED and button moved
+  from pins 0/1 (Serial on the Uno) to 6/2.

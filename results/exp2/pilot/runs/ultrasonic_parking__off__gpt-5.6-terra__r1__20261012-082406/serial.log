@@ -1,0 +1,12 @@
+@RUN_BEGIN 10
+@TEST init_resets_state_and_sets_purple PASS
+@TEST reading_history_target_and_reset PASS
+@TEST distance_zone_predicates_cover_boundaries PASS
+@TEST idle_timeout_turns_on_after_stationary_period PASS
+@TEST movement_resets_idle_timeout PASS
+@TEST led_controller_colours_and_flash_results PASS
+@TEST set_led_color_selects_each_distance_zone PASS
+@TEST loop_with_idles_and_wakes_on_movement PASS
+@TEST loop_with_button_sets_target_and_flashes_green PASS
+@TEST hardware_loop_reads_fixed_sonar_and_sets_green PASS
+@RUN_END 10/10

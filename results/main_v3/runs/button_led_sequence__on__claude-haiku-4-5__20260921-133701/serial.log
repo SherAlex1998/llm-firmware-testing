@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_sets_up_pins PASS
+@TEST apply_valid_steps FAIL line 24: pin 7 is HIGH, expected LOW
+@TEST apply_invalid_step PASS
+@TEST advance_cycles_through_leds PASS
+@TEST all_off_turns_off_leds PASS
+@TEST button_pressed_reads_pin PASS
+@TEST poll_advances_on_button_press PASS
+@RUN_END 6/7

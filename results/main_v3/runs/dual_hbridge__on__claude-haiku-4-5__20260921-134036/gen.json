@@ -1,0 +1,21 @@
+{
+ "module_id": "dual_hbridge",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4854,
+ "tokens_out": 1751,
+ "cost_usd": 0.013609,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4854,
+   "tokens_out": 1751,
+   "latency_s": 8.665119647979736,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

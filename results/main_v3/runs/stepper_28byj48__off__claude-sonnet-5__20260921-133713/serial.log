@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_state PASS
+@TEST coil_pattern_values PASS
+@TEST apply_phase_pins PASS
+@TEST step_full_forward PASS
+@TEST step_half_round_trip PASS
+@TEST release_keeps_state PASS
+@RUN_END 6/6

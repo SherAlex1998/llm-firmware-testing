@@ -1,0 +1,22 @@
+id: dc_motor_pot
+name: "DC motor speed from potentiometer (L298N)"
+source_url: https://github.com/AndreaLombardo/Arduino-L298N-Motore-DC
+license: MIT
+category: motor
+complexity: simple
+pins:
+  - {pin: 14, mode: INPUT, role: "A0 potentiometer"}
+  - {pin: 12, mode: OUTPUT, role: "L298N IN1"}
+  - {pin: 13, mode: OUTPUT, role: "L298N IN2"}
+  - {pin: 11, mode: OUTPUT, role: "L298N EN (PWM)"}
+entry_functions:
+  - "void motor_init()"
+  - "void motor_set_direction(bool forward)"
+  - "bool motor_direction()"
+  - "void motor_set_power(int pwm)"
+  - "int motor_power()"
+  - "int motor_power_from_reading(int raw)"
+  - "void motor_stop()"
+  - "void motor_update()"
+loc: 71
+notes: "Serial debug output removed; map() upper bound corrected from 1024 to 1023 so a full-scale reading yields 255; direction and power exposed through getters; motor_stop() added. Direction pins: forward = IN1 LOW / IN2 HIGH as in the original."

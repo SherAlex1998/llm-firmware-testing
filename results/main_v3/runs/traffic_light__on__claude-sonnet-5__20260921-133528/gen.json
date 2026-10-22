@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_light",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6370,
+ "tokens_out": 2020,
+ "cost_usd": 0.04941,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6370,
+   "tokens_out": 2020,
+   "latency_s": 13.942109823226929,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

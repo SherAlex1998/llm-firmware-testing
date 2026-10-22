@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_defaults_and_release PASS
+@TEST delay_configuration PASS
+@TEST coil_pattern_table_and_invalid_phase PASS
+@TEST apply_phase_drives_pins_and_rejects_invalid PASS
+@TEST half_steps_forward_wrap_and_position PASS
+@TEST half_steps_backward_wrap_and_position PASS
+@TEST full_steps_forward_wrap_and_position PASS
+@TEST full_steps_backward_from_initial_phase PASS
+@RUN_END 8/8

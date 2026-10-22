@@ -1,0 +1,20 @@
+id: traffic_light
+name: "3-LED traffic light state machine"
+source_url: https://github.com/sspeev/Arduino-Traffic-Light
+license: MIT
+category: led
+complexity: simple
+pins:
+  - {pin: 2, mode: OUTPUT, role: "red LED"}
+  - {pin: 3, mode: OUTPUT, role: "yellow LED"}
+  - {pin: 4, mode: OUTPUT, role: "green LED"}
+entry_functions:
+  - "void tl_init()"
+  - "void tl_set_state(uint8_t state)"
+  - "uint8_t tl_state()"
+  - "uint8_t tl_next_state(uint8_t state)"
+  - "void tl_advance()"
+  - "unsigned int tl_state_duration_ms(uint8_t state)"
+  - "void tl_blink_green(uint8_t times, unsigned int half_period_ms)"
+loc: 79
+notes: "Original TrafficLightScript.ino is a single loop() of digitalWrite/delay(5000) steps. Refactored into an explicit 5-state machine (tl_set_state/tl_next_state); all long delays moved to the main sketch; tl_blink_green() takes blink count and half-period as parameters so tests can use small values."

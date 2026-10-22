@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_light",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2525,
+ "tokens_out": 854,
+ "cost_usd": 0.015298,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2525,
+   "tokens_out": 854,
+   "latency_s": 8.709865808486938,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

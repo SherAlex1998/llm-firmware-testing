@@ -1,0 +1,80 @@
+id: ir_wakeup_light
+name: "Wake-up light: alarm clock with slow LED fade-in, IR remote, 16x2 I2C LCD and RTC"
+source_url: https://github.com/erhanalankus/Arduino-Wake-Up-Light
+license: MIT
+repo_created: 2016-12-16
+experiment: 2
+category: mixed
+complexity: complex
+backend: wokwi
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "IRremote", version: "2.8.0"}
+  - {name: "LiquidCrystal I2C", version: "1.1.2"}
+devices:
+  - part: wokwi-ds1307
+    id: rtc
+    pins: {SDA: A4, SCL: A5}
+    attrs: {initTime: "2030-03-11T06:29:50Z"}
+    test_visible: "RTC at I2C 0x68 (same time registers as the DS3231 of the original); every run starts at Monday 2030-03-11 06:29:50"
+  - part: wokwi-lcd1602
+    id: lcd
+    pins: {SDA: A4, SCL: A5}
+    attrs: {pins: "i2c", i2cAddress: "0x3F"}
+    test_visible: "16x2 character LCD at I2C address 0x3F (write-only)"
+  - part: wokwi-ir-receiver
+    id: ir
+    pins: {DAT: A0}
+    attrs: {}
+    test_visible: "IR receiver on A0; no remote button is pressed during the run"
+interrupts: true
+pins:
+  - {pin: 14, mode: INPUT, role: "IR receiver (A0)"}
+  - {pin: 5, mode: OUTPUT, role: "white LED strip (PWM, alarm light)"}
+  - {pin: 6, mode: OUTPUT, role: "red LED strip (PWM, soft/night light)"}
+  - {pin: 9, mode: OUTPUT, role: "LCD backlight (PWM)"}
+  - {pin: 2, mode: OUTPUT, role: "ticker buzzer"}
+  - {pin: 18, mode: I2C, role: "SDA (A4): LCD and RTC"}
+  - {pin: 19, mode: I2C, role: "SCL (A5)"}
+entry_functions:
+  - "void wake_reset_state()"
+  - "void wake_init()"
+  - "void wake_loop()"
+  - "void wake_loop_with(unsigned long now_ms, unsigned long ir_code)"
+  - "void HandleIRCode(unsigned long code)"
+  - "byte decToBcd(byte val)"
+  - "byte bcdToDec(byte val)"
+  - "void ActivateNightLight()"
+  - "void DecreaseTickerInterval()"
+  - "void ToggleTicker()"
+  - "void LightOn()"
+  - "void LightOff()"
+  - "void SetBrightness(int brightnessValue)"
+  - "void PushedAnyButton()"
+  - "void ToggleActiveLEDStrip()"
+  - "bool OnceEverySecond()"
+  - "void ReadTime()"
+  - "void CheckAlarm()"
+  - "void Alarm()"
+  - "void RefreshLCD()"
+  - "String DayOfWeekForLCD()"
+  - "void PrintTimeValueOnLCD(byte value)"
+  - "void ChangeBrightness(int step)"
+  - "void IncreaseAlarmHour()"
+  - "void IncreaseAlarmMinute()"
+  - "void ToggleAlarm()"
+  - "void CheckDayOrNight()"
+  - "void SetLCDBacklight()"
+  - "void setDS3231time(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)"
+  - "void readDS3231time(byte *second, byte *minute, byte *hour, byte *dayOfWeek, byte *dayOfMonth, byte *month, byte *year)"
+loc: 676
+metrics: {nloc: 676, ccn_sum: 97, ccn_max: 16, functions: 31}
+notes: >-
+  Source: Sketch.ino (single sketch, 2019, 14 stars). All functions copied into logic.cpp with their comments;
+  globals declared extern in logic.h (pin constants became #defines). Changes: setup() -> wake_init() (also resets
+  the globals via wake_reset_state()); loop() -> wake_loop(), which reads the IR receiver and millis() and runs
+  wake_loop_with(now_ms, ir_code); the IR command block became HandleIRCode(code) (results.value -> code, the
+  resume()/100 ms delay stay in wake_loop()); lcd.begin() of the GitHub LiquidCrystal-I2C version -> lcd.init() of
+  LiquidCrystal I2C 1.1.2; IRremote pinned to 2.8.0, which still has the 2019 decode(&results) API. The DS3231 of the
+  original is simulated by the Wokwi DS1307 (same address and time registers; the sketch uses no DS3231-only
+  feature).

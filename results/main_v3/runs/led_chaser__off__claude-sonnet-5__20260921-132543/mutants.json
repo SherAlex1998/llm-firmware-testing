@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 8,
+ "score": 0.8,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "const_change",
+   "line": 3,
+   "before": "const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};",
+   "after": "const uint8_t CHASER_PINS[CHASER_NUM_LEDS] = {2, 3, 4, 5, 6, 14, 8, 9, 10, 11};",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 2,
+   "operator": "flip_cmp",
+   "line": 28,
+   "before": "digitalWrite(CHASER_PINS[i], (i == index) ? HIGH : LOW);",
+   "after": "digitalWrite(CHASER_PINS[i], (i != index) ? HIGH : LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "flip_cmp",
+   "line": 17,
+   "before": "for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {",
+   "after": "for (uint8_t i = 0; i >= CHASER_NUM_LEDS; i++) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "off_by_one",
+   "line": 47,
+   "before": "} else if (next < 0) {",
+   "after": "} else if (next < 1) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "negate_cond",
+   "line": 24,
+   "before": "if (index >= CHASER_NUM_LEDS) {",
+   "after": "if (!(index >= CHASER_NUM_LEDS)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "drop_call",
+   "line": 12,
+   "before": "chaser_all_off();",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 7,
+   "operator": "swap_hilo",
+   "line": 18,
+   "before": "digitalWrite(CHASER_PINS[i], LOW);",
+   "after": "digitalWrite(CHASER_PINS[i], HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "swap_arith",
+   "line": 46,
+   "before": "next = CHASER_NUM_LEDS - 2;",
+   "after": "next = CHASER_NUM_LEDS + 2;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "drop_call",
+   "line": 51,
+   "before": "chaser_light_only((uint8_t)next);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "swap_arith",
+   "line": 43,
+   "before": "int8_t next = g_pos + g_dir;",
+   "after": "int8_t next = g_pos - g_dir;",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

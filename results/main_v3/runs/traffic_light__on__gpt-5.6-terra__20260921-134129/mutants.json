@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "swap_arith",
+   "line": 40,
+   "before": "return (state + 1) % TL_STATE_COUNT;",
+   "after": "return (state + 1) / TL_STATE_COUNT;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "swap_hilo",
+   "line": 7,
+   "before": "digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);",
+   "after": "digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "drop_call",
+   "line": 60,
+   "before": "digitalWrite(TL_PIN_GREEN, LOW);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 4,
+   "operator": "swap_hilo",
+   "line": 65,
+   "before": "digitalWrite(TL_PIN_GREEN, LOW);",
+   "after": "digitalWrite(TL_PIN_GREEN, HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "flip_cmp",
+   "line": 37,
+   "before": "if (state >= TL_STATE_COUNT) {",
+   "after": "if (state < TL_STATE_COUNT) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "negate_cond",
+   "line": 19,
+   "before": "if (state >= TL_STATE_COUNT) {",
+   "after": "if (!(state >= TL_STATE_COUNT)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "flip_cmp",
+   "line": 59,
+   "before": "for (uint8_t i = 0; i < times; i++) {",
+   "after": "for (uint8_t i = 0; i >= times; i++) {",
+   "verdict": "timeout",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "drop_call",
+   "line": 44,
+   "before": "tl_set_state(tl_next_state(g_state));",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "flip_cmp",
+   "line": 19,
+   "before": "if (state >= TL_STATE_COUNT) {",
+   "after": "if (state < TL_STATE_COUNT) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "swap_arith",
+   "line": 40,
+   "before": "return (state + 1) % TL_STATE_COUNT;",
+   "after": "return (state - 1) % TL_STATE_COUNT;",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_stops_both_motors PASS
+@TEST forward_motor_a_sets_outputs_and_state PASS
+@TEST forward_motor_b_sets_outputs_and_state PASS
+@TEST backward_motor_a_sets_outputs_and_state PASS
+@TEST backward_motor_b_sets_outputs_and_state PASS
+@TEST stop_motor_a_preserves_motor_b PASS
+@TEST stop_motor_b_preserves_motor_a PASS
+@TEST invalid_motor_commands_do_not_change_outputs PASS
+@RUN_END 8/8

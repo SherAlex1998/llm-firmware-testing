@@ -1,0 +1,151 @@
+Module: PWM breathing LED (id: led_breathing, category: led, complexity: simple)
+Pins:
+- 11 OUTPUT: LED (PWM)
+Functions to test:
+- void breath_init()
+- void breath_reset()
+- void breath_step()
+- int breath_brightness()
+- int breath_velocity()
+- void breath_set_velocity(int velocity)
+- bool breath_is_rising()
+
+### logic.h
+```cpp
+// led_breathing: PWM fade-in / fade-out ("breathing") of one LED.
+// Adapted from https://github.com/italianproject423/Fade-In-Fade-Out (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define BREATH_PIN 11               // PWM pin
+#define BREATH_MIN 0
+#define BREATH_MAX 255
+#define BREATH_DEFAULT_VELOCITY 2
+
+void breath_init();                     // pin as OUTPUT, brightness 0, velocity +2
+void breath_reset();                    // brightness 0, velocity +2, output 0
+void breath_set_velocity(int velocity); // magnitude/sign of each step (0 is ignored)
+int breath_velocity();
+int breath_brightness();                // current logical brightness 0..255
+bool breath_is_rising();                // velocity > 0
+void breath_step();                     // write current brightness, then advance and bounce at 0/255
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static int g_brightness = BREATH_MIN;
+static int g_velocity = BREATH_DEFAULT_VELOCITY;
+
+void breath_init() {
+  pinMode(BREATH_PIN, OUTPUT);
+  breath_reset();
+}
+
+void breath_reset() {
+  g_brightness = BREATH_MIN;
+  g_velocity = BREATH_DEFAULT_VELOCITY;
+  analogWrite(BREATH_PIN, g_brightness);
+}
+
+void breath_set_velocity(int velocity) {
+  if (velocity != 0) {
+    g_velocity = velocity;
+  }
+}
+
+int breath_velocity() {
+  return g_velocity;
+}
+
+int breath_brightness() {
+  return g_brightness;
+}
+
+bool breath_is_rising() {
+  return g_velocity > 0;
+}
+
+void breath_step() {
+  analogWrite(BREATH_PIN, g_brightness);
+  g_brightness = g_brightness + g_velocity;
+  if (g_brightness >= BREATH_MAX) {
+    g_brightness = BREATH_MAX;
+    g_velocity = -g_velocity;   // next steps fade out
+  } else if (g_brightness <= BREATH_MIN) {
+    g_brightness = BREATH_MIN;
+    g_velocity = -g_velocity;   // next steps fade in
+  }
+}
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno
+
+# Testing digital pins on the Arduino Uno
+
+## Reading back an output pin
+`digitalRead(pin)` reads the port input register (PINx), which reflects the actual level of the pin. For a pin
+configured as `OUTPUT` it therefore returns the level the sketch last wrote with `digitalWrite()`, so a test can
+check an output with `digitalRead()` right after calling the function under test.
+
+On pins with a PWM timer (3, 5, 6, 9, 10, 11) both `digitalRead()` and `digitalWrite()` first switch the PWM
+off (Arduino AVR core, `wiring_digital.c`). Reading a pin that is currently producing PWM stops the PWM.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Pin numbers on the Uno
+
+## Pin numbers on the Uno
+- Digital pins 0 to 13. The analog inputs A0 to A5 are also digital pins 14 to 19.
+- Pins 0 and 1 are the Serial RX/TX lines; the test protocol uses Serial, so tests must not drive them.
+- PWM pins: 3, 5, 6, 9, 10, 11. `LED_BUILTIN` is pin 13.
+- Check outputs against the pin numbers in the module's specification (its pin table), not against constants
+  taken from the code under test: a wrong pin number in the code is only detected if the test uses the pin
+  number the hardware is actually wired to.
+
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos
+
+# Testing PWM, analog inputs and servos
+
+## analogWrite and what a test can observe
+`analogWrite(pin, value)` sets the pin to `OUTPUT`. `analogWrite(pin, 0)` is implemented as
+`digitalWrite(pin, LOW)` and `analogWrite(pin, 255)` as `digitalWrite(pin, HIGH)`; any other value starts the
+PWM timer (Arduino AVR core, `wiring_analog.c`). On the Uno the PWM frequency is 490 Hz, and 980 Hz on pins 5
+and 6.
+
+Only the two extreme values can be checked with `digitalRead()`. For values 1 to 254 the duty cycle cannot be
+read back, and `digitalRead()` would switch the PWM off. Check intermediate levels through the module's own
+state: a getter that returns the level it wrote, or the value returned by the function that computes the level.
+
+[kb/learn/analog-output.md]
+Basics of PWM (Pulse Width Modulation)
+
+On some microcontrollers PWM is only available on selected pins. Please consider the pinout diagram of your board to find out which ones you can use for PWM. They are denoted with a tilde sign (~).
+
+Once you get this example running, grab your Arduino and shake it back and forth. What you are doing here is essentially mapping time across the space. To our eyes, the movement blurs each LED blink into a line. As the LED fades in and out, those little lines will grow and shrink in length. Now you are seeing the pulse width.
+
+*Written by Timothy Hirzel*
+
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos / Servo library
+
+## Servo library
+- On the Uno the Servo library uses Timer1 and disables `analogWrite()` on pins 9 and 10, whether or not a servo
+  is attached to them.
+- `Servo::write(angle)` clamps angles below 0 to 0 and above 180 to 180; values of 544 and more are treated as
+  a pulse width in microseconds (Servo 1.3.0, `Servo.cpp`).
+- `Servo::read()` converts the last pulse width back to degrees, so it returns the last angle written; it does
+  not measure the position of the shaft. After `attach()` and before any `write()` the pulse is 1500 us.
+- A test for a servo module can call the function that moves the servo and check `read()` or the module's angle
+  getter; for a sweep, check the first, the last and one intermediate angle, and that the angle never leaves
+  the allowed range.
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

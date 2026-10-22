@@ -1,0 +1,178 @@
+Module: Debounced button toggles an LED (id: debounce_toggle, category: led, complexity: simple)
+Pins:
+- 2 INPUT: push-button (HIGH = pressed, external pull-down)
+- 13 OUTPUT: LED
+Functions to test:
+- void db_init()
+- void db_update(int reading, unsigned long now_ms)
+- void db_poll()
+- int db_led_state()
+- int db_button_state()
+- void db_set_debounce_delay(unsigned long ms)
+- unsigned long db_debounce_delay()
+- unsigned long db_last_change_ms()
+
+### logic.h
+```cpp
+// debounce_toggle: LED toggles on each debounced LOW->HIGH transition of a push-button.
+// Adapted from the Arduino built-in example "Debounce"
+// https://github.com/arduino/arduino-examples/blob/main/examples/02.Digital/Debounce/Debounce.ino (CC0-1.0 / public domain).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define DB_PIN_BUTTON 2               // INPUT with external pull-down: HIGH = pressed
+#define DB_PIN_LED    13
+#define DB_DEFAULT_DEBOUNCE_MS 50
+
+void db_init();                                     // pins configured, LED starts HIGH (as in the original)
+void db_update(int reading, unsigned long now_ms);  // core logic with an explicit time source
+void db_poll();                                     // db_update(digitalRead(button), millis())
+int db_led_state();                                 // HIGH / LOW currently driven on the LED
+int db_button_state();                              // last debounced button level
+unsigned long db_debounce_delay();                  // ms
+void db_set_debounce_delay(unsigned long ms);
+unsigned long db_last_change_ms();                  // time of the last raw reading change
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static int g_led_state = HIGH;
+static int g_button_state = LOW;
+static int g_last_reading = LOW;
+static unsigned long g_last_debounce_ms = 0;
+static unsigned long g_debounce_delay_ms = DB_DEFAULT_DEBOUNCE_MS;
+
+void db_init() {
+  pinMode(DB_PIN_BUTTON, INPUT);
+  pinMode(DB_PIN_LED, OUTPUT);
+  g_led_state = HIGH;
+  g_button_state = LOW;
+  g_last_reading = LOW;
+  g_last_debounce_ms = 0;
+  g_debounce_delay_ms = DB_DEFAULT_DEBOUNCE_MS;
+  digitalWrite(DB_PIN_LED, g_led_state);
+}
+
+void db_update(int reading, unsigned long now_ms) {
+  if (reading != g_last_reading) {
+    g_last_debounce_ms = now_ms;     // reading changed: restart the debounce timer
+  }
+  if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {
+    if (reading != g_button_state) {
+      g_button_state = reading;
+      if (g_button_state == HIGH) {
+        g_led_state = !g_led_state;  // toggle only on press
+      }
+    }
+  }
+  digitalWrite(DB_PIN_LED, g_led_state);
+  g_last_reading = reading;
+}
+
+void db_poll() {
+  db_update(digitalRead(DB_PIN_BUTTON), millis());
+}
+
+int db_led_state() {
+  return g_led_state;
+}
+
+int db_button_state() {
+  return g_button_state;
+}
+
+unsigned long db_debounce_delay() {
+  return g_debounce_delay_ms;
+}
+
+void db_set_debounce_delay(unsigned long ms) {
+  g_debounce_delay_ms = ms;
+}
+
+unsigned long db_last_change_ms() {
+  return g_last_debounce_ms;
+}
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Inputs, buttons and floating pins
+
+## Inputs, buttons and floating pins
+A pin configured as `INPUT` with nothing connected is floating: `digitalRead()` may return `HIGH` or `LOW`, and
+the value can change at random. A test must not expect a particular value from an input it does not drive.
+
+With `INPUT_PULLUP` the internal pull-up resistor holds the pin `HIGH`; a button wired to GND reads `LOW` when
+pressed. With `INPUT` and an external pull-down resistor, a button wired to 5V reads `HIGH` when pressed.
+
+To test logic that depends on an input (a button, a sensor), call the function that takes the input value as a
+parameter, for example `update(bool pressed)`, with both values, instead of trying to change the physical pin.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/examples/Debounce.md]
+Debounce on a Pushbutton
+
+# Debounce on a Pushbutton
+
+Pushbuttons often generate spurious open/close transitions when pressed, due to mechanical and physical issues: these transitions may be read as multiple presses in a very short time fooling the program. This example demonstrates how to **debounce** an input, which means checking twice in a short period of time to make sure the pushbutton is definitely pressed. Without debouncing, pressing the button once may cause unpredictable results. This sketch uses the `millis()` function to keep track of the time passed since the button was pressed.
+
+[kb/examples/Button.md]
+How to Wire and Program a Button
+
+# How to Wire and Program a Button
+
+Pushbuttons or switches connect two points in a circuit when you press them.  This example turns on the built-in LED on pin 13 when you press the button.
+
+### Hardware
+
+- [Arduino Board](https://store.arduino.cc/collections/boards-modules)
+
+- Momentary button or Switch
+
+- 10K ohm resistor
+
+- hook-up wires
+
+- breadboard
+
+[kb/examples/Debounce.md]
+Debounce on a Pushbutton / Hardware Required
+
+### Hardware Required
+
+- [Arduino Board](https://store.arduino.cc/collections/boards-modules)
+
+- momentary button or switch
+
+- 10k ohm resistor
+
+- hook-up wires
+
+- breadboard
+
+### Circuit
+
+### Schematic
+
+###  Code
+
+The sketch below is based on **Limor Fried's version of debounce**, but the logic is inverted from her example. In her example, the switch returns LOW when closed, and HIGH when open.  Here, the switch returns HIGH when pressed and LOW when not pressed.
+
+<iframe src='https://create.arduino.cc/example/builtin/02.Digital%5CDebounce/Debounce/preview?embed&snippet' style='height:510px;width:100%;margin:10px 0' frameborder='0'></iframe>
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

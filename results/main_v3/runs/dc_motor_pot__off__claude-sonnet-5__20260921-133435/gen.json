@@ -1,0 +1,21 @@
+{
+ "module_id": "dc_motor_pot",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4167,
+ "tokens_out": 891,
+ "cost_usd": 0.025866,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4167,
+   "tokens_out": 891,
+   "latency_s": 7.0688347816467285,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+id: led_chaser
+name: "10-LED bouncing chaser"
+source_url: https://github.com/Projectslearner/arduino-uno-led-chaser
+license: MIT
+category: led
+complexity: simple
+pins:
+  - {pin: 2, mode: OUTPUT, role: "LED 0"}
+  - {pin: 3, mode: OUTPUT, role: "LED 1"}
+  - {pin: 4, mode: OUTPUT, role: "LED 2"}
+  - {pin: 5, mode: OUTPUT, role: "LED 3"}
+  - {pin: 6, mode: OUTPUT, role: "LED 4"}
+  - {pin: 7, mode: OUTPUT, role: "LED 5"}
+  - {pin: 8, mode: OUTPUT, role: "LED 6"}
+  - {pin: 9, mode: OUTPUT, role: "LED 7"}
+  - {pin: 10, mode: OUTPUT, role: "LED 8"}
+  - {pin: 11, mode: OUTPUT, role: "LED 9"}
+entry_functions:
+  - "void chaser_init()"
+  - "void chaser_all_off()"
+  - "bool chaser_light_only(uint8_t index)"
+  - "void chaser_step()"
+  - "int8_t chaser_position()"
+  - "int8_t chaser_direction()"
+  - "uint8_t chaser_count_on()"
+loc: 66
+notes: "Original loop() indexes ledPins[10] (out of bounds) on the backward pass; replaced by a position/direction state that bounces between LED 0 and LED 9. delay(500) moved to the main sketch."

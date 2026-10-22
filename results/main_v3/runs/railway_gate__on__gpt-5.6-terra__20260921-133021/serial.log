@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_closed_state_and_indicators PASS
+@TEST open_moves_servos_and_sets_green_indicator PASS
+@TEST close_moves_servos_and_sets_red_indicator PASS
+@TEST update_tracks_object_from_sensor1_to_sensor2 PASS
+@TEST update_sensor2_without_entry_closes_gate PASS
+@TEST poll_and_sensor_getters_use_active_low_inputs PASS
+@RUN_END 6/6

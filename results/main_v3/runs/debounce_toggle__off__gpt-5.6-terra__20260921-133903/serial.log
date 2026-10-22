@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST initialization_sets_defaults PASS
+@TEST delay_can_be_changed_and_requires_strictly_more_time PASS
+@TEST press_toggles_led_once_after_debounce PASS
+@TEST release_is_debounced_without_toggling_led PASS
+@TEST raw_bounce_restarts_debounce_timer PASS
+@TEST debounce_time_handles_millis_rollover PASS
+@TEST poll_keeps_idle_low_button_and_led_state PASS
+@RUN_END 7/7

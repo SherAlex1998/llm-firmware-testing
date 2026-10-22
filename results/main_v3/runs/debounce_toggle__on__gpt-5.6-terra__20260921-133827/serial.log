@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_default_states_and_led_high PASS
+@TEST press_toggles_led_only_after_debounce_delay PASS
+@TEST bounce_restarts_debounce_timer PASS
+@TEST release_does_not_toggle_led_and_next_press_toggles_again PASS
+@TEST custom_debounce_delay_is_used PASS
+@TEST timestamp_arithmetic_handles_millis_wraparound PASS
+@RUN_END 6/6

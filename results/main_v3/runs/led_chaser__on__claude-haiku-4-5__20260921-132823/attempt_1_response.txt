@@ -1,0 +1,122 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_setup) {
+  chaser_init();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_EQ(chaser_count_on(), 0);
+}
+
+TEST(all_off) {
+  chaser_init();
+  chaser_light_only(5);
+  ASSERT_EQ(chaser_count_on(), 1);
+  chaser_all_off();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_count_on(), 0);
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(light_only_first) {
+  chaser_init();
+  bool result = chaser_light_only(0);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(chaser_position(), 0);
+  ASSERT_PIN(CHASER_PINS[0], HIGH);
+  ASSERT_PIN(CHASER_PINS[1], LOW);
+  ASSERT_PIN(CHASER_PINS[9], LOW);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+TEST(light_only_middle) {
+  chaser_init();
+  bool result = chaser_light_only(5);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(chaser_position(), 5);
+  ASSERT_PIN(CHASER_PINS[4], LOW);
+  ASSERT_PIN(CHASER_PINS[5], HIGH);
+  ASSERT_PIN(CHASER_PINS[6], LOW);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+TEST(light_only_last) {
+  chaser_init();
+  bool result = chaser_light_only(9);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(chaser_position(), 9);
+  ASSERT_PIN(CHASER_PINS[8], LOW);
+  ASSERT_PIN(CHASER_PINS[9], HIGH);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+TEST(light_only_out_of_range) {
+  chaser_init();
+  bool result = chaser_light_only(10);
+  ASSERT_FALSE(result);
+  result = chaser_light_only(255);
+  ASSERT_FALSE(result);
+}
+
+TEST(step_forward_and_bounce) {
+  chaser_init();
+  chaser_light_only(0);
+  ASSERT_EQ(chaser_direction(), 1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 2);
+  ASSERT_EQ(chaser_direction(), 1);
+  
+  for (uint8_t i = 0; i < 6; i++) {
+    chaser_step();
+  }
+  ASSERT_EQ(chaser_position(), 8);
+  ASSERT_EQ(chaser_direction(), 1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 8);
+  ASSERT_EQ(chaser_direction(), -1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 7);
+  ASSERT_EQ(chaser_direction(), -1);
+}
+
+TEST(step_backward_and_bounce) {
+  chaser_init();
+  chaser_light_only(9);
+  ASSERT_EQ(chaser_direction(), 1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 8);
+  ASSERT_EQ(chaser_direction(), -1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 7);
+  ASSERT_EQ(chaser_direction(), -1);
+  
+  for (uint8_t i = 0; i < 6; i++) {
+    chaser_step();
+  }
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), -1);
+  
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```

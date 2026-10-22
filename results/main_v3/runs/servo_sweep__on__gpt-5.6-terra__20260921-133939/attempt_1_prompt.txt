@@ -1,0 +1,234 @@
+Module: Servo sweep between two angles (id: servo_sweep, category: motor, complexity: simple)
+Pins:
+- 9 OUTPUT: servo signal (Servo library)
+Functions to test:
+- void sweep_init()
+- void sweep_write(int angle)
+- int sweep_angle()
+- int sweep_clamp_angle(int angle)
+- unsigned int sweep_steps_per_cycle(int start_pos, int stop_pos, int step_pos)
+- void sweep_run(int start_pos, int stop_pos, int step_pos, int cycles, int step_delay_ms)
+- unsigned long sweep_write_count()
+
+### logic.h
+```cpp
+// servo_sweep: sweep a hobby servo back and forth between two angles with configurable step and timing.
+// Adapted from https://github.com/gwappa/arduino-servo-sweep (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+#include <Servo.h>
+
+#define SWEEP_SERVO_PIN 9
+#define SWEEP_START 130   // default lower angle
+#define SWEEP_STOP  142   // default upper angle
+
+void sweep_init();                                     // attach the servo and move to SWEEP_START
+int sweep_clamp_angle(int angle);                      // pure: clamp to 0..180
+void sweep_write(int angle);                           // clamp and write the angle to the servo
+int sweep_angle();                                     // angle currently commanded (Servo::read)
+unsigned int sweep_steps_per_cycle(int start_pos, int stop_pos, int step_pos); // pure: number of writes per up+down cycle (0 if args invalid)
+void sweep_run(int start_pos, int stop_pos, int step_pos, int cycles, int step_delay_ms); // run cycles of up-and-down sweeps
+unsigned long sweep_write_count();                     // number of servo writes since sweep_init
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static Servo g_servo;
+static unsigned long g_writes = 0;
+
+void sweep_init() {
+  g_writes = 0;
+  g_servo.attach(SWEEP_SERVO_PIN);
+  sweep_write(SWEEP_START);
+}
+
+int sweep_clamp_angle(int angle) {
+  if (angle < 0) {
+    return 0;
+  }
+  if (angle > 180) {
+    return 180;
+  }
+  return angle;
+}
+
+void sweep_write(int angle) {
+  g_servo.write(sweep_clamp_angle(angle));
+  g_writes++;
+}
+
+int sweep_angle() {
+  return g_servo.read();
+}
+
+unsigned int sweep_steps_per_cycle(int start_pos, int stop_pos, int step_pos) {
+  if (step_pos <= 0 || stop_pos < start_pos) {
+    return 0;
+  }
+  unsigned int one_way = (unsigned int)((stop_pos - start_pos) / step_pos) + 1;
+  return 2 * one_way;
+}
+
+void sweep_run(int start_pos, int stop_pos, int step_pos, int cycles, int step_delay_ms) {
+  if (step_pos <= 0 || stop_pos < start_pos) {
+    return;
+  }
+  for (int cycle = 0; cycle < cycles; cycle++) {
+    for (int pos = start_pos; pos <= stop_pos; pos += step_pos) {
+      sweep_write(pos);
+      delay(step_delay_ms);
+    }
+    for (int pos = stop_pos; pos >= start_pos; pos -= step_pos) {
+      sweep_write(pos);
+      delay(step_delay_ms);
+    }
+  }
+}
+
+unsigned long sweep_write_count() {
+  return g_writes;
+}
+```
+
+<reference>
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos / Servo library
+
+## Servo library
+- On the Uno the Servo library uses Timer1 and disables `analogWrite()` on pins 9 and 10, whether or not a servo
+  is attached to them.
+- `Servo::write(angle)` clamps angles below 0 to 0 and above 180 to 180; values of 544 and more are treated as
+  a pulse width in microseconds (Servo 1.3.0, `Servo.cpp`).
+- `Servo::read()` converts the last pulse width back to degrees, so it returns the last angle written; it does
+  not measure the position of the shaft. After `attach()` and before any `write()` the pulse is 1500 us.
+- A test for a servo module can call the function that moves the servo and check `read()` or the module's angle
+  getter; for a sweep, check the first, the last and one intermediate angle, and that the angle never leaves
+  the allowed range.
+
+[kb/learn/servo-motors.md]
+Servo Motor Basics with Arduino / Sweep
+
+### Sweep
+
+Sweeps the shaft of a RC servo motor back and forth across 180 degrees.
+
+```arduino
+#include <Servo.h>
+
+Servo myservo;  // create servo object to control a servo
+// twelve servo objects can be created on most boards
+
+int pos = 0;    // variable to store the servo position
+
+void setup() {
+  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+}
+
+void loop() {
+  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+}
+```
+
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos
+
+# Testing PWM, analog inputs and servos
+
+## analogWrite and what a test can observe
+`analogWrite(pin, value)` sets the pin to `OUTPUT`. `analogWrite(pin, 0)` is implemented as
+`digitalWrite(pin, LOW)` and `analogWrite(pin, 255)` as `digitalWrite(pin, HIGH)`; any other value starts the
+PWM timer (Arduino AVR core, `wiring_analog.c`). On the Uno the PWM frequency is 490 Hz, and 980 Hz on pins 5
+and 6.
+
+Only the two extreme values can be checked with `digitalRead()`. For values 1 to 254 the duty cycle cannot be
+read back, and `digitalRead()` would switch the PWM off. Check intermediate levels through the module's own
+state: a getter that returns the level it wrote, or the value returned by the function that computes the level.
+
+[kb/libraries/servo_api.md]
+Servo library / Syntax
+
+#### Syntax
+
+```
+servo.write(angle)
+```
+
+#### Parameters
+
+* _servo_: a variable of type Servo
+* _angle_: the value to write to the servo, from 0 to 180
+
+#### Example
+
+````
+#include <Servo.h>
+
+Servo myservo;
+
+void setup()
+{
+  myservo.attach(9);
+  myservo.write(90);  // set servo to mid-point
+}
+
+void loop() {}
+````
+
+#### See also
+
+* [attach()](#attach)
+* [read()](#read)
+
+### `writeMicroseconds()`
+
+Writes a value in microseconds (us) to the servo, controlling the shaft accordingly. On a standard servo, this will set the angle of the shaft. On standard servos a parameter value of 1000 is fully counter-clockwise, 2000 is fully clockwise, and 1500 is in the middle.
+
+Note that some manufactures do not follow this standard very closely so that servos often respond to values between 700 and 2300. Feel free to increase these endpoints until the servo no longer continues to increase its range. Note however that attempting to drive a servo past its endpoints (often indicated by a growling sound) is a high-current state, and should be avoided.
+
+Continuous-rotation servos will respond to the writeMicrosecond function in an manner analogous to the write function.
+
+[kb/libraries/servo_api.md]
+Servo library / Example
+
+#### Example
+
+```
+#include <Servo.h>
+
+Servo myservo;
+
+void setup()
+{
+  myservo.attach(9);
+}
+
+void loop() {}
+```
+
+#### See also
+
+* [attached()](#attached)
+* [detach()](#detach)
+
+### `write()`
+
+Writes a value to the servo, controlling the shaft accordingly. On a standard servo, this will set the angle of the shaft. On a continuous rotation servo, this will set the speed of the servo (with 0 being full-speed in one direction, 180 being full speed in the other, and a value near 90 being no movement).
+
+When the library is used with a board of the AVR, ESP32, Mbed, megaAVR, SAM, SAMD, or XMC architectures, the argument passed to the `write()` function will be interpreted as either an angle (in degrees) or a pulse width depending on the value. Values below the architecture's minimum pulse-width threshold are interpreted as angles in the range 0–180, while values at or above the threshold are interpreted as a pulse width in microseconds. When the library is used with a board of the nRF52, Renesas, STM32F4, or Zephyr architectures, the argument is always interpreted as an angle. Use `writeMicroseconds()` to specify a pulse width explicitly.
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

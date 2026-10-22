@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "drop_call",
+   "line": 46,
+   "before": "jm_set_speed(0);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "negate_cond",
+   "line": 34,
+   "before": "if (speed > 255) {",
+   "after": "if (!(speed > 255)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "swap_hilo",
+   "line": 22,
+   "before": "digitalWrite(JM_PIN_DIR_B, HIGH);",
+   "after": "digitalWrite(JM_PIN_DIR_B, LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "flip_cmp",
+   "line": 54,
+   "before": "return dx > JM_AXIS_CENTER;",
+   "after": "return dx <= JM_AXIS_CENTER;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "swap_arith",
+   "line": 50,
+   "before": "return abs(dx - JM_AXIS_CENTER) / 2;   // ~0..256",
+   "after": "return abs(dx - JM_AXIS_CENTER) * 2;   // ~0..256",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "swap_hilo",
+   "line": 19,
+   "before": "digitalWrite(JM_PIN_DIR_B, LOW);",
+   "after": "digitalWrite(JM_PIN_DIR_B, HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "flip_cmp",
+   "line": 31,
+   "before": "if (speed < 0) {",
+   "after": "if (speed >= 0) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "drop_call",
+   "line": 68,
+   "before": "jm_apply_axis(analogRead(JM_PIN_AXIS));",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 9,
+   "operator": "negate_cond",
+   "line": 17,
+   "before": "if (clockwise) {",
+   "after": "if (!(clockwise)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "drop_call",
+   "line": 19,
+   "before": "digitalWrite(JM_PIN_DIR_B, LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

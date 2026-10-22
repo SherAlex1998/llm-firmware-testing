@@ -1,0 +1,109 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_closed_state_and_indicators) {
+  gate_init();
+
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), 180);
+  ASSERT_EQ(gate_servo2_angle(), 90);
+  ASSERT_PIN(2, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(open_moves_servos_and_sets_green_indicator) {
+  gate_init();
+  gate_open();
+
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_EQ(gate_servo1_angle(), 90);
+  ASSERT_EQ(gate_servo2_angle(), 180);
+  ASSERT_PIN(2, HIGH);
+  ASSERT_PIN(4, LOW);
+}
+
+TEST(close_moves_servos_and_sets_red_indicator) {
+  gate_init();
+  gate_open();
+  gate_close();
+
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_EQ(gate_servo1_angle(), 180);
+  ASSERT_EQ(gate_servo2_angle(), 90);
+  ASSERT_PIN(2, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(update_tracks_object_from_sensor1_to_sensor2) {
+  gate_init();
+
+  gate_update(true, false);
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), 90);
+  ASSERT_EQ(gate_servo2_angle(), 180);
+  ASSERT_PIN(2, HIGH);
+  ASSERT_PIN(4, LOW);
+
+  gate_update(false, false);
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+
+  gate_update(false, true);
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), 180);
+  ASSERT_EQ(gate_servo2_angle(), 90);
+  ASSERT_PIN(2, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(update_sensor2_without_entry_closes_gate) {
+  gate_init();
+  gate_open();
+
+  gate_update(false, true);
+
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), 180);
+  ASSERT_EQ(gate_servo2_angle(), 90);
+  ASSERT_PIN(2, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+TEST(poll_and_sensor_getters_use_active_low_inputs) {
+  gate_init();
+  pinMode(14, OUTPUT);
+  pinMode(15, OUTPUT);
+
+  digitalWrite(14, HIGH);
+  digitalWrite(15, HIGH);
+  ASSERT_FALSE(gate_sensor1_detected());
+  ASSERT_FALSE(gate_sensor2_detected());
+
+  digitalWrite(14, LOW);
+  ASSERT_TRUE(gate_sensor1_detected());
+  ASSERT_FALSE(gate_sensor2_detected());
+  gate_poll();
+
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+  ASSERT_PIN(2, HIGH);
+  ASSERT_PIN(4, LOW);
+
+  digitalWrite(14, HIGH);
+  digitalWrite(15, LOW);
+  ASSERT_FALSE(gate_sensor1_detected());
+  ASSERT_TRUE(gate_sensor2_detected());
+  gate_poll();
+
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_PIN(2, LOW);
+  ASSERT_PIN(4, HIGH);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

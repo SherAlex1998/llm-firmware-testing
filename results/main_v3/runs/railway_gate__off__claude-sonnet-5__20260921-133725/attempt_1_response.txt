@@ -1,0 +1,75 @@
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_closed_defaults) {
+  gate_init();
+  ASSERT_PIN(GATE_PIN_LED_RED, HIGH);
+  ASSERT_PIN(GATE_PIN_LED_GREEN, LOW);
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_CLOSED);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_CLOSED);
+}
+
+TEST(open_sets_leds_and_angles) {
+  gate_init();
+  gate_open();
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_PIN(GATE_PIN_LED_GREEN, HIGH);
+  ASSERT_PIN(GATE_PIN_LED_RED, LOW);
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_OPEN);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_OPEN);
+}
+
+TEST(close_after_open_restores_state) {
+  gate_init();
+  gate_open();
+  gate_close();
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_PIN(GATE_PIN_LED_GREEN, LOW);
+  ASSERT_PIN(GATE_PIN_LED_RED, HIGH);
+  ASSERT_EQ(gate_servo1_angle(), GATE_SERVO1_CLOSED);
+  ASSERT_EQ(gate_servo2_angle(), GATE_SERVO2_CLOSED);
+}
+
+TEST(update_sensor1_opens_and_marks_object_between) {
+  gate_init();
+  gate_update(true, false);
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+}
+
+TEST(update_sensor2_after_object_between_closes_and_clears) {
+  gate_init();
+  gate_update(true, false);
+  gate_update(false, true);
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+}
+
+TEST(update_sensor2_without_object_between_keeps_no_object) {
+  gate_init();
+  gate_update(false, true);
+  ASSERT_FALSE(gate_is_open());
+  ASSERT_FALSE(gate_object_between());
+}
+
+TEST(poll_reads_sensor_pins_and_opens_gate) {
+  gate_init();
+  pinMode(GATE_PIN_SENSOR1, OUTPUT);
+  digitalWrite(GATE_PIN_SENSOR1, LOW);
+  pinMode(GATE_PIN_SENSOR2, OUTPUT);
+  digitalWrite(GATE_PIN_SENSOR2, HIGH);
+
+  ASSERT_TRUE(gate_sensor1_detected());
+  ASSERT_FALSE(gate_sensor2_detected());
+
+  gate_poll();
+  ASSERT_TRUE(gate_is_open());
+  ASSERT_TRUE(gate_object_between());
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}
+```

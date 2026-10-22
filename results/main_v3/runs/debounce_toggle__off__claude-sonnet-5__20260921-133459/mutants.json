@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 10,
+ "score": 1.0,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "negate_cond",
+   "line": 27,
+   "before": "if (g_button_state == HIGH) {",
+   "after": "if (!(g_button_state == HIGH)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "flip_cmp",
+   "line": 25,
+   "before": "if (reading != g_button_state) {",
+   "after": "if (reading == g_button_state) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "swap_hilo",
+   "line": 13,
+   "before": "g_button_state = LOW;",
+   "after": "g_button_state = HIGH;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "negate_cond",
+   "line": 24,
+   "before": "if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {",
+   "after": "if (!((now_ms - g_last_debounce_ms) > g_debounce_delay_ms)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "swap_hilo",
+   "line": 14,
+   "before": "g_last_reading = LOW;",
+   "after": "g_last_reading = HIGH;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "drop_call",
+   "line": 32,
+   "before": "digitalWrite(DB_PIN_LED, g_led_state);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "drop_call",
+   "line": 17,
+   "before": "digitalWrite(DB_PIN_LED, g_led_state);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "flip_cmp",
+   "line": 21,
+   "before": "if (reading != g_last_reading) {",
+   "after": "if (reading == g_last_reading) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "flip_cmp",
+   "line": 27,
+   "before": "if (g_button_state == HIGH) {",
+   "after": "if (g_button_state != HIGH) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "negate_cond",
+   "line": 25,
+   "before": "if (reading != g_button_state) {",
+   "after": "if (!(reading != g_button_state)) {",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

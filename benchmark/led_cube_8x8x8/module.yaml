@@ -1,0 +1,34 @@
+id: led_cube_8x8x8
+name: "8x8x8 LED cube over SPI and 74HC595 shift registers with eight animations and a button"
+source_url: https://github.com/itsharryle/LED_CUBE
+license: MIT
+repo_created: 2017-08-04
+experiment: 2
+category: led
+complexity: complex
+backend: avr8js
+sources: [logic.h, logic.cpp]
+interrupts: false
+pins:
+  - {pin: 8, mode: INPUT_PULLUP, role: "effect button to GND, LOW = pressed (not connected in the test setup: reads HIGH)"}
+  - {pin: 5, mode: OUTPUT, role: "red status LED (on during an effect change)"}
+  - {pin: 7, mode: OUTPUT, role: "green status LED"}
+  - {pin: 10, mode: OUTPUT, role: "SS (latch) of the 74HC595 chain; hardware SPI MOSI 11, SCK 13 (no slave in the test setup)"}
+  - {pin: 14, mode: INPUT, role: "A0 random seed source (not connected: reads 0)"}
+entry_functions:
+  - "void cube_set_delay_scale(uint8_t percent)"
+  - "void cube_reset_state()"
+  - "void cube_init()"
+  - "void cube_loop()"
+  - "void cube_loop_with(unsigned long now, bool buttonPressed)"
+  - "renderCube, rain, planeBoing, sendVoxels, woopWoop, cubeJump, glow, text, lit (one animation step per call)"
+  - "setVoxel, clearVoxel, getVoxel, setPlane, shift, drawCube, lightCube, clearCube (voxel helpers; see logic.h)"
+loc: 531
+metrics: {nloc: 531, ccn_sum: 145, ccn_max: 30, functions: 22}
+notes: >-
+  Source: CUBE/CUBE.ino (single sketch, 2017-2019, 1172 stars). All functions and globals copied into logic.cpp
+  (globals extern and all prototypes in logic.h, which the .ino build generated automatically). Changes: setup() ->
+  cube_init() (also resets the cube, effect and timers via cube_reset_state()); loop() -> cube_loop(), which reads
+  millis() and the button and runs cube_loop_with(now, buttonPressed); the 0.5 s pause on an effect change is scaled
+  by cube_set_delay_scale() (default 100 %). The cube buffer is a global, so the displayed state can be checked
+  directly. avr8js backend (hardware SPI without a slave).

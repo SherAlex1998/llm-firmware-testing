@@ -1,0 +1,20 @@
+@RUN_BEGIN 18
+@TEST init_sets_idle_state PASS
+@TEST init_display_shows_hello PASS
+@TEST init_user_data_from_rtc PASS
+@TEST read_click_none_when_released PASS
+@TEST increase_time_wraps_after_eight_clicks PASS
+@TEST long_click_enters_prepare PASS
+@TEST prepare_status_updates_prev_status PASS
+@TEST tick_decrements_second PASS
+@TEST seconds_event_after_full_minute PASS
+@TEST update_clears_seconds_event_in_idle PASS
+@TEST prepare_to_run_work_after_countdown PASS
+@TEST pause_toggles_status PASS
+@TEST cancel_from_run_work_returns_to_idle PASS
+@TEST display_updates_during_run_work PASS
+@TEST apply_rollover_same_month_next_day PASS
+@TEST apply_rollover_crossing_week PASS
+@TEST apply_rollover_crossing_month PASS
+@TEST calc_weekday_known_dates PASS
+@RUN_END 18/18

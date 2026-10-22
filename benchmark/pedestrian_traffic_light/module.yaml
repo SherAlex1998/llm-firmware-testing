@@ -1,0 +1,41 @@
+id: pedestrian_traffic_light
+name: "Traffic light with pedestrian request button (interrupt), walk beeps and auto timer"
+source_url: https://github.com/digitalkarl/Arduino-Traffic-Light-Project
+license: CC0-1.0
+repo_created: 2015-08-12
+experiment: 2
+category: led
+complexity: medium
+backend: avr8js
+sources: [logic.h, logic.cpp]
+interrupts: true
+pins:
+  - {pin: 2, mode: INPUT, role: "pedestrian button, interrupt 0 on RISING (not connected in the test setup: reads LOW)"}
+  - {pin: 10, mode: INPUT, role: "auto timer switch, HIGH = auto timer on (not connected: reads LOW)"}
+  - {pin: 3, mode: OUTPUT, role: "traffic red"}
+  - {pin: 4, mode: OUTPUT, role: "traffic amber"}
+  - {pin: 5, mode: OUTPUT, role: "traffic green"}
+  - {pin: 7, mode: OUTPUT, role: "pedestrian red"}
+  - {pin: 8, mode: OUTPUT, role: "pedestrian green"}
+  - {pin: 9, mode: OUTPUT, role: "speaker (bit-banged beeps)"}
+  - {pin: 11, mode: OUTPUT, role: "request acknowledge LED green"}
+  - {pin: 12, mode: OUTPUT, role: "request acknowledge LED red"}
+entry_functions:
+  - "void traffic_set_delay_scale(uint8_t percent)"
+  - "void traffic_init()"
+  - "void traffic_loop()"
+  - "void traffic_loop_with(bool auto_switch_high, unsigned long now_ms)"
+  - "void pressDetector()"
+  - "void trafficStop()"
+  - "void trafficAmber()"
+  - "void trafficGreen()"
+loc: 162
+metrics: {nloc: 162, ccn_sum: 22, ccn_max: 12, functions: 10}
+notes: >-
+  Source: Traffic_Light.ino (single sketch, Arduino Nano schematic, last commit 2015). Functions copied into
+  logic.cpp; the pin constants became #defines and the globals are declared extern in logic.h. Changes: setup() ->
+  traffic_init() (also clears the request flag and counter); loop() -> traffic_loop(), which reads the auto switch
+  and millis() and runs traffic_loop_with(auto_switch_high, now_ms) (the time of the pass replaces the in-place
+  millis() calls); the 1 s and 100 ms delays are scaled by traffic_set_delay_scale() (default 100 %); the
+  microsecond beeps stay real (one walk phase still takes about 2.7 s). The odd loop increment
+  `(x = x + 1) / 0.25` of the squeal is kept. avr8js backend.

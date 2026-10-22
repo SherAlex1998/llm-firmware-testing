@@ -1,0 +1,74 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_defaults_to_green) {
+  tsg_init();
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+  ASSERT_PIN(TSG_PIN_GREEN, HIGH);
+  ASSERT_PIN(TSG_PIN_YELLOW, LOW);
+  ASSERT_PIN(TSG_PIN_RED, LOW);
+  ASSERT_TRUE(tsg_gate_open());
+}
+
+TEST(set_state_yellow_closes_gate) {
+  tsg_init();
+  ASSERT_TRUE(tsg_set_state(TSG_YELLOW));
+  ASSERT_EQ(tsg_state(), TSG_YELLOW);
+  ASSERT_PIN(TSG_PIN_GREEN, LOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, HIGH);
+  ASSERT_PIN(TSG_PIN_RED, LOW);
+  ASSERT_FALSE(tsg_gate_open());
+}
+
+TEST(set_state_red_closes_gate) {
+  tsg_init();
+  ASSERT_TRUE(tsg_set_state(TSG_RED));
+  ASSERT_EQ(tsg_state(), TSG_RED);
+  ASSERT_PIN(TSG_PIN_GREEN, LOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, LOW);
+  ASSERT_PIN(TSG_PIN_RED, HIGH);
+  ASSERT_FALSE(tsg_gate_open());
+}
+
+TEST(set_state_off_turns_off_leds) {
+  tsg_init();
+  ASSERT_TRUE(tsg_set_state(TSG_OFF));
+  ASSERT_EQ(tsg_state(), TSG_OFF);
+  ASSERT_PIN(TSG_PIN_GREEN, LOW);
+  ASSERT_PIN(TSG_PIN_YELLOW, LOW);
+  ASSERT_PIN(TSG_PIN_RED, LOW);
+}
+
+TEST(invalid_state_rejected) {
+  tsg_init();
+  ASSERT_FALSE(tsg_set_state(TSG_STATE_COUNT));
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+}
+
+TEST(next_state_cycles) {
+  ASSERT_EQ(tsg_next_state(TSG_GREEN), TSG_YELLOW);
+  ASSERT_EQ(tsg_next_state(TSG_YELLOW), TSG_RED);
+  ASSERT_EQ(tsg_next_state(TSG_RED), TSG_OFF);
+  ASSERT_EQ(tsg_next_state(TSG_OFF), TSG_GREEN);
+  ASSERT_EQ(tsg_next_state(TSG_STATE_COUNT), TSG_GREEN);
+}
+
+TEST(next_advances_current_state) {
+  tsg_init();
+  ASSERT_EQ(tsg_state(), TSG_GREEN);
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_YELLOW);
+  tsg_next();
+  ASSERT_EQ(tsg_state(), TSG_RED);
+}
+
+TEST(state_duration_values) {
+  ASSERT_EQ(tsg_state_duration_ms(TSG_GREEN), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_YELLOW), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_RED), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_OFF), 5000);
+  ASSERT_EQ(tsg_state_duration_ms(TSG_STATE_COUNT), 0);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

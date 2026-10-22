@@ -1,0 +1,11 @@
+@RUN_BEGIN 9
+@TEST init_sets_pins_and_direction PASS
+@TEST set_direction_clockwise PASS
+@TEST set_direction_counterclockwise PASS
+@TEST set_speed_clamped_and_read_back PASS
+@TEST stop_sets_speed_zero PASS
+@TEST speed_from_axis_computation FAIL line 59: expected speed_max_left == 255 (got 256 vs 255)
+@TEST clockwise_from_axis_computation PASS
+@TEST apply_axis_with_dead_zone PASS
+@TEST apply_axis_direction_and_speed PASS
+@RUN_END 8/9

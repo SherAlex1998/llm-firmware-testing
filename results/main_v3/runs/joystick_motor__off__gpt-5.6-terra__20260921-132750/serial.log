@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_clockwise_and_stops PASS
+@TEST direction_changes_output_pins PASS
+@TEST speed_is_clamped_and_stop_sets_zero PASS
+@TEST axis_conversion_maps_speed_and_direction PASS
+@TEST apply_axis_stops_in_dead_zone PASS
+@TEST apply_axis_sets_direction_and_speed_outside_dead_zone PASS
+@RUN_END 6/6

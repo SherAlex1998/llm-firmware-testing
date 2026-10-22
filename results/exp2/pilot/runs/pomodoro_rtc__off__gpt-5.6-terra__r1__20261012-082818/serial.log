@@ -1,0 +1,12 @@
+@RUN_BEGIN 10
+@TEST initializes_idle_state_and_display PASS
+@TEST released_button_reports_no_click PASS
+@TEST short_action_increases_idle_duration PASS
+@TEST long_action_enters_prepare_and_updates_display PASS
+@TEST ticks_count_down_and_raise_seconds_event PASS
+@TEST prepare_expiry_starts_work_timer PASS
+@TEST work_short_action_pauses_and_resumes PASS
+@TEST work_long_action_cancels_to_idle PASS
+@TEST rollover_rules_preserve_and_transfer_statistics PASS
+@TEST calculates_gregorian_weekdays PASS
+@RUN_END 10/10

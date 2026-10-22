@@ -1,0 +1,617 @@
+Module: Garage parking assistant: HC-SR04 distance zones shown on a NeoPixel, button sets the target (id: ultrasonic_parking, category: sensor, complexity: medium)
+Pins:
+- 4 OUTPUT: HC-SR04 TRIG
+- 3 INPUT: HC-SR04 ECHO
+- 6 OUTPUT: NeoPixel data (1 LED, RGB order)
+- 2 INPUT_PULLUP: setup button, LOW = pressed
+External devices (simulated; their readings are fixed for the whole run):
+- sonar (wokwi-hc-sr04), pins TRIG=4 ECHO=3: HC-SR04 ultrasonic sensor; the object is fixed at 40 cm for the whole run
+- pixel (wokwi-neopixel), pins DIN=6: one NeoPixel on pin 6; led.color() reads its colour back (0x00RRGGBB)
+- btn (wokwi-pushbutton), pins 1.l=2: setup button on pin 2 to GND (INPUT_PULLUP), released for the whole run
+Libraries available: NewPing 1.9.7, Adafruit NeoPixel 1.15.5, Button 1.2.0
+Functions to test:
+- void park_init()
+- void park_loop()
+- void park_loop_with(int distance, bool button_released, unsigned long now_ms)
+- void setLedColor()
+- SonarController: readDistance, applyReading, setTargetDistance, idleTimeoutReached([now]), objectOutOfRange, objectAwayFromTargetZone, objectInTargetZone, objectPastTargetZone, objectTooCloseToSensor, getDistance, getLastDistance, getTargetDistance, reset
+- LedController: rgb, red, green, yellow, purple, flashRed, flashGreen, off, color
+- ButtonController: wasPressed
+
+### logic.h
+```cpp
+// Garage parking assistant: HC-SR04 distance -> colour of one NeoPixel; a button stores the current distance as target.
+// Source: https://github.com/acheaito/arduino-garage-parking, MIT License, Copyright (c) 2016 Ali Cheaito.
+// Refactored for testability (see module.yaml notes). Classes: sonar_controller.h, led_controller.h,
+// button_controller.h (included as .cpp files by the original sketch).
+#pragma once
+#include <Arduino.h>
+#include "led_controller.h"
+#include "sonar_controller.h"
+#include "button_controller.h"
+
+//I/O pins (LED and button moved off pins 0/1, which carry Serial on the Uno)
+#define TRIGGER_PIN 4
+#define ECHO_PIN 3
+#define LED_PIN 6
+#define SETUP_BUTTON_PIN 2
+
+extern SonarController sonar;          // zones relative to the target distance (default 30 cm), idle timeout 30 s
+extern LedController led;              // purple: approaching, green: in zone, yellow: past zone, flashing red: too close
+extern ButtonController setupButton;   // released() of the button (INPUT_PULLUP, LOW = pressed)
+
+void park_init();                      // setup(): LED purple; also resets the sonar state (target, readings, idle timer)
+void park_loop();                      // one loop() pass: sensor reading, idle check, LED colour, setup button
+void park_loop_with(int distance, bool button_released, unsigned long now_ms);  // the same pass with a given reading, button and time
+void setLedColor();                    // LED colour for the current zone
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+SonarController sonar = SonarController(TRIGGER_PIN, ECHO_PIN);
+LedController led = LedController(LED_PIN);
+ButtonController setupButton = ButtonController(SETUP_BUTTON_PIN);
+
+void park_init()
+{
+  sonar.reset();
+  led.purple();
+}
+
+static void process(int distance, bool pressed, unsigned long now)
+{
+  if (sonar.idleTimeoutReached(now)) {
+    led.off();
+  } else {
+    setLedColor();
+  }
+
+  if (pressed) {
+    sonar.setTargetDistance(distance);
+    for (int i = 0; i < 3; i++) {
+      led.flashGreen(50);
+    }
+  }
+}
+
+void park_loop() {
+  int distance = sonar.readDistance();
+  process(distance, setupButton.wasPressed(), millis());
+}
+
+void park_loop_with(int distance, bool button_released, unsigned long now_ms) {
+  sonar.applyReading(distance);
+  process(distance, button_released, now_ms);
+}
+
+void setLedColor() {
+  if (sonar.objectAwayFromTargetZone()) {
+    led.purple();
+  } else if (sonar.objectInTargetZone()) {
+    led.green();
+  } else if (sonar.objectPastTargetZone()) {
+    led.yellow();
+  } else if (sonar.objectTooCloseToSensor()) {
+    led.flashRed(100);
+  }
+}
+```
+
+### sonar_controller.h
+```cpp
+#pragma once
+#include <Arduino.h>
+#include <NewPing.h>
+
+#define MAX_DISTANCE_CM 500
+#define DEFAULT_TARGET_DISTANCE_CM 30
+#define PURPLE_ZONE_UPPER_BOUND_CM 100
+#define INNER_TOLERANCE_CM 5
+#define OUTER_TOLERANCE_CM 15
+#define POWER_SAVE_MODE_THRESHOLD_MS 30000l
+#define PING_ITERATIONS 10
+#define ACCEPTABLE_CONSECUTIVE_READING_DIFF 50
+#define MAX_ATTEMPTS 5
+
+class SonarController {
+  private:
+    int triggerPin;
+    int echoPin;
+    int targetDistance;
+    int distance;
+    int lastDistance;
+    NewPing sonar;
+    unsigned long lastMovementMs;
+
+    bool validReading(int distance, int lastDistance) {
+      if (distance == 0) {
+        return false;
+      }
+      if (lastDistance > 0 && abs(distance - lastDistance) > ACCEPTABLE_CONSECUTIVE_READING_DIFF) {
+        return false;
+      }
+      return true;
+    }
+
+  public:
+    SonarController(int triggerPin, int echoPin)
+      : sonar (NewPing(triggerPin, echoPin, MAX_DISTANCE_CM))
+      , targetDistance (DEFAULT_TARGET_DISTANCE_CM)
+      , distance (0)
+      , lastDistance (0)
+      , lastMovementMs (0) {
+    }
+
+    int readDistance() {
+      lastDistance = distance;
+      int reading = MAX_DISTANCE_CM;
+      int attempts = 0;
+      do {
+        reading = sonar.convert_cm(sonar.ping_median(PING_ITERATIONS));
+        delay(100);
+      } while (!validReading(reading, lastDistance) && attempts++ < MAX_ATTEMPTS);
+      distance = reading;
+      return reading;
+    }
+
+    // Testability: store a reading as readDistance() does, without the sensor.
+    void applyReading(int reading) {
+      lastDistance = distance;
+      distance = reading;
+    }
+
+    void setTargetDistance(int newTargetDistance) {
+      targetDistance = newTargetDistance;
+    }
+
+    boolean idleTimeoutReached() {
+      return idleTimeoutReached(millis());
+    }
+
+    // Testability: the same with the current time as an argument.
+    boolean idleTimeoutReached(unsigned long nowMs) {
+      if (!((distance >= lastDistance - INNER_TOLERANCE_CM) && (distance <= lastDistance + OUTER_TOLERANCE_CM))) {
+        lastMovementMs = nowMs;
+      }
+      return (nowMs - lastMovementMs) > POWER_SAVE_MODE_THRESHOLD_MS;
+    }
+
+    // Testability getters.
+    int getDistance() { return distance; }
+    int getLastDistance() { return lastDistance; }
+    int getTargetDistance() { return targetDistance; }
+    void reset() {
+      targetDistance = DEFAULT_TARGET_DISTANCE_CM;
+      distance = lastDistance = 0;
+      lastMovementMs = 0;
+    }
+
+    bool objectOutOfRange() {
+      return distance >= MAX_DISTANCE_CM;
+    }
+
+    bool objectAwayFromTargetZone() {
+      return (distance > targetDistance + OUTER_TOLERANCE_CM) && (distance < targetDistance + PURPLE_ZONE_UPPER_BOUND_CM);
+    }
+
+    bool objectInTargetZone() {
+      return (distance >= targetDistance - INNER_TOLERANCE_CM) && (distance <= targetDistance + OUTER_TOLERANCE_CM);
+    }
+
+    bool objectPastTargetZone() {
+      return (distance >= targetDistance - OUTER_TOLERANCE_CM) && (distance <= targetDistance - INNER_TOLERANCE_CM);
+    }
+
+    bool objectTooCloseToSensor() {
+      return distance < targetDistance - OUTER_TOLERANCE_CM;
+    }
+};
+```
+
+### led_controller.h
+```cpp
+#pragma once
+#include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
+
+class LedController {
+  private:
+    Adafruit_NeoPixel led;
+    void setColor(int red, int green, int blue) {
+      led.setPixelColor(0, led.Color(red , green , blue));
+      led.show();
+    }
+
+  public:
+    LedController(int dataPin)
+      : led (Adafruit_NeoPixel(1, dataPin, NEO_RGB + NEO_KHZ800)) {
+      led.begin();
+    }
+
+    void rgb(int red, int green, int blue) {
+      setColor(red, green, blue);
+    }
+
+    void red() {
+      setColor(255 , 0 , 0);
+    }
+
+    void green() {
+      setColor(0 , 255 , 0);
+    }
+
+    void yellow() {
+      setColor(200 , 50 , 0);
+    }
+
+    void purple() {
+      setColor(255 , 0 , 255);
+    }
+
+    void flashRed(int delayMs) {
+      off();
+      delay(delayMs);
+      red();
+      delay(delayMs);
+    }
+
+    void flashGreen(int delayMs) {
+      off();
+      delay(delayMs);
+      green();
+      delay(delayMs);
+    }
+
+    // Testability: colour of the LED (0x00RRGGBB).
+    uint32_t color() {
+      return led.getPixelColor(0);
+    }
+
+    void off() {
+      led.setPixelColor(0, led.Color(0 , 0 , 0 ));
+      led.show();
+    }
+};
+```
+
+### button_controller.h
+```cpp
+#pragma once
+#include <Arduino.h>
+#include <Button.h>
+
+#define DEBOUNCING_TIME_MS 15000
+
+class ButtonController {
+  private:
+    Button button;
+  public:
+    ButtonController(int pin)
+      : button (Button(pin)) {
+      button.begin();
+    }
+
+    bool wasPressed() {
+      return button.released();
+    }
+};
+```
+
+The test sketch below failed to compile. Fix it and reply with ONLY the complete corrected sketch in a single ```cpp code block.
+
+### Sketch
+```cpp
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_purple) {
+  park_init();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+}
+
+TEST(init_resets_sonar) {
+  sonar.setTargetDistance(50);
+  sonar.applyReading(100);
+  park_init();
+  ASSERT_EQ(sonar.getTargetDistance(), 30);
+  ASSERT_EQ(sonar.getDistance(), 0);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+TEST(away_from_target_zone_is_purple) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(60);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+}
+
+TEST(in_target_zone_is_green) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(30);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+}
+
+TEST(past_target_zone_is_yellow) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(20);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+}
+
+TEST(too_close_is_red) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(10);
+  setLedColor();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+}
+
+TEST(idle_timeout_turns_off) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(40);
+  park_loop_with(40, false, 0);
+  ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+  
+  park_loop_with(40, false, 35000);
+  ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+}
+
+TEST(button_sets_target) {
+  park_init();
+  sonar.applyReading(50);
+  park_loop_with(50, true, 0);
+  ASSERT_EQ(sonar.getTargetDistance(), 50);
+}
+
+TEST(object_out_of_range) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(500);
+  ASSERT_TRUE(sonar.objectOutOfRange());
+}
+
+TEST(in_zone_lower_bound) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(25);
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(in_zone_upper_bound) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(45);
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(in_zone_exact) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(30);
+  ASSERT_TRUE(sonar.objectInTargetZone());
+}
+
+TEST(away_zone_boundary) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(46);
+  ASSERT_TRUE(sonar.objectAwayFromTargetZone());
+}
+
+TEST(away_zone_upper) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(80);
+  ASSERT_TRUE(sonar.objectAwayFromTargetZone());
+}
+
+TEST(past_zone_lower) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(15);
+  ASSERT_TRUE(sonar.objectPastTargetZone());
+}
+
+TEST(past_zone_upper) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(24);
+  ASSERT_TRUE(sonar.objectPastTargetZone());
+}
+
+TEST(too_close_boundary) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(14);
+  ASSERT_TRUE(sonar.objectTooCloseToSensor());
+}
+
+TEST(too_close_very_close) {
+  park_init();
+  sonar.setTargetDistance(30);
+  sonar.applyReading(5);
+  ASSERT_TRUE(sonar.objectTooCloseToSensor());
+}
+
+TEST(idle_timeout_not_reached_initially) {
+  park_init();
+  sonar.applyReading(40);
+  ASSERT_FALSE(sonar.idleTimeoutReached(0));
+}
+
+TEST(idle_timeout_movement_resets) {
+  park_init();
+  sonar.applyReading(40);
+  sonar.idleTimeoutReached(10000);
+  sonar.applyReading(50);
+  sonar.idleTimeoutReached(11000);
+  ASSERT_FALSE(sonar.idleTimeoutReached(40000));
+}
+
+TEST(sonar_getters) {
+  park_init();
+  sonar.setTargetDistance(40);
+  sonar.applyReading(50);
+  ASSERT_EQ(sonar.getTargetDistance(), 40);
+  ASSERT_EQ(sonar.getDistance(), 50);
+  ASSERT_EQ(sonar.getLastDistance(), 0);
+}
+
+TEST(led_rgb_custom) {
+  park_init();
+  led.rgb(100, 150, 200);
+  ASSERT_EQ(led.color(), led.Color(100, 150, 200));
+}
+
+TEST(led_red) {
+  park_init();
+  led.red();
+  ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+}
+
+TEST(led_green) {
+  park_init();
+  led.green();
+  ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+}
+
+TEST(led_yellow) {
+  park_init();
+  led.yellow();
+  ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+}
+
+TEST(led_off) {
+  park_init();
+  led.purple();
+  led.off();
+  ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+}
+
+TEST(loop_processes_reading) {
+  park_init();
+  sonar.setTargetDistance(30);
+  park_loop_with(30, false, 0);
+  ASSERT_EQ(sonar.getDistance(), 30);
+  ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+}
+
+TEST(loop_no_button_press) {
+  park_init();
+  sonar.applyReading(40);
+  int orig_target = sonar.getTargetDistance();
+  park_loop_with(40, false, 0);
+  ASSERT_EQ(sonar.getTargetDistance(), orig_target);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}
+```
+
+### Compiler output (arduino-cli, arduino:avr:uno)
+```
+In file included from test_main.ino:2:0:
+test_main.ino: In function 'void test_fn_init_sets_purple()':
+test_main.ino:6:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_away_from_target_zone_is_purple()':
+test_main.ino:23:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_in_target_zone_is_green()':
+test_main.ino:31:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_past_target_zone_is_yellow()':
+test_main.ino:39:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_too_close_is_red()':
+test_main.ino:47:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_idle_timeout_turns_off()':
+test_main.ino:55:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 255));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino:58:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_rgb_custom()':
+test_main.ino:165:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(100, 150, 200));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_red()':
+test_main.ino:171:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(255, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_green()':
+test_main.ino:177:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_yellow()':
+test_main.ino:183:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(200, 50, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_led_off()':
+test_main.ino:190:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 0, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+test_main.ino: In function 'void test_fn_loop_processes_reading()':
+test_main.ino:198:30: error: 'class LedController' has no member named 'Color'; did you mean 'color'?
+   ASSERT_EQ(led.color(), led.Color(0, 255, 0));
+                              ^
+test_runner.h:99:41: note: in definition of macro 'ASSERT_EQ'
+   do { long a_ = (long)(a), b_ = (long)(b); \
+                                         ^
+
+Error during build: exit status 1
+```

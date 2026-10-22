@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_phase0_and_max_red PASS
+@TEST apply_clamps_above_max PASS
+@TEST apply_clamps_below_zero PASS
+@TEST step_increments_value_within_phase PASS
+@TEST step_wraps_and_switches_phase PASS
+@TEST phase1_apply_swaps_channels PASS
+@RUN_END 6/6

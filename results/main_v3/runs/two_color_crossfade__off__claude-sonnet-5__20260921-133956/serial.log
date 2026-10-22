@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_state FAIL line 10: pin 11 is LOW, expected HIGH
+@TEST apply_mid_value_phase0 PASS
+@TEST apply_clamps_range PASS
+@TEST step_increments_value PASS
+@TEST step_wraps_and_switches_phase PASS
+@TEST apply_phase1_swaps_channels PASS
+@RUN_END 5/6

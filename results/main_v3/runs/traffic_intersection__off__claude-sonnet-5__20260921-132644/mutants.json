@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "swap_hilo",
+   "line": 25,
+   "before": "digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : LOW);",
+   "after": "digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "flip_cmp",
+   "line": 24,
+   "before": "digitalWrite(TI_PIN_RED[dir], (color == TI_RED) ? HIGH : LOW);",
+   "after": "digitalWrite(TI_PIN_RED[dir], (color != TI_RED) ? HIGH : LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "const_change",
+   "line": 5,
+   "before": "const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 2};",
+   "after": "const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 4};",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "const_change",
+   "line": 4,
+   "before": "const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {12, 9, 6, 3};",
+   "after": "const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {24, 9, 6, 3};",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 5,
+   "operator": "flip_cmp",
+   "line": 61,
+   "before": "for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {",
+   "after": "for (uint8_t d = 0; d >= TI_NUM_DIRECTIONS; d++) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "drop_call",
+   "line": 26,
+   "before": "digitalWrite(TI_PIN_YELLOW[dir], (color == TI_YELLOW) ? HIGH : LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "swap_logic",
+   "line": 21,
+   "before": "if (dir >= TI_NUM_DIRECTIONS || color > TI_YELLOW) {",
+   "after": "if (dir >= TI_NUM_DIRECTIONS && color > TI_YELLOW) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 8,
+   "operator": "off_by_one",
+   "line": 66,
+   "before": "return not_red <= 1;",
+   "after": "return not_red <= 2;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "swap_arith",
+   "line": 52,
+   "before": "ti_apply_phase((g_phase + 1) % TI_NUM_PHASES);",
+   "after": "ti_apply_phase((g_phase - 1) % TI_NUM_PHASES);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "negate_cond",
+   "line": 39,
+   "before": "if (phase >= TI_NUM_PHASES) {",
+   "after": "if (!(phase >= TI_NUM_PHASES)) {",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

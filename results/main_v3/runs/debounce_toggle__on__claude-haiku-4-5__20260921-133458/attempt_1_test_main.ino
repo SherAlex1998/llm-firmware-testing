@@ -1,0 +1,137 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_led_high) {
+  db_init();
+  ASSERT_PIN(13, HIGH);
+  ASSERT_EQ(db_led_state(), HIGH);
+  ASSERT_EQ(db_button_state(), LOW);
+}
+
+TEST(init_sets_debounce_default) {
+  db_init();
+  ASSERT_EQ(db_debounce_delay(), DB_DEFAULT_DEBOUNCE_MS);
+}
+
+TEST(button_press_toggles_led_after_debounce) {
+  db_init();
+  unsigned long now = 1000;
+  
+  // Simulate button press (reading HIGH)
+  db_update(HIGH, now);
+  ASSERT_EQ(db_button_state(), LOW);  // not debounced yet
+  ASSERT_PIN(13, HIGH);               // LED still HIGH
+  
+  // Wait for debounce delay
+  now += DB_DEFAULT_DEBOUNCE_MS + 1;
+  db_update(HIGH, now);
+  ASSERT_EQ(db_button_state(), HIGH); // now debounced
+  ASSERT_EQ(db_led_state(), LOW);     // toggled to LOW
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(button_release_does_not_toggle) {
+  db_init();
+  unsigned long now = 1000;
+  
+  // Press button and debounce
+  db_update(HIGH, now);
+  now += DB_DEFAULT_DEBOUNCE_MS + 1;
+  db_update(HIGH, now);
+  ASSERT_EQ(db_led_state(), LOW);
+  
+  // Release button (reading LOW)
+  db_update(LOW, now + 1);
+  now += DB_DEFAULT_DEBOUNCE_MS + 1;
+  db_update(LOW, now);
+  ASSERT_EQ(db_button_state(), LOW);  // debounced
+  ASSERT_EQ(db_led_state(), LOW);     // LED unchanged on release
+  ASSERT_PIN(13, LOW);
+}
+
+TEST(noise_does_not_toggle_during_debounce) {
+  db_init();
+  unsigned long now = 1000;
+  
+  // Start of button press
+  db_update(HIGH, now);
+  ASSERT_EQ(db_led_state(), HIGH);
+  
+  // Noise: reading goes back to LOW before debounce time
+  db_update(LOW, now + 10);
+  ASSERT_EQ(db_button_state(), LOW);  // still not debounced
+  ASSERT_EQ(db_led_state(), HIGH);    // LED unchanged
+  
+  // Reading stays LOW, confirm debounce
+  now += DB_DEFAULT_DEBOUNCE_MS + 1;
+  db_update(LOW, now);
+  ASSERT_EQ(db_button_state(), LOW);
+  ASSERT_EQ(db_led_state(), HIGH);    // still HIGH
+}
+
+TEST(set_custom_debounce_delay) {
+  db_init();
+  db_set_debounce_delay(100);
+  ASSERT_EQ(db_debounce_delay(), 100);
+  
+  unsigned long now = 2000;
+  db_update(HIGH, now);
+  now += 99;
+  db_update(HIGH, now);
+  ASSERT_EQ(db_button_state(), LOW);  // not debounced yet at 99 ms
+  
+  now += 2;  // now at 101 ms total
+  db_update(HIGH, now);
+  ASSERT_EQ(db_button_state(), HIGH); // debounced at 101 ms
+  ASSERT_EQ(db_led_state(), LOW);
+}
+
+TEST(multiple_presses_toggle_repeatedly) {
+  db_init();
+  unsigned long now = 1000;
+  
+  // First press
+  db_update(HIGH, now);
+  now += 51;
+  db_update(HIGH, now);
+  ASSERT_EQ(db_led_state(), LOW);
+  
+  // Release
+  db_update(LOW, now + 1);
+  now += 52;
+  db_update(LOW, now);
+  ASSERT_EQ(db_led_state(), LOW);
+  
+  // Second press
+  db_update(HIGH, now + 1);
+  now += 52;
+  db_update(HIGH, now);
+  ASSERT_EQ(db_led_state(), HIGH);  // toggled back to HIGH
+  
+  // Release again
+  db_update(LOW, now + 1);
+  now += 52;
+  db_update(LOW, now);
+  ASSERT_EQ(db_led_state(), HIGH);
+}
+
+TEST(last_change_ms_tracked) {
+  db_init();
+  unsigned long now = 5000;
+  
+  db_update(HIGH, now);
+  ASSERT_EQ(db_last_change_ms(), now);
+  
+  db_update(HIGH, now + 10);  // same reading, no change
+  ASSERT_EQ(db_last_change_ms(), now);
+  
+  db_update(LOW, now + 20);   // reading changed
+  ASSERT_EQ(db_last_change_ms(), now + 20);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}

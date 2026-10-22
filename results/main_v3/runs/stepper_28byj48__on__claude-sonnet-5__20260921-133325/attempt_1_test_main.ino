@@ -1,0 +1,98 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_state) {
+  stepper_init();
+  ASSERT_EQ(stepper_phase(), 0);
+  ASSERT_EQ(stepper_position(), 0);
+  ASSERT_PIN(8, LOW);
+  ASSERT_PIN(9, LOW);
+  ASSERT_PIN(10, LOW);
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(coil_pattern_table) {
+  stepper_init();
+  ASSERT_EQ(stepper_coil_pattern(0), B1000);
+  ASSERT_EQ(stepper_coil_pattern(1), B1100);
+  ASSERT_EQ(stepper_coil_pattern(7), B1001);
+  ASSERT_EQ(stepper_coil_pattern(8), 0);   // out of range
+  ASSERT_EQ(stepper_coil_pattern(255), 0); // way out of range
+}
+
+TEST(apply_phase_sets_pins) {
+  stepper_init();
+  ASSERT_TRUE(stepper_apply_phase(3)); // B0110
+  ASSERT_EQ(stepper_phase(), 3);
+  ASSERT_PIN(8, LOW);
+  ASSERT_PIN(9, HIGH);
+  ASSERT_PIN(10, HIGH);
+  ASSERT_PIN(11, LOW);
+
+  ASSERT_FALSE(stepper_apply_phase(8)); // invalid, no change
+  ASSERT_EQ(stepper_phase(), 3);
+}
+
+TEST(step_half_forward_and_wrap) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_half(1);
+  ASSERT_EQ(stepper_phase(), 1);
+  ASSERT_EQ(stepper_position(), 1);
+
+  // advance to phase 7 then wrap to 0
+  stepper_step_half(6);
+  ASSERT_EQ(stepper_phase(), 7);
+  ASSERT_EQ(stepper_position(), 7);
+
+  stepper_step_half(1);
+  ASSERT_EQ(stepper_phase(), 0);
+  ASSERT_EQ(stepper_position(), 8);
+}
+
+TEST(step_half_backward_and_wrap) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_half(-1);
+  ASSERT_EQ(stepper_phase(), 7);
+  ASSERT_EQ(stepper_position(), -1);
+}
+
+TEST(step_full_forward_moves_two_positions) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_full(1);
+  ASSERT_EQ(stepper_phase(), 1);
+  ASSERT_EQ(stepper_position(), 2);
+
+  stepper_step_full(1);
+  ASSERT_EQ(stepper_phase(), 3);
+  ASSERT_EQ(stepper_position(), 4);
+}
+
+TEST(step_full_backward_moves_two_positions) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_full(-1);
+  ASSERT_EQ(stepper_phase(), 7);
+  ASSERT_EQ(stepper_position(), -2);
+}
+
+TEST(release_clears_pins_without_changing_state) {
+  stepper_init();
+  stepper_set_delay(0);
+  stepper_step_half(3);
+  int8_t phase_before = stepper_phase();
+  long pos_before = stepper_position();
+
+  stepper_release();
+  ASSERT_PIN(8, LOW);
+  ASSERT_PIN(9, LOW);
+  ASSERT_PIN(10, LOW);
+  ASSERT_PIN(11, LOW);
+  ASSERT_EQ(stepper_phase(), phase_before);
+  ASSERT_EQ(stepper_position(), pos_before);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

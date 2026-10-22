@@ -1,0 +1,108 @@
+{
+ "mutants_total": 10,
+ "killed": 2,
+ "score": 0.2,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "const_change",
+   "line": 63,
+   "before": "byte tempo[] = { 5, 5, 3, 4 };",
+   "after": "byte tempo[] = { 5, 10, 3, 4 };",
+   "verdict": "pass",
+   "killed": false,
+   "file": "soundbuzz.cpp"
+  },
+  {
+   "id": 2,
+   "operator": "drop_call",
+   "line": 79,
+   "before": "machine.LoadUserData();",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false,
+   "file": "logic.cpp"
+  },
+  {
+   "id": 3,
+   "operator": "const_change",
+   "line": 19,
+   "before": "12, 12, 12, 12,",
+   "after": "24, 12, 12, 12,",
+   "verdict": "pass",
+   "killed": false,
+   "file": "soundbuzz.cpp"
+  },
+  {
+   "id": 4,
+   "operator": "off_by_one",
+   "line": 46,
+   "before": "if (rtc->LastError() == 0) {",
+   "after": "if (rtc->LastError() == 1) {",
+   "verdict": "pass",
+   "killed": false,
+   "file": "rtsl.cpp"
+  },
+  {
+   "id": 5,
+   "operator": "flip_cmp",
+   "line": 41,
+   "before": "if (clickDuration >= CLICK_SHORT * i)",
+   "after": "if (clickDuration < CLICK_SHORT * i)",
+   "verdict": "pass",
+   "killed": false,
+   "file": "click.cpp"
+  },
+  {
+   "id": 6,
+   "operator": "off_by_one",
+   "line": 47,
+   "before": "if (year < 2000) year += 2000;",
+   "after": "if (year < 2001) year += 2000;",
+   "verdict": "pass",
+   "killed": false,
+   "file": "state_machine.cpp"
+  },
+  {
+   "id": 7,
+   "operator": "drop_call",
+   "line": 15,
+   "before": "machine.Tick();",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false,
+   "file": "logic.cpp"
+  },
+  {
+   "id": 8,
+   "operator": "negate_cond",
+   "line": 343,
+   "before": "if (pause_minute < 0)",
+   "after": "if (!(pause_minute < 0))",
+   "verdict": "pass",
+   "killed": false,
+   "file": "state_machine.cpp"
+  },
+  {
+   "id": 9,
+   "operator": "negate_cond",
+   "line": 72,
+   "before": "if (userData[0] == now.Day()) {",
+   "after": "if (!(userData[0] == now.Day())) {",
+   "verdict": "fail",
+   "killed": true,
+   "file": "state_machine.cpp"
+  },
+  {
+   "id": 10,
+   "operator": "flip_cmp",
+   "line": 258,
+   "before": "if (clickDisplay > 0) {",
+   "after": "if (clickDisplay <= 0) {",
+   "verdict": "fail",
+   "killed": true,
+   "file": "state_machine.cpp"
+  }
+ ],
+ "warnings": []
+}

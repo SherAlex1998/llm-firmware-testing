@@ -1,0 +1,236 @@
+Module: Red/green 2-color LED cross-fade (id: two_color_crossfade, category: led, complexity: simple)
+Pins:
+- 11 OUTPUT: red channel (PWM)
+- 10 OUTPUT: green channel (PWM)
+Functions to test:
+- void xf_init()
+- void xf_apply(int value)
+- void xf_step()
+- int xf_value()
+- uint8_t xf_phase()
+- int xf_red_level()
+- int xf_green_level()
+
+### logic.h
+```cpp
+// two_color_crossfade: red/green 2-color LED module cross-faded with PWM.
+// Adapted from https://github.com/Projectslearner/Arduino-uno-2-color-LED-module (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define XF_PIN_RED   11   // PWM
+#define XF_PIN_GREEN 10   // PWM
+#define XF_MAX_LEVEL 150  // maximum PWM level used by the fade
+
+void xf_init();             // pins OUTPUT, phase 0, value 0
+void xf_apply(int value);   // value clamped to 0..XF_MAX_LEVEL; phase 0: red=MAX-value, green=value; phase 1: swapped
+void xf_step();             // value+1; after XF_MAX_LEVEL wrap to 0 and switch phase
+int xf_value();             // current fade value 0..XF_MAX_LEVEL
+uint8_t xf_phase();         // 0 = red fades out / green fades in, 1 = the opposite
+int xf_red_level();         // PWM level last written to the red channel
+int xf_green_level();       // PWM level last written to the green channel
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static int g_value = 0;
+static uint8_t g_phase = 0;
+static int g_red = 0;
+static int g_green = 0;
+
+void xf_init() {
+  pinMode(XF_PIN_RED, OUTPUT);
+  pinMode(XF_PIN_GREEN, OUTPUT);
+  g_phase = 0;
+  xf_apply(0);
+}
+
+void xf_apply(int value) {
+  if (value < 0) {
+    value = 0;
+  }
+  if (value > XF_MAX_LEVEL) {
+    value = XF_MAX_LEVEL;
+  }
+  g_value = value;
+  if (g_phase == 0) {
+    g_red = XF_MAX_LEVEL - value;   // red dims
+    g_green = value;                // green glows
+  } else {
+    g_red = value;                  // red glows
+    g_green = XF_MAX_LEVEL - value; // green dims
+  }
+  analogWrite(XF_PIN_RED, g_red);
+  analogWrite(XF_PIN_GREEN, g_green);
+}
+
+void xf_step() {
+  int next = g_value + 1;
+  if (next > XF_MAX_LEVEL) {
+    next = 0;
+    g_phase = (g_phase == 0) ? 1 : 0;
+  }
+  xf_apply(next);
+}
+
+int xf_value() {
+  return g_value;
+}
+
+uint8_t xf_phase() {
+  return g_phase;
+}
+
+int xf_red_level() {
+  return g_red;
+}
+
+int xf_green_level() {
+  return g_green;
+}
+```
+
+<reference>
+[kb/learn/potentiometer-basics.md]
+Basics of Potentiometers with Arduino / Color Crossfading Example
+
+```arduino
+/*
+* Code for cross-fading 3 LEDs, red, green and blue (RGB) 
+* To create fades, you need to do two things: 
+*  1. Describe the colors you want to be displayed
+*  2. List the order you want them to fade in
+*
+* DESCRIBING A COLOR:
+* A color is just an array of three percentages, 0-100, 
+*  controlling the red, green and blue LEDs
+*
+* Red is the red LED at full, blue and green off
+*   int red = { 100, 0, 0 }
+* Dim white is all three LEDs at 30%
+*   int dimWhite = {30, 30, 30}
+* etc.
+*
+* Some common colors are provided below, or make your own
+* 
+* LISTING THE ORDER:
+* In the main part of the program, you need to list the order 
+*  you want to colors to appear in, e.g.
+*  crossFade(red);
+*  crossFade(green);
+*  crossFade(blue);
+*
+* Those colors will appear in that order, fading out of 
+*    one color and into the next  
+*
+* In addition, there are 5 optional settings you can adjust:
+* 1. The initial color is set to black (so the first color fades in), but 
+*    you can set the initial color to be any other color
+* 2. The internal loop runs for 1020 iterations; the 'wait' variable
+*    sets the approximate duration of a single crossfade. In theory, 
+*    a 'wait' of 10 ms should make a crossFade of ~10 seconds. In 
+*    practice, the other functions the code is performing slow this 
+*    down to ~11 seconds on my board. YMMV.
+* 3. If 'repeat' is set to 0, the program will loop indefinitely.
+*    if it is set to a number, it will loop that number of times,
+```
+
+[kb/learn/potentiometer-basics.md]
+Basics of Potentiometers with Arduino / Color Crossfading Example
+
+```arduino
+  return val;
+}
+
+/* crossFade() converts the percentage colors to a 
+*  0-255 range, then loops 1020 times, checking to see if  
+*  the value needs to be updated each time, then writing
+*  the color values to the correct pins.
+*/
+
+void crossFade(int color[3]) {
+  // Convert to 0-255
+  int R = (color[0] * 255) / 100;
+  int G = (color[1] * 255) / 100;
+  int B = (color[2] * 255) / 100;
+
+  int stepR = calculateStep(prevR, R);
+  int stepG = calculateStep(prevG, G); 
+  int stepB = calculateStep(prevB, B);
+
+  for (int i = 0; i <= 1020; i++) {
+    redVal = calculateVal(stepR, redVal, i);
+    grnVal = calculateVal(stepG, grnVal, i);
+    bluVal = calculateVal(stepB, bluVal, i);
+
+    analogWrite(redPin, redVal);   // Write current values to LED pins
+    analogWrite(grnPin, grnVal);      
+    analogWrite(bluPin, bluVal); 
+
+    delay(wait); // Pause for 'wait' milliseconds before resuming the loop
+
+    if (DEBUG) { // If we want serial output, print it at the 
+      if (i == 0 or i % loopCount == 0) { // beginning, and every loopCount times
+        Serial.print("Loop/RGB: #");
+        Serial.print(i);
+        Serial.print(" | ");
+        Serial.print(redVal);
+        Serial.print(" / ");
+        Serial.print(grnVal);
+        Serial.print(" / ");  
+        Serial.println(bluVal); 
+      } 
+      DEBUG += 1;
+    }
+  }
+  // Update current values for next loop
+  prevR = redVal; 
+  prevG = grnVal; 
+  prevB = bluVal;
+```
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno
+
+# Testing digital pins on the Arduino Uno
+
+## Reading back an output pin
+`digitalRead(pin)` reads the port input register (PINx), which reflects the actual level of the pin. For a pin
+configured as `OUTPUT` it therefore returns the level the sketch last wrote with `digitalWrite()`, so a test can
+check an output with `digitalRead()` right after calling the function under test.
+
+On pins with a PWM timer (3, 5, 6, 9, 10, 11) both `digitalRead()` and `digitalWrite()` first switch the PWM
+off (Arduino AVR core, `wiring_digital.c`). Reading a pin that is currently producing PWM stops the PWM.
+
+[kb/guides/testing_pwm_analog_servo.md]
+Testing PWM, analog inputs and servos
+
+# Testing PWM, analog inputs and servos
+
+## analogWrite and what a test can observe
+`analogWrite(pin, value)` sets the pin to `OUTPUT`. `analogWrite(pin, 0)` is implemented as
+`digitalWrite(pin, LOW)` and `analogWrite(pin, 255)` as `digitalWrite(pin, HIGH)`; any other value starts the
+PWM timer (Arduino AVR core, `wiring_analog.c`). On the Uno the PWM frequency is 490 Hz, and 980 Hz on pins 5
+and 6.
+
+Only the two extreme values can be checked with `digitalRead()`. For values 1 to 254 the duty cycle cannot be
+read back, and `digitalRead()` would switch the PWM off. Check intermediate levels through the module's own
+state: a getter that returns the level it wrote, or the value returned by the function that computes the level.
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

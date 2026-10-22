@@ -1,0 +1,21 @@
+{
+ "module_id": "led_breathing",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3812,
+ "tokens_out": 801,
+ "cost_usd": 0.007817,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3812,
+   "tokens_out": 801,
+   "latency_s": 8.215322494506836,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

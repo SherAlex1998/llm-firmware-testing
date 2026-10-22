@@ -1,0 +1,21 @@
+{
+ "module_id": "led_breathing",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3743,
+ "tokens_out": 2820,
+ "cost_usd": 0.053529,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3743,
+   "tokens_out": 2820,
+   "latency_s": 23.994975566864014,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

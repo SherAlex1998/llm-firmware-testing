@@ -1,0 +1,20 @@
+id: debounce_toggle
+name: "Debounced button toggles an LED"
+source_url: https://github.com/arduino/arduino-examples
+license: CC0-1.0
+category: led
+complexity: simple
+pins:
+  - {pin: 2, mode: INPUT, role: "push-button (HIGH = pressed, external pull-down)"}
+  - {pin: 13, mode: OUTPUT, role: "LED"}
+entry_functions:
+  - "void db_init()"
+  - "void db_update(int reading, unsigned long now_ms)"
+  - "void db_poll()"
+  - "int db_led_state()"
+  - "int db_button_state()"
+  - "void db_set_debounce_delay(unsigned long ms)"
+  - "unsigned long db_debounce_delay()"
+  - "unsigned long db_last_change_ms()"
+loc: 64
+notes: "Source file: examples/02.Digital/Debounce/Debounce.ino (Arduino built-in example, public domain / CC0-1.0). Time source made explicit in db_update(reading, now_ms) so the 50 ms debounce window can be tested without waiting; db_poll() keeps the original digitalRead()/millis() behaviour. LED starts HIGH as in the original."

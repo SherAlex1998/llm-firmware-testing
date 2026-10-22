@@ -1,0 +1,15 @@
+@RUN_BEGIN 13
+@TEST button_logic_first_update_is_baseline PASS
+@TEST button_logic_press_release_durations PASS
+@TEST button_logic_reset_clears_state PASS
+@TEST initial_state_after_setup PASS
+@TEST ready_state_shows_lcd_with_pom_count PASS
+@TEST b1_cycles_through_period_types PASS
+@TEST b2_short_click_starts_running PASS
+@TEST running_release_pauses PASS
+@TEST paused_short_click_resumes_running PASS
+@TEST paused_long_press_cancels_to_ready PASS
+@TEST timer_elapses_enters_finished PASS
+@TEST full_completion_increments_pomodoro_and_persists PASS
+@TEST eeprom_read_write_roundtrip PASS
+@RUN_END 13/13

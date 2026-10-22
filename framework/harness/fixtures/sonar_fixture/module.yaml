@@ -1,0 +1,22 @@
+id: sonar_fixture
+name: "HC-SR04 fixture (harness self-test, Wokwi device)"
+source_url: none
+license: CC0-1.0
+category: sensor
+complexity: medium
+experiment: 2
+backend: wokwi
+pins:
+  - {pin: 9, mode: OUTPUT, role: "HC-SR04 TRIG"}
+  - {pin: 10, mode: INPUT, role: "HC-SR04 ECHO"}
+devices:
+  - part: wokwi-hc-sr04
+    id: sonar
+    pins: {TRIG: 9, ECHO: 10}
+    attrs: {distance: "100"}
+    test_visible: "echo distance is fixed at 100 cm"
+entry_functions:
+  - "void sonar_init()"
+  - "uint16_t sonar_read_cm()"
+loc: 20
+notes: "Not part of the benchmark. Proves the module's diagram.json reaches Wokwi: passes there (100 cm), times out to 0 cm on avr8js, which has no HC-SR04."

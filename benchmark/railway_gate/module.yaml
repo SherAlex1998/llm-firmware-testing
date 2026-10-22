@@ -1,0 +1,27 @@
+id: railway_gate
+name: "Sensor-controlled railway gate (2 servos + LEDs)"
+source_url: https://github.com/Venkatesh4707/Railway-Gate-Automation-Arduino
+license: MIT
+category: led+motor
+complexity: medium
+pins:
+  - {pin: 14, mode: INPUT, role: "A0 sensor 1 (LOW = object)"}
+  - {pin: 15, mode: INPUT, role: "A1 sensor 2 (LOW = object)"}
+  - {pin: 2, mode: OUTPUT, role: "green LED"}
+  - {pin: 4, mode: OUTPUT, role: "red LED"}
+  - {pin: 11, mode: OUTPUT, role: "servo 1 signal"}
+  - {pin: 10, mode: OUTPUT, role: "servo 2 signal"}
+entry_functions:
+  - "void gate_init()"
+  - "void gate_open()"
+  - "void gate_close()"
+  - "bool gate_is_open()"
+  - "bool gate_object_between()"
+  - "int gate_servo1_angle()"
+  - "int gate_servo2_angle()"
+  - "void gate_update(bool sensor1_detected, bool sensor2_detected)"
+  - "void gate_poll()"
+  - "bool gate_sensor1_detected()"
+  - "bool gate_sensor2_detected()"
+loc: 111
+notes: "Source file: Code/railway_gate/railway_gate.ino. Servo sweep step raised from 1 deg to 5 deg per 10 ms so gate_open()/gate_close() take about 380 ms instead of 1.8 s; sensor state machine from loop() extracted into gate_update(s1, s2); IR obstacle sensors treated as plain active-LOW digital inputs; Serial prints removed."

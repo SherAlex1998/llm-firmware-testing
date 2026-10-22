@@ -1,0 +1,127 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_defaults_and_release) {
+  stepper_init();
+
+  ASSERT_EQ(stepper_phase(), 0);
+  ASSERT_EQ(stepper_position(), 0);
+  ASSERT_EQ(stepper_delay(), STEPPER_DEFAULT_DELAY_MS);
+  ASSERT_PIN(STEPPER_PIN_IN1, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN2, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN3, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN4, LOW);
+
+  ASSERT_TRUE(stepper_apply_phase(3));
+  stepper_release();
+
+  ASSERT_EQ(stepper_phase(), 3);
+  ASSERT_EQ(stepper_position(), 0);
+  ASSERT_PIN(STEPPER_PIN_IN1, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN2, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN3, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN4, LOW);
+}
+
+TEST(delay_configuration) {
+  stepper_init();
+
+  ASSERT_EQ(stepper_delay(), STEPPER_DEFAULT_DELAY_MS);
+  stepper_set_delay(0);
+  ASSERT_EQ(stepper_delay(), 0);
+  stepper_set_delay(25);
+  ASSERT_EQ(stepper_delay(), 25);
+}
+
+TEST(coil_pattern_table_and_invalid_phase) {
+  stepper_init();
+
+  ASSERT_EQ(stepper_coil_pattern(0), 8);
+  ASSERT_EQ(stepper_coil_pattern(1), 12);
+  ASSERT_EQ(stepper_coil_pattern(2), 4);
+  ASSERT_EQ(stepper_coil_pattern(3), 6);
+  ASSERT_EQ(stepper_coil_pattern(4), 2);
+  ASSERT_EQ(stepper_coil_pattern(5), 3);
+  ASSERT_EQ(stepper_coil_pattern(6), 1);
+  ASSERT_EQ(stepper_coil_pattern(7), 9);
+  ASSERT_EQ(stepper_coil_pattern(8), 0);
+  ASSERT_EQ(stepper_coil_pattern(255), 0);
+}
+
+TEST(apply_phase_drives_pins_and_rejects_invalid) {
+  stepper_init();
+
+  ASSERT_TRUE(stepper_apply_phase(5));
+  ASSERT_EQ(stepper_phase(), 5);
+  ASSERT_EQ(stepper_position(), 0);
+  ASSERT_PIN(STEPPER_PIN_IN1, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN2, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN3, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN4, LOW);
+
+  ASSERT_FALSE(stepper_apply_phase(8));
+  ASSERT_EQ(stepper_phase(), 5);
+  ASSERT_PIN(STEPPER_PIN_IN1, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN2, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN3, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN4, LOW);
+}
+
+TEST(half_steps_forward_wrap_and_position) {
+  stepper_init();
+  stepper_set_delay(0);
+
+  stepper_step_half(9);
+
+  ASSERT_EQ(stepper_phase(), 1);
+  ASSERT_EQ(stepper_position(), 9);
+  ASSERT_PIN(STEPPER_PIN_IN1, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN2, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN3, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN4, HIGH);
+}
+
+TEST(half_steps_backward_wrap_and_position) {
+  stepper_init();
+  stepper_set_delay(0);
+
+  stepper_step_half(-9);
+
+  ASSERT_EQ(stepper_phase(), 7);
+  ASSERT_EQ(stepper_position(), -9);
+  ASSERT_PIN(STEPPER_PIN_IN1, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN2, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN3, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN4, HIGH);
+}
+
+TEST(full_steps_forward_wrap_and_position) {
+  stepper_init();
+  stepper_set_delay(0);
+
+  stepper_step_full(5);
+
+  ASSERT_EQ(stepper_phase(), 1);
+  ASSERT_EQ(stepper_position(), 10);
+  ASSERT_PIN(STEPPER_PIN_IN1, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN2, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN3, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN4, HIGH);
+}
+
+TEST(full_steps_backward_from_initial_phase) {
+  stepper_init();
+  stepper_set_delay(0);
+
+  stepper_step_full(-4);
+
+  ASSERT_EQ(stepper_phase(), 1);
+  ASSERT_EQ(stepper_position(), -8);
+  ASSERT_PIN(STEPPER_PIN_IN1, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN2, LOW);
+  ASSERT_PIN(STEPPER_PIN_IN3, HIGH);
+  ASSERT_PIN(STEPPER_PIN_IN4, HIGH);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

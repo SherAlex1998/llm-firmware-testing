@@ -1,0 +1,21 @@
+{
+ "module_id": "railway_gate",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6395,
+ "tokens_out": 2484,
+ "cost_usd": 0.056445,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6395,
+   "tokens_out": 2484,
+   "latency_s": 20.734273672103882,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_led_high_and_button_low PASS
+@TEST short_press_below_delay_does_not_toggle PASS
+@TEST press_held_past_delay_toggles_led PASS
+@TEST release_does_not_toggle_again PASS
+@TEST set_debounce_delay_changes_reported_value PASS
+@TEST last_change_ms_tracks_raw_reading_change PASS
+@RUN_END 6/6

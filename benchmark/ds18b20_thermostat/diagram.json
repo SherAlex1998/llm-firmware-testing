@@ -1,0 +1,217 @@
+{
+ "version": 1,
+ "author": "benchmark",
+ "editor": "wokwi",
+ "parts": [
+  {
+   "type": "wokwi-arduino-uno",
+   "id": "uno",
+   "top": 0,
+   "left": 0,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-lcd2004",
+   "id": "lcd",
+   "top": -220,
+   "left": 0,
+   "attrs": {
+    "pins": "i2c"
+   }
+  },
+  {
+   "type": "wokwi-ds18b20",
+   "id": "temp",
+   "top": -100,
+   "left": 330,
+   "attrs": {
+    "temperature": "21.5"
+   }
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_dq",
+   "top": -60,
+   "left": 400,
+   "attrs": {
+    "value": "4700"
+   }
+  },
+  {
+   "type": "wokwi-pushbutton",
+   "id": "set",
+   "top": 260,
+   "left": 40,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_set",
+   "top": 330,
+   "left": 40,
+   "attrs": {
+    "value": "10000"
+   }
+  },
+  {
+   "type": "wokwi-pushbutton",
+   "id": "up",
+   "top": 260,
+   "left": 160,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_up",
+   "top": 330,
+   "left": 160,
+   "attrs": {
+    "value": "10000"
+   }
+  },
+  {
+   "type": "wokwi-pushbutton",
+   "id": "down",
+   "top": 260,
+   "left": 280,
+   "attrs": {}
+  },
+  {
+   "type": "wokwi-resistor",
+   "id": "r_down",
+   "top": 330,
+   "left": 280,
+   "attrs": {
+    "value": "10000"
+   }
+  }
+ ],
+ "connections": [
+  [
+   "uno:GND.1",
+   "lcd:GND",
+   "black",
+   []
+  ],
+  [
+   "uno:5V",
+   "lcd:VCC",
+   "red",
+   []
+  ],
+  [
+   "uno:A4",
+   "lcd:SDA",
+   "green",
+   []
+  ],
+  [
+   "uno:A5",
+   "lcd:SCL",
+   "blue",
+   []
+  ],
+  [
+   "uno:12",
+   "temp:DQ",
+   "yellow",
+   []
+  ],
+  [
+   "uno:5V",
+   "temp:VCC",
+   "red",
+   []
+  ],
+  [
+   "uno:GND.2",
+   "temp:GND",
+   "black",
+   []
+  ],
+  [
+   "temp:DQ",
+   "r_dq:1",
+   "yellow",
+   []
+  ],
+  [
+   "r_dq:2",
+   "uno:5V",
+   "red",
+   []
+  ],
+  [
+   "uno:5V",
+   "set:1.l",
+   "red",
+   []
+  ],
+  [
+   "uno:2",
+   "set:2.l",
+   "green",
+   []
+  ],
+  [
+   "set:2.r",
+   "r_set:1",
+   "green",
+   []
+  ],
+  [
+   "r_set:2",
+   "uno:GND.3",
+   "black",
+   []
+  ],
+  [
+   "uno:5V",
+   "up:1.l",
+   "red",
+   []
+  ],
+  [
+   "uno:3",
+   "up:2.l",
+   "green",
+   []
+  ],
+  [
+   "up:2.r",
+   "r_up:1",
+   "green",
+   []
+  ],
+  [
+   "r_up:2",
+   "uno:GND.3",
+   "black",
+   []
+  ],
+  [
+   "uno:5V",
+   "down:1.l",
+   "red",
+   []
+  ],
+  [
+   "uno:4",
+   "down:2.l",
+   "green",
+   []
+  ],
+  [
+   "down:2.r",
+   "r_down:1",
+   "green",
+   []
+  ],
+  [
+   "r_down:2",
+   "uno:GND.3",
+   "black",
+   []
+  ]
+ ]
+}

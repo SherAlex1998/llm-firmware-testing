@@ -1,0 +1,21 @@
+{
+ "module_id": "ultrasonic_parking",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 8487,
+ "tokens_out": 7810,
+ "cost_usd": 0.142611,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 8487,
+   "tokens_out": 7810,
+   "latency_s": 70.33347702026367,
+   "cached": false,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

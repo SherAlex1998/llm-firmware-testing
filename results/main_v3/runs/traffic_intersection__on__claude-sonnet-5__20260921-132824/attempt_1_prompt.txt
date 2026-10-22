@@ -1,0 +1,301 @@
+Module: 4-way intersection with 12 LEDs (id: traffic_intersection, category: led, complexity: medium)
+Pins:
+- 13 OUTPUT: A red
+- 12 OUTPUT: A green
+- 11 OUTPUT: A yellow
+- 10 OUTPUT: B red
+- 9 OUTPUT: B green
+- 8 OUTPUT: B yellow
+- 7 OUTPUT: C red
+- 6 OUTPUT: C green
+- 5 OUTPUT: C yellow
+- 4 OUTPUT: D red
+- 3 OUTPUT: D green
+- 2 OUTPUT: D yellow
+Functions to test:
+- void ti_init()
+- bool ti_set_direction(uint8_t dir, uint8_t color)
+- uint8_t ti_direction_color(uint8_t dir)
+- bool ti_apply_phase(uint8_t phase)
+- void ti_next_phase()
+- uint8_t ti_phase()
+- bool ti_is_safe()
+
+### logic.h
+```cpp
+// traffic_intersection: 4-way intersection, 12 LEDs (red/green/yellow per direction), 8 phases.
+// Adapted from https://github.com/rajeshThakare/Arduino-UNO-for-Absolute-Beginners (Codes/1_LED/traffic signals, MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define TI_NUM_DIRECTIONS 4
+#define TI_NUM_PHASES 8
+
+enum TiColor : uint8_t { TI_RED = 0, TI_GREEN = 1, TI_YELLOW = 2 };
+
+extern const uint8_t TI_PIN_RED[TI_NUM_DIRECTIONS];     // {13, 10, 7, 4}
+extern const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS];   // {12, 9, 6, 3}
+extern const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS];  // {11, 8, 5, 2}
+
+void ti_init();                                        // pins OUTPUT; start-up state: all directions yellow
+bool ti_set_direction(uint8_t dir, uint8_t color);     // drive the 3 LEDs of one direction; false if args invalid
+uint8_t ti_direction_color(uint8_t dir);               // last color set for a direction (TI_RED if dir invalid)
+bool ti_apply_phase(uint8_t phase);                    // phase p: direction p/2 gets GREEN (p even) or YELLOW (p odd), others RED
+void ti_next_phase();                                  // apply (phase + 1) % TI_NUM_PHASES
+uint8_t ti_phase();                                    // current phase index
+bool ti_is_safe();                                     // true if at most one direction is not red
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+const uint8_t TI_PIN_RED[TI_NUM_DIRECTIONS]    = {13, 10, 7, 4};
+const uint8_t TI_PIN_GREEN[TI_NUM_DIRECTIONS]  = {12, 9, 6, 3};
+const uint8_t TI_PIN_YELLOW[TI_NUM_DIRECTIONS] = {11, 8, 5, 2};
+
+static uint8_t g_color[TI_NUM_DIRECTIONS];
+static uint8_t g_phase = 0;
+
+void ti_init() {
+  for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {
+    pinMode(TI_PIN_RED[d], OUTPUT);
+    pinMode(TI_PIN_GREEN[d], OUTPUT);
+    pinMode(TI_PIN_YELLOW[d], OUTPUT);
+    ti_set_direction(d, TI_YELLOW);
+  }
+  g_phase = 0;
+}
+
+bool ti_set_direction(uint8_t dir, uint8_t color) {
+  if (dir >= TI_NUM_DIRECTIONS || color > TI_YELLOW) {
+    return false;
+  }
+  digitalWrite(TI_PIN_RED[dir], (color == TI_RED) ? HIGH : LOW);
+  digitalWrite(TI_PIN_GREEN[dir], (color == TI_GREEN) ? HIGH : LOW);
+  digitalWrite(TI_PIN_YELLOW[dir], (color == TI_YELLOW) ? HIGH : LOW);
+  g_color[dir] = color;
+  return true;
+}
+
+uint8_t ti_direction_color(uint8_t dir) {
+  if (dir >= TI_NUM_DIRECTIONS) {
+    return TI_RED;
+  }
+  return g_color[dir];
+}
+
+bool ti_apply_phase(uint8_t phase) {
+  if (phase >= TI_NUM_PHASES) {
+    return false;
+  }
+  uint8_t active = phase / 2;
+  uint8_t color = (phase % 2 == 0) ? TI_GREEN : TI_YELLOW;
+  for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {
+    ti_set_direction(d, (d == active) ? color : (uint8_t)TI_RED);
+  }
+  g_phase = phase;
+  return true;
+}
+
+void ti_next_phase() {
+  ti_apply_phase((g_phase + 1) % TI_NUM_PHASES);
+}
+
+uint8_t ti_phase() {
+  return g_phase;
+}
+
+bool ti_is_safe() {
+  uint8_t not_red = 0;
+  for (uint8_t d = 0; d < TI_NUM_DIRECTIONS; d++) {
+    if (g_color[d] != TI_RED) {
+      not_red++;
+    }
+  }
+  return not_red <= 1;
+}
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Pin numbers on the Uno
+
+## Pin numbers on the Uno
+- Digital pins 0 to 13. The analog inputs A0 to A5 are also digital pins 14 to 19.
+- Pins 0 and 1 are the Serial RX/TX lines; the test protocol uses Serial, so tests must not drive them.
+- PWM pins: 3, 5, 6, 9, 10, 11. `LED_BUILTIN` is pin 13.
+- Check outputs against the pin numbers in the module's specification (its pin table), not against constants
+  taken from the code under test: a wrong pin number in the code is only detected if the test uses the pin
+  number the hardware is actually wired to.
+
+[kb/examples/ForLoopIteration.md]
+For Loop Iteration (aka The Knight Rider) / Code
+
+### Code
+
+The code below begins by utilizing a `for()` loop to assign digital pins 2-7 as outputs for the 6 LEDs used.
+
+In the main loop of the code, two `for()` loops are used to loop incrementally, stepping through the LEDs, one by one, from pin 2 to pin seven. Once pin 7 is lit, the process reverses, stepping back down through each LED.
+
+```arduino
+
+/*
+
+  For Loop Iteration
+
+  Demonstrates the use of a for() loop.
+
+  Lights multiple LEDs in sequence, then in reverse.
+
+  The circuit:
+
+  - LEDs from pins 2 through 7 to ground
+
+  created 2006
+
+  by David A. Mellis
+
+  modified 30 Aug 2011
+
+  by Tom Igoe
+
+  This example code is in the public domain.
+
+  https://www.arduino.cc/built-in-examples/ForLoopIteration
+
+*/
+
+int timer = 100;           // The higher the number, the slower the timing.
+
+void setup() {
+
+  // use a for loop to initialize each pin as an output:
+
+  for (int thisPin = 2; thisPin < 8; thisPin++) {
+
+    pinMode(thisPin, OUTPUT);
+
+  }
+}
+
+void loop() {
+
+  // loop from the lowest pin to the highest:
+
+  for (int thisPin = 2; thisPin < 8; thisPin++) {
+
+    // turn the pin on:
+
+    digitalWrite(thisPin, HIGH);
+
+    delay(timer);
+
+    // turn the pin off:
+
+    digitalWrite(thisPin, LOW);
+
+  }
+
+  // loop from the highest pin to the lowest:
+
+  for (int thisPin = 7; thisPin >= 2; thisPin--) {
+
+    // turn the pin on:
+
+    digitalWrite(thisPin, HIGH);
+
+    delay(timer);
+
+    // turn the pin off:
+
+    digitalWrite(thisPin, LOW);
+
+  }
+}
+```
+
+[kb/learn/potentiometer-basics.md]
+Basics of Potentiometers with Arduino / Color Mixer Example
+
+```arduino
+/*
+* Code for making one potentiometer control 3 LEDs, red, grn and blu, or one tri-color LED
+* The program cross-fades from red to grn, grn to blu, and blu to red
+* Clay Shirky <clay.shirky@nyu.edu> 
+*/
+
+// INPUT: Potentiometer should be connected to 5V and GND
+int potPin = A3; // Potentiometer output connected to analog pin 3
+int potVal = 0; // Variable to store the input from the potentiometer
+
+// OUTPUT: Use digital pins 9-11, the Pulse-width Modulation (PWM) pins
+// LED's cathodes should be connected to digital GND
+int redPin = 9;   // Red LED,   connected to digital pin 9
+int grnPin = 10;  // Green LED, connected to digital pin 10
+int bluPin = 11;  // Blue LED,  connected to digital pin 11
+
+// Program variables
+int redVal = 0;   // Variables to store the values to send to the pins
+int grnVal = 0;
+int bluVal = 0;
+
+void setup()
+{
+  pinMode(redPin, OUTPUT);   // sets the pins as output
+  pinMode(grnPin, OUTPUT);   
+  pinMode(bluPin, OUTPUT); 
+}
+
+// Main program
+void loop()
+{
+  potVal = analogRead(potPin);   // read the potentiometer value at the input pin
+
+  if (potVal < 341)  // Lowest third of the potentiometer's range (0-340)
+  {                  
+    potVal = (potVal * 3) / 4; // Normalize to 0-255
+
+    redVal = 256 - potVal;  // Red from full to off
+    grnVal = potVal;        // Green from off to full
+    bluVal = 1;             // Blue off
+  }
+  else if (potVal < 682) // Middle third of potentiometer's range (341-681)
+  {
+```
+
+[kb/examples/ForLoopIteration.md]
+For Loop Iteration (aka The Knight Rider) / Hardware Required
+
+### Hardware Required
+
+- [Arduino Board](https://store.arduino.cc/collections/boards-modules)
+
+- 6 220 ohm resistors
+
+- 6 LEDs
+- hook-up wires
+
+- breadboard
+
+### Circuit
+
+Connect six LEDS, with 220 ohm resistors in series, to digital pins 2-7 on your Arduino.
+
+### Schematic:
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

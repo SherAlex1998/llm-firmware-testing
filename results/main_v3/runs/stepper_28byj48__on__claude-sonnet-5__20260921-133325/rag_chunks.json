@@ -1,0 +1,46 @@
+{
+ "query": "Unit tests for an Arduino Uno module: 28BYJ-48 stepper full/half-step driver. Pins: pin 8 OUTPUT ULN2003 IN1; pin 9 OUTPUT ULN2003 IN2; pin 10 OUTPUT ULN2003 IN3; pin 11 OUTPUT ULN2003 IN4. Arduino API used: bitRead, delay, digitalWrite, pinMode. Libraries: none. Functions to test: void stepper_init(), void stepper_step_full(int steps), void stepper_step_half(int steps), bool stepper_apply_phase(uint8_t phase), uint8_t stepper_coil_pattern(uint8_t phase), int8_t stepper_phase(), long stepper_position(), void stepper_set_delay(unsigned int ms), void stepper_release().",
+ "context": "[kb/guides/testing_pwm_analog_servo.md]\nTesting PWM, analog inputs and servos / Stepper motors\n\n## Stepper motors\nA stepper driven through four pins (for example a 28BYJ-48 via ULN2003) is controlled by writing a coil\npattern to the four pins for every step. Test the pattern table and the step function: after each step exactly\nthe expected coils are `HIGH`, the step counter changes by one in the right direction, and the sequence wraps\naround after the last phase. Releasing the motor should set all four pins `LOW`.\n\n[kb/learn/stepper-motors.md]\nArduino and Stepper Motor Configurations\n\n# Arduino and Stepper Motor Configurations\n\nStepper motors, due to their unique design, can be controlled to a high degree of accuracy without any feedback mechanisms. The shaft of a stepper, mounted with a series of magnets, is controlled by a series of electromagnetic coils that are charged positively and negatively in a specific sequence, precisely moving it forward or backward in small \"steps\".\n\nThere are two types of steppers, Unipolars and Bipolars, and it is very important to know which type you are working with. For each of the motors, there is a different circuit. The example code will control both kinds of motors. See the  [unipolar](https://www.arduino.cc/en/Reference/StepperUnipolarCircuit) and [bipolar](https://www.arduino.cc/en/Reference/StepperBipolarCircuit) motor schematics for information on how to wire up your motor.\n\nThe stepper is controlled by with digital pins 8, 9, 10, and 11 for either unipolar or bipolar motors. The Arduino board will connect to a [U2004 Darlington Array](http://octopart.com/uln2004a-stmicroelectronics-4798) if you're using a unipolar stepper or a [SN754410NE H-Bridge](http://octopart.com/sn754410ne-texas+instruments-1320) if you have a bipolar motor.\n\n[kb/learn/stepper-motors.md]\nArduino and Stepper Motor Configurations / StepperOneStepAtATime\n\n### StepperOneStepAtATime\n\nThe motor will step one step at a time, very slowly.  You can use this to test that you've got the four wires of your stepper wired to the correctpins. If wired correctly, all steps should be in the same direction.\n\n```arduino\n#include <Stepper.h>\n\nconst int stepsPerRevolution = 200;  // change this to fit the number of steps per revolution\n// for your motor\n\n// initialize the stepper library on pins 8 through 11:\nStepper myStepper(stepsPerRevolution, 8, 9, 10, 11);\n\nint stepCount = 0;         // number of steps the motor has taken\n\nvoid setup() {\n  // initialize the serial port:\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  // step one step:\n  myStepper.step(1);\n  Serial.print(\"steps:\");\n  Serial.println(stepCount);\n  stepCount++;\n  delay(500);\n}\n```\n\n[kb/libraries/stepper_readme.md]\nStepper library\n\n# Stepper library\n\nThis library allows you to control unipolar or bipolar stepper motors. To use it you will need a stepper motor, and the appropriate hardware to control it.\n\nTo use this library:\n\n```\n#include <Stepper.h>\n```\n\n## Circuits\n\n* [Unipolar steppers](https://docs.arduino.cc/learn/electronics/stepper-motors#unipolar-stepper-circuit-and-schematic).\n* [Bipolar steppers](https://docs.arduino.cc/learn/electronics/stepper-motors#bipolar-stepper-circuit-and-schematic).\n\n[kb/guides/testing_digital_pins.md]\nTesting digital pins on the Arduino Uno / Covering a function\n\n## Covering a function\n- Call the module's init function at the start of every test so that tests do not depend on each other.\n- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.\n- For functions with an index or a range argument (LED number, state number), test the first value, the last\n  value and one value outside the range.",
+ "chunks": [
+  {
+   "id": "kb/guides/testing_pwm_analog_servo.md#3",
+   "title": "Testing PWM, analog inputs and servos / Stepper motors",
+   "source_path": "kb/guides/testing_pwm_analog_servo.md",
+   "kind": "guide",
+   "similarity": 0.642,
+   "text": "Testing PWM, analog inputs and servos / Stepper motors\n\n## Stepper motors\nA stepper driven through four pins (for example a 28BYJ-48 via ULN2003) is controlled by writing a coil\npattern to the four pins for every step. Test the pattern table and the step function: after each step exactly\nthe expected coils are `HIGH`, the step counter changes by one in the right direction, and the sequence wraps\naround after the last phase. Releasing the motor should set all four pins `LOW`."
+  },
+  {
+   "id": "kb/learn/stepper-motors.md#0",
+   "title": "Arduino and Stepper Motor Configurations",
+   "source_path": "kb/learn/stepper-motors.md",
+   "kind": "learn",
+   "similarity": 0.5977,
+   "text": "Arduino and Stepper Motor Configurations\n\n# Arduino and Stepper Motor Configurations\n\nStepper motors, due to their unique design, can be controlled to a high degree of accuracy without any feedback mechanisms. The shaft of a stepper, mounted with a series of magnets, is controlled by a series of electromagnetic coils that are charged positively and negatively in a specific sequence, precisely moving it forward or backward in small \"steps\".\n\nThere are two types of steppers, Unipolars and Bipolars, and it is very important to know which type you are working with. For each of the motors, there is a different circuit. The example code will control both kinds of motors. See the  [unipolar](https://www.arduino.cc/en/Reference/StepperUnipolarCircuit) and [bipolar](https://www.arduino.cc/en/Reference/StepperBipolarCircuit) motor schematics for information on how to wire up your motor.\n\nThe stepper is controlled by with digital pins 8, 9, 10, and 11 for either unipolar or bipolar motors. The Arduino board will connect to a [U2004 Darlington Array](http://octopart.com/uln2004a-stmicroelectronics-4798) if you're using a unipolar stepper or a [SN754410NE H-Bridge](http://octopart.com/sn754410ne-texas+instruments-1320) if you have a bipolar motor."
+  },
+  {
+   "id": "kb/learn/stepper-motors.md#4",
+   "title": "Arduino and Stepper Motor Configurations / StepperOneStepAtATime",
+   "source_path": "kb/learn/stepper-motors.md",
+   "kind": "learn",
+   "similarity": 0.5888,
+   "text": "Arduino and Stepper Motor Configurations / StepperOneStepAtATime\n\n### StepperOneStepAtATime\n\nThe motor will step one step at a time, very slowly.  You can use this to test that you've got the four wires of your stepper wired to the correctpins. If wired correctly, all steps should be in the same direction.\n\n```arduino\n#include <Stepper.h>\n\nconst int stepsPerRevolution = 200;  // change this to fit the number of steps per revolution\n// for your motor\n\n// initialize the stepper library on pins 8 through 11:\nStepper myStepper(stepsPerRevolution, 8, 9, 10, 11);\n\nint stepCount = 0;         // number of steps the motor has taken\n\nvoid setup() {\n  // initialize the serial port:\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  // step one step:\n  myStepper.step(1);\n  Serial.print(\"steps:\");\n  Serial.println(stepCount);\n  stepCount++;\n  delay(500);\n}\n```"
+  },
+  {
+   "id": "kb/libraries/stepper_readme.md#0",
+   "title": "Stepper library",
+   "source_path": "kb/libraries/stepper_readme.md",
+   "kind": "library",
+   "similarity": 0.5834,
+   "text": "Stepper library\n\n# Stepper library\n\nThis library allows you to control unipolar or bipolar stepper motors. To use it you will need a stepper motor, and the appropriate hardware to control it.\n\nTo use this library:\n\n```\n#include <Stepper.h>\n```\n\n## Circuits\n\n* [Unipolar steppers](https://docs.arduino.cc/learn/electronics/stepper-motors#unipolar-stepper-circuit-and-schematic).\n* [Bipolar steppers](https://docs.arduino.cc/learn/electronics/stepper-motors#bipolar-stepper-circuit-and-schematic)."
+  },
+  {
+   "id": "kb/guides/testing_digital_pins.md#3",
+   "title": "Testing digital pins on the Arduino Uno / Covering a function",
+   "source_path": "kb/guides/testing_digital_pins.md",
+   "kind": "guide",
+   "similarity": 0.5766,
+   "text": "Testing digital pins on the Arduino Uno / Covering a function\n\n## Covering a function\n- Call the module's init function at the start of every test so that tests do not depend on each other.\n- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.\n- For functions with an index or a range argument (LED number, state number), test the first value, the last\n  value and one value outside the range."
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST initializes_forward_with_zero_power PASS
+@TEST changes_direction_and_reports_state PASS
+@TEST clamps_and_writes_motor_power PASS
+@TEST converts_potentiometer_readings_to_pwm PASS
+@TEST stops_motor_and_disables_power PASS
+@TEST updates_power_from_potentiometer_input FAIL line 76: expected motor_power() == 255 (got 0 vs 255)
+@RUN_END 5/6

@@ -1,0 +1,62 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_defaults) {
+  breath_init();
+  ASSERT_EQ(breath_brightness(), 0);
+  ASSERT_EQ(breath_velocity(), 2);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(reset_restores_defaults) {
+  breath_init();
+  breath_set_velocity(10);
+  breath_step();
+  breath_step();
+  breath_reset();
+  ASSERT_EQ(breath_brightness(), 0);
+  ASSERT_EQ(breath_velocity(), 2);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(11, LOW);
+}
+
+TEST(step_advances_brightness) {
+  breath_init();
+  breath_step();
+  ASSERT_EQ(breath_brightness(), 2);
+  breath_step();
+  ASSERT_EQ(breath_brightness(), 4);
+}
+
+TEST(set_velocity_ignores_zero) {
+  breath_init();
+  breath_set_velocity(0);
+  ASSERT_EQ(breath_velocity(), 2);
+  breath_set_velocity(5);
+  ASSERT_EQ(breath_velocity(), 5);
+}
+
+TEST(bounces_at_max) {
+  breath_init();
+  breath_set_velocity(100);
+  breath_step(); // brightness 0 -> 100
+  breath_step(); // brightness 100 -> 200
+  breath_step(); // brightness 200 -> 300 clamped to 255, velocity flips to -100
+  ASSERT_EQ(breath_brightness(), 255);
+  ASSERT_FALSE(breath_is_rising());
+  ASSERT_PIN(11, HIGH);
+}
+
+TEST(bounces_at_min) {
+  breath_init();
+  breath_set_velocity(-100);
+  // force brightness up first so it can descend below 0
+  breath_step(); // writes 0, brightness -> -100 clamped to 0, velocity flips to +100
+  ASSERT_EQ(breath_brightness(), 0);
+  ASSERT_TRUE(breath_is_rising());
+  ASSERT_PIN(11, LOW);
+}
+
+void setup() { Serial.begin(9600); RUN_ALL_TESTS(); }
+void loop() {}

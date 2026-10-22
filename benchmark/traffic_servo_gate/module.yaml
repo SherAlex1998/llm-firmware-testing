@@ -1,0 +1,22 @@
+id: traffic_servo_gate
+name: "Traffic light with servo barrier"
+source_url: https://github.com/Rifat1003/Simple-Traffic-control-system-using-LED-and-servo-motor./tree/main
+license: MIT
+category: led+motor
+complexity: simple
+pins:
+  - {pin: 11, mode: OUTPUT, role: "green LED"}
+  - {pin: 12, mode: OUTPUT, role: "yellow LED"}
+  - {pin: 13, mode: OUTPUT, role: "red LED"}
+  - {pin: 10, mode: OUTPUT, role: "servo signal (barrier)"}
+entry_functions:
+  - "void tsg_init()"
+  - "bool tsg_set_state(uint8_t state)"
+  - "uint8_t tsg_state()"
+  - "uint8_t tsg_next_state(uint8_t state)"
+  - "void tsg_next()"
+  - "int tsg_gate_angle()"
+  - "bool tsg_gate_open()"
+  - "unsigned int tsg_state_duration_ms(uint8_t state)"
+loc: 89
+notes: "Source file: CODE_01_PROJECT_01.ino. Linear loop() with delay(5000) turned into a 4-state machine (green/open, yellow/closed, red/closed, all off); Serial prints removed; servo attached with the original 500..2500 us pulse range."

@@ -1,0 +1,28 @@
+@RUN_BEGIN 26
+@TEST park_init_sets_purple PASS
+@TEST park_init_resets_sonar PASS
+@TEST setLedColor_away_from_target_purple PASS
+@TEST setLedColor_in_target_zone_green PASS
+@TEST setLedColor_in_target_zone_lower_bound PASS
+@TEST setLedColor_in_target_zone_upper_bound PASS
+@TEST setLedColor_past_target_zone_yellow PASS
+@TEST setLedColor_too_close_red PASS
+@TEST park_loop_with_idle_timeout_turns_off PASS
+@TEST park_loop_with_no_idle_timeout_sets_color PASS
+@TEST park_loop_with_button_pressed_sets_target PASS
+@TEST sonar_object_away_from_target_zone PASS
+@TEST sonar_object_in_target_zone PASS
+@TEST sonar_object_past_target_zone PASS
+@TEST sonar_object_too_close PASS
+@TEST sonar_getters PASS
+@TEST sonar_apply_reading_updates_last_distance PASS
+@TEST sonar_idle_timeout_not_reached_initially PASS
+@TEST sonar_idle_timeout_reached_after_30_seconds FAIL line 149: expected true: sonar.idleTimeoutReached(now)
+@TEST sonar_idle_timeout_reset_on_movement PASS
+@TEST led_rgb_custom_color PASS
+@TEST led_red PASS
+@TEST led_green PASS
+@TEST led_yellow PASS
+@TEST led_purple PASS
+@TEST led_off PASS
+@RUN_END 25/26

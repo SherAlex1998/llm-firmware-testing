@@ -1,0 +1,245 @@
+Module: 3-LED traffic light state machine (id: traffic_light, category: led, complexity: simple)
+Pins:
+- 2 OUTPUT: red LED
+- 3 OUTPUT: yellow LED
+- 4 OUTPUT: green LED
+Functions to test:
+- void tl_init()
+- void tl_set_state(uint8_t state)
+- uint8_t tl_state()
+- uint8_t tl_next_state(uint8_t state)
+- void tl_advance()
+- unsigned int tl_state_duration_ms(uint8_t state)
+- void tl_blink_green(uint8_t times, unsigned int half_period_ms)
+
+### logic.h
+```cpp
+// traffic_light: 3-LED traffic light state machine (red -> red+yellow -> green -> green blink -> yellow).
+// Adapted from https://github.com/sspeev/Arduino-Traffic-Light (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define TL_PIN_RED    2
+#define TL_PIN_YELLOW 3
+#define TL_PIN_GREEN  4
+
+enum TlState : uint8_t {
+  TL_RED = 0,
+  TL_RED_YELLOW = 1,
+  TL_GREEN = 2,
+  TL_GREEN_BLINK = 3,
+  TL_YELLOW = 4,
+  TL_STATE_COUNT = 5
+};
+
+void tl_init();                                   // configure pins, enter TL_RED
+void tl_set_state(uint8_t state);                 // drive the 3 LEDs for the given state (ignored if invalid)
+uint8_t tl_state();                               // current state
+uint8_t tl_next_state(uint8_t state);             // pure: next state in the cycle
+void tl_advance();                                // set_state(next_state(current))
+unsigned int tl_state_duration_ms(uint8_t state); // pure: how long each state lasts
+void tl_blink_green(uint8_t times, unsigned int half_period_ms); // blink green LED, ends with green LOW
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static uint8_t g_state = TL_RED;
+
+static void tl_write(bool red, bool yellow, bool green) {
+  digitalWrite(TL_PIN_RED, red ? HIGH : LOW);
+  digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);
+  digitalWrite(TL_PIN_GREEN, green ? HIGH : LOW);
+}
+
+void tl_init() {
+  pinMode(TL_PIN_RED, OUTPUT);
+  pinMode(TL_PIN_YELLOW, OUTPUT);
+  pinMode(TL_PIN_GREEN, OUTPUT);
+  tl_set_state(TL_RED);
+}
+
+void tl_set_state(uint8_t state) {
+  if (state >= TL_STATE_COUNT) {
+    return;
+  }
+  g_state = state;
+  switch (state) {
+    case TL_RED:         tl_write(true, false, false); break;
+    case TL_RED_YELLOW:  tl_write(true, true, false);  break;
+    case TL_GREEN:       tl_write(false, false, true); break;
+    case TL_GREEN_BLINK: tl_write(false, false, false); break; // green is toggled by tl_blink_green()
+    case TL_YELLOW:      tl_write(false, true, false); break;
+  }
+}
+
+uint8_t tl_state() {
+  return g_state;
+}
+
+uint8_t tl_next_state(uint8_t state) {
+  if (state >= TL_STATE_COUNT) {
+    return TL_RED;
+  }
+  return (state + 1) % TL_STATE_COUNT;
+}
+
+void tl_advance() {
+  tl_set_state(tl_next_state(g_state));
+}
+
+unsigned int tl_state_duration_ms(uint8_t state) {
+  switch (state) {
+    case TL_RED:         return 5000;
+    case TL_RED_YELLOW:  return 1500;
+    case TL_GREEN:       return 5000;
+    case TL_GREEN_BLINK: return 2000;
+    case TL_YELLOW:      return 2000;
+    default:             return 0;
+  }
+}
+
+void tl_blink_green(uint8_t times, unsigned int half_period_ms) {
+  for (uint8_t i = 0; i < times; i++) {
+    digitalWrite(TL_PIN_GREEN, LOW);
+    delay(half_period_ms);
+    digitalWrite(TL_PIN_GREEN, HIGH);
+    delay(half_period_ms);
+  }
+  digitalWrite(TL_PIN_GREEN, LOW);
+}
+```
+
+<reference>
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Covering a function
+
+## Covering a function
+- Call the module's init function at the start of every test so that tests do not depend on each other.
+- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.
+- For functions with an index or a range argument (LED number, state number), test the first value, the last
+  value and one value outside the range.
+
+[kb/guides/testing_timing_state.md]
+Testing time-dependent logic and state machines / State machines
+
+## State machines
+Traffic lights, gates and sequences are state machines. Test them by setting a known state, calling the step
+function once, and checking the new state and every output pin after each step. Cover:
+- every transition in the order the specification gives;
+- the wrap-around from the last state back to the first;
+- an invalid state or index, which should be rejected or clamped;
+- the outputs for each state (for a traffic light: exactly one lamp, or the documented combination, is on).
+
+[kb/guides/testing_digital_pins.md]
+Testing digital pins on the Arduino Uno / Pin numbers on the Uno
+
+## Pin numbers on the Uno
+- Digital pins 0 to 13. The analog inputs A0 to A5 are also digital pins 14 to 19.
+- Pins 0 and 1 are the Serial RX/TX lines; the test protocol uses Serial, so tests must not drive them.
+- PWM pins: 3, 5, 6, 9, 10, 11. `LED_BUILTIN` is pin 13.
+- Check outputs against the pin numbers in the module's specification (its pin table), not against constants
+  taken from the code under test: a wrong pin number in the code is only detected if the test uses the pin
+  number the hardware is actually wired to.
+
+[kb/learn/potentiometer-basics.md]
+Basics of Potentiometers with Arduino / Color Mixer Example
+
+```arduino
+/*
+* Code for making one potentiometer control 3 LEDs, red, grn and blu, or one tri-color LED
+* The program cross-fades from red to grn, grn to blu, and blu to red
+* Clay Shirky <clay.shirky@nyu.edu> 
+*/
+
+// INPUT: Potentiometer should be connected to 5V and GND
+int potPin = A3; // Potentiometer output connected to analog pin 3
+int potVal = 0; // Variable to store the input from the potentiometer
+
+// OUTPUT: Use digital pins 9-11, the Pulse-width Modulation (PWM) pins
+// LED's cathodes should be connected to digital GND
+int redPin = 9;   // Red LED,   connected to digital pin 9
+int grnPin = 10;  // Green LED, connected to digital pin 10
+int bluPin = 11;  // Blue LED,  connected to digital pin 11
+
+// Program variables
+int redVal = 0;   // Variables to store the values to send to the pins
+int grnVal = 0;
+int bluVal = 0;
+
+void setup()
+{
+  pinMode(redPin, OUTPUT);   // sets the pins as output
+  pinMode(grnPin, OUTPUT);   
+  pinMode(bluPin, OUTPUT); 
+}
+
+// Main program
+void loop()
+{
+  potVal = analogRead(potPin);   // read the potentiometer value at the input pin
+
+  if (potVal < 341)  // Lowest third of the potentiometer's range (0-340)
+  {                  
+    potVal = (potVal * 3) / 4; // Normalize to 0-255
+
+    redVal = 256 - potVal;  // Red from full to off
+    grnVal = potVal;        // Green from off to full
+    bluVal = 1;             // Blue off
+  }
+  else if (potVal < 682) // Middle third of potentiometer's range (341-681)
+  {
+```
+
+[kb/learn/potentiometer-basics.md]
+Basics of Potentiometers with Arduino / Color Crossfading Example
+
+```arduino
+*    then stop on the last color in the sequence. (Set 'return' to 1, 
+*    and make the last color black if you want it to fade out at the end.)
+* 4. There is an optional 'hold' variable, which pasues the 
+*    program for 'hold' milliseconds when a color is complete, 
+*    but before the next color starts.
+* 5. Set the DEBUG flag to 1 if you want debugging output to be
+*    sent to the serial monitor.
+*
+*    The internals of the program aren't complicated, but they
+*    are a little fussy -- the inner workings are explained 
+*    below the main loop.
+*
+* April 2007, Clay Shirky <clay.shirky@nyu.edu> 
+*/ 
+
+// Output
+int redPin = 9;   // Red LED,   connected to digital pin 9
+int grnPin = 10;  // Green LED, connected to digital pin 10
+int bluPin = 11;  // Blue LED,  connected to digital pin 11
+
+// Color arrays
+int black[3]  = { 0, 0, 0 };
+int white[3]  = { 100, 100, 100 };
+int red[3]    = { 100, 0, 0 };
+int green[3]  = { 0, 100, 0 };
+int blue[3]   = { 0, 0, 100 };
+int yellow[3] = { 40, 95, 0 };
+int dimWhite[3] = { 30, 30, 30 };
+// etc.
+
+// Set initial color
+int redVal = black[0];
+int grnVal = black[1]; 
+int bluVal = black[2];
+
+int wait = 10;      // 10ms internal crossFade delay; increase for slower fades
+int hold = 0;       // Optional hold when a color is complete, before the next crossFade
+int DEBUG = 1;      // DEBUG counter; if set to 1, will write values back via serial
+int loopCount = 60; // How often should DEBUG report?
+```
+</reference>
+The <reference> block contains documentation excerpts; use them only where they apply.
+
+Write the test sketch for this module.

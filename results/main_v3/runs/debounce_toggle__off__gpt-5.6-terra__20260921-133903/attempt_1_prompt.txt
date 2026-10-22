@@ -1,0 +1,102 @@
+Module: Debounced button toggles an LED (id: debounce_toggle, category: led, complexity: simple)
+Pins:
+- 2 INPUT: push-button (HIGH = pressed, external pull-down)
+- 13 OUTPUT: LED
+Functions to test:
+- void db_init()
+- void db_update(int reading, unsigned long now_ms)
+- void db_poll()
+- int db_led_state()
+- int db_button_state()
+- void db_set_debounce_delay(unsigned long ms)
+- unsigned long db_debounce_delay()
+- unsigned long db_last_change_ms()
+
+### logic.h
+```cpp
+// debounce_toggle: LED toggles on each debounced LOW->HIGH transition of a push-button.
+// Adapted from the Arduino built-in example "Debounce"
+// https://github.com/arduino/arduino-examples/blob/main/examples/02.Digital/Debounce/Debounce.ino (CC0-1.0 / public domain).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define DB_PIN_BUTTON 2               // INPUT with external pull-down: HIGH = pressed
+#define DB_PIN_LED    13
+#define DB_DEFAULT_DEBOUNCE_MS 50
+
+void db_init();                                     // pins configured, LED starts HIGH (as in the original)
+void db_update(int reading, unsigned long now_ms);  // core logic with an explicit time source
+void db_poll();                                     // db_update(digitalRead(button), millis())
+int db_led_state();                                 // HIGH / LOW currently driven on the LED
+int db_button_state();                              // last debounced button level
+unsigned long db_debounce_delay();                  // ms
+void db_set_debounce_delay(unsigned long ms);
+unsigned long db_last_change_ms();                  // time of the last raw reading change
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static int g_led_state = HIGH;
+static int g_button_state = LOW;
+static int g_last_reading = LOW;
+static unsigned long g_last_debounce_ms = 0;
+static unsigned long g_debounce_delay_ms = DB_DEFAULT_DEBOUNCE_MS;
+
+void db_init() {
+  pinMode(DB_PIN_BUTTON, INPUT);
+  pinMode(DB_PIN_LED, OUTPUT);
+  g_led_state = HIGH;
+  g_button_state = LOW;
+  g_last_reading = LOW;
+  g_last_debounce_ms = 0;
+  g_debounce_delay_ms = DB_DEFAULT_DEBOUNCE_MS;
+  digitalWrite(DB_PIN_LED, g_led_state);
+}
+
+void db_update(int reading, unsigned long now_ms) {
+  if (reading != g_last_reading) {
+    g_last_debounce_ms = now_ms;     // reading changed: restart the debounce timer
+  }
+  if ((now_ms - g_last_debounce_ms) > g_debounce_delay_ms) {
+    if (reading != g_button_state) {
+      g_button_state = reading;
+      if (g_button_state == HIGH) {
+        g_led_state = !g_led_state;  // toggle only on press
+      }
+    }
+  }
+  digitalWrite(DB_PIN_LED, g_led_state);
+  g_last_reading = reading;
+}
+
+void db_poll() {
+  db_update(digitalRead(DB_PIN_BUTTON), millis());
+}
+
+int db_led_state() {
+  return g_led_state;
+}
+
+int db_button_state() {
+  return g_button_state;
+}
+
+unsigned long db_debounce_delay() {
+  return g_debounce_delay_ms;
+}
+
+void db_set_debounce_delay(unsigned long ms) {
+  g_debounce_delay_ms = ms;
+}
+
+unsigned long db_last_change_ms() {
+  return g_last_debounce_ms;
+}
+```
+
+Write the test sketch for this module.

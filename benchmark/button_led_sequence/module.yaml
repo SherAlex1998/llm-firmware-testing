@@ -1,0 +1,23 @@
+id: button_led_sequence
+name: "Button-driven 4-LED sequence"
+source_url: https://github.com/rajeshThakare/Arduino-UNO-for-Absolute-Beginners
+license: MIT
+category: led
+complexity: simple
+pins:
+  - {pin: 2, mode: INPUT, role: "push-button (HIGH = pressed, external pull-down)"}
+  - {pin: 7, mode: OUTPUT, role: "LED 1"}
+  - {pin: 6, mode: OUTPUT, role: "LED 2"}
+  - {pin: 5, mode: OUTPUT, role: "LED 3"}
+  - {pin: 4, mode: OUTPUT, role: "LED 4"}
+entry_functions:
+  - "void seq_init()"
+  - "bool seq_apply(uint8_t step)"
+  - "void seq_advance()"
+  - "uint8_t seq_count()"
+  - "int8_t seq_current_led()"
+  - "void seq_all_off()"
+  - "bool seq_button_pressed()"
+  - "void seq_poll()"
+loc: 61
+notes: "Source file: Codes/3_Switch/switch_practical_3.ino.ino. Four if-blocks keyed on a press counter collapsed into seq_apply(step)/seq_advance(); original pinMode bug (LED1 configured four times, LED2-4 never) fixed; post-press delays moved to the main sketch."

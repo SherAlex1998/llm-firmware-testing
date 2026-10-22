@@ -1,0 +1,13 @@
+@RUN_BEGIN 11
+@TEST init_sets_pins_and_state PASS
+@TEST coil_pattern_valid_phases PASS
+@TEST coil_pattern_invalid_phase PASS
+@TEST apply_phase_valid PASS
+@TEST apply_phase_invalid PASS
+@TEST step_full_forward PASS
+@TEST step_full_backward FAIL line 87: expected stepper_phase() == 7 (got 5 vs 7)
+@TEST step_half_forward PASS
+@TEST step_half_backward PASS
+@TEST release_all_coils_off FAIL line 131: pin 11 is LOW, expected HIGH
+@TEST set_delay PASS
+@RUN_END 9/11

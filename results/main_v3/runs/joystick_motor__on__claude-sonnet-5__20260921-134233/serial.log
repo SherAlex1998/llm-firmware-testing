@@ -1,0 +1,10 @@
+@RUN_BEGIN 8
+@TEST init_sets_default_state PASS
+@TEST set_direction_clockwise_and_ccw PASS
+@TEST set_speed_clamps_and_reads_back_extremes PASS
+@TEST stop_zeroes_speed PASS
+@TEST pure_axis_helpers PASS
+@TEST apply_axis_dead_zone_stops_motor PASS
+@TEST apply_axis_sets_direction_and_speed_clockwise PASS
+@TEST apply_axis_sets_direction_and_speed_ccw PASS
+@RUN_END 8/8

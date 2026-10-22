@@ -1,0 +1,8 @@
+@RUN_BEGIN 6
+@TEST init_sets_led_off_and_no_press PASS
+@TEST set_led_forces_state PASS
+@TEST update_toggles_on_release_edge PASS
+@TEST update_no_toggle_while_held_or_idle PASS
+@TEST update_multiple_press_release_cycles PASS
+@TEST poll_reads_actual_button_pin PASS
+@RUN_END 6/6

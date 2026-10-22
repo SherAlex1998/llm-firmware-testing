@@ -1,0 +1,11 @@
+@RUN_BEGIN 9
+@TEST initial_state_after_setup PASS
+@TEST b1_release_cycles_timer_type PASS
+@TEST b2_short_click_starts_running PASS
+@TEST b2_release_while_running_pauses PASS
+@TEST resume_from_paused_with_short_click PASS
+@TEST cancel_from_paused_with_long_press PASS
+@TEST pomodoro_completes_and_increments_count FAIL line 108: expected the_pomodoro.Get_State() == POM_FINISHED (got 1 vs 2)
+@TEST lcd_shows_ready_text FAIL line 124: expected true: strstr(line0, "READY") != NULL
+@TEST lcd_shows_time_left_when_running FAIL line 134: expected true: strstr(line0, "25:00") != NULL
+@RUN_END 6/9

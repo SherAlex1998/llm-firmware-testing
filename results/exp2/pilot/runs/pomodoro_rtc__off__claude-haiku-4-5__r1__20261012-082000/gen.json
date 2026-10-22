@@ -1,0 +1,21 @@
+{
+ "module_id": "pomodoro_rtc",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 12781,
+ "tokens_out": 3388,
+ "cost_usd": 0.029721,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 12781,
+   "tokens_out": 3388,
+   "latency_s": 22.63180160522461,
+   "cached": false,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

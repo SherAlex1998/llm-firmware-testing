@@ -1,0 +1,21 @@
+{
+ "module_id": "two_color_crossfade",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2296,
+ "tokens_out": 842,
+ "cost_usd": 0.014696,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2296,
+   "tokens_out": 842,
+   "latency_s": 12.500380277633667,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

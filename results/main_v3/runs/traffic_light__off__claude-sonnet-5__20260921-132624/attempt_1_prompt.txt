@@ -1,0 +1,117 @@
+Module: 3-LED traffic light state machine (id: traffic_light, category: led, complexity: simple)
+Pins:
+- 2 OUTPUT: red LED
+- 3 OUTPUT: yellow LED
+- 4 OUTPUT: green LED
+Functions to test:
+- void tl_init()
+- void tl_set_state(uint8_t state)
+- uint8_t tl_state()
+- uint8_t tl_next_state(uint8_t state)
+- void tl_advance()
+- unsigned int tl_state_duration_ms(uint8_t state)
+- void tl_blink_green(uint8_t times, unsigned int half_period_ms)
+
+### logic.h
+```cpp
+// traffic_light: 3-LED traffic light state machine (red -> red+yellow -> green -> green blink -> yellow).
+// Adapted from https://github.com/sspeev/Arduino-Traffic-Light (MIT).
+#ifndef LOGIC_H
+#define LOGIC_H
+#include <Arduino.h>
+
+#define TL_PIN_RED    2
+#define TL_PIN_YELLOW 3
+#define TL_PIN_GREEN  4
+
+enum TlState : uint8_t {
+  TL_RED = 0,
+  TL_RED_YELLOW = 1,
+  TL_GREEN = 2,
+  TL_GREEN_BLINK = 3,
+  TL_YELLOW = 4,
+  TL_STATE_COUNT = 5
+};
+
+void tl_init();                                   // configure pins, enter TL_RED
+void tl_set_state(uint8_t state);                 // drive the 3 LEDs for the given state (ignored if invalid)
+uint8_t tl_state();                               // current state
+uint8_t tl_next_state(uint8_t state);             // pure: next state in the cycle
+void tl_advance();                                // set_state(next_state(current))
+unsigned int tl_state_duration_ms(uint8_t state); // pure: how long each state lasts
+void tl_blink_green(uint8_t times, unsigned int half_period_ms); // blink green LED, ends with green LOW
+
+#endif
+```
+
+### logic.cpp
+```cpp
+#include "logic.h"
+
+static uint8_t g_state = TL_RED;
+
+static void tl_write(bool red, bool yellow, bool green) {
+  digitalWrite(TL_PIN_RED, red ? HIGH : LOW);
+  digitalWrite(TL_PIN_YELLOW, yellow ? HIGH : LOW);
+  digitalWrite(TL_PIN_GREEN, green ? HIGH : LOW);
+}
+
+void tl_init() {
+  pinMode(TL_PIN_RED, OUTPUT);
+  pinMode(TL_PIN_YELLOW, OUTPUT);
+  pinMode(TL_PIN_GREEN, OUTPUT);
+  tl_set_state(TL_RED);
+}
+
+void tl_set_state(uint8_t state) {
+  if (state >= TL_STATE_COUNT) {
+    return;
+  }
+  g_state = state;
+  switch (state) {
+    case TL_RED:         tl_write(true, false, false); break;
+    case TL_RED_YELLOW:  tl_write(true, true, false);  break;
+    case TL_GREEN:       tl_write(false, false, true); break;
+    case TL_GREEN_BLINK: tl_write(false, false, false); break; // green is toggled by tl_blink_green()
+    case TL_YELLOW:      tl_write(false, true, false); break;
+  }
+}
+
+uint8_t tl_state() {
+  return g_state;
+}
+
+uint8_t tl_next_state(uint8_t state) {
+  if (state >= TL_STATE_COUNT) {
+    return TL_RED;
+  }
+  return (state + 1) % TL_STATE_COUNT;
+}
+
+void tl_advance() {
+  tl_set_state(tl_next_state(g_state));
+}
+
+unsigned int tl_state_duration_ms(uint8_t state) {
+  switch (state) {
+    case TL_RED:         return 5000;
+    case TL_RED_YELLOW:  return 1500;
+    case TL_GREEN:       return 5000;
+    case TL_GREEN_BLINK: return 2000;
+    case TL_YELLOW:      return 2000;
+    default:             return 0;
+  }
+}
+
+void tl_blink_green(uint8_t times, unsigned int half_period_ms) {
+  for (uint8_t i = 0; i < times; i++) {
+    digitalWrite(TL_PIN_GREEN, LOW);
+    delay(half_period_ms);
+    digitalWrite(TL_PIN_GREEN, HIGH);
+    delay(half_period_ms);
+  }
+  digitalWrite(TL_PIN_GREEN, LOW);
+}
+```
+
+Write the test sketch for this module.

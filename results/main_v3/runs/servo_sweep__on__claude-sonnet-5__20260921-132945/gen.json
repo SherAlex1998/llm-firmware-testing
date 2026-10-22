@@ -1,0 +1,21 @@
+{
+ "module_id": "servo_sweep",
+ "model_id": "claude-sonnet-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 6047,
+ "tokens_out": 924,
+ "cost_usd": 0.032001,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 6047,
+   "tokens_out": 924,
+   "latency_s": 7.750546455383301,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

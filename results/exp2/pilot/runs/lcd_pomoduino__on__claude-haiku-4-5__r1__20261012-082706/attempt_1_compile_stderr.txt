@@ -1,0 +1,6 @@
+test_main.ino: In function 'void test_fn_ms_to_m_s_conversion()':
+test_main.ino:201:24: error: 'Utils' has not been declared
+   const char *result = Utils::ms_to_m_s(125000); // 2 min 5 sec
+                        ^~~~~
+
+Error during build: exit status 1

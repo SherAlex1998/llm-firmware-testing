@@ -1,0 +1,42 @@
+id: lcd_murasaki_dice
+name: "RPG dice roller with potentiometer, movement detector and base-5 digits on a 16x2 LCD"
+source_url: https://github.com/rchampeimont/arduino_JDR_Murasaki
+license: MIT
+repo_created: 2021-05-02
+experiment: 2
+category: mixed
+complexity: medium
+backend: avr8js
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LiquidCrystal", version: "1.0.7"}
+interrupts: false
+pins:
+  - {pin: 14, mode: INPUT, role: "dice selector potentiometer A0 (not connected in the test setup: reads 0)"}
+  - {pin: 6, mode: INPUT, role: "movement detector, a HIGH->LOW change rolls (not connected: reads LOW)"}
+  - {pin: 13, mode: OUTPUT, role: "LED_BUILTIN, on while selecting/rolling"}
+  - {pin: 12, mode: OUTPUT, role: "LCD 16x2 RS (E 11, D4..D7 = 5, 4, 3, 2)"}
+entry_functions:
+  - "void jdr_set_delay_scale(uint8_t percent)"
+  - "void jdr_reset_state()"
+  - "void jdr_init()"
+  - "void jdr_loop()"
+  - "void selectDice()"
+  - "void selectDiceWith(int selectorRawValue)"
+  - "void rollDice()"
+  - "void rollDiceWith(int switchState, unsigned long now)"
+  - "void updateMurasakiClock()"
+  - "void updateMurasakiClockAt(unsigned long now)"
+  - "void printMurasakiDigit(int value)"
+  - "void printMurasakiNumber(unsigned long value, int littleDigitCol, int row)"
+  - "void printDiceType(int col, int row)"
+  - "const char *jdr_lcd_line(uint8_t row)"
+loc: 243
+metrics: {nloc: 243, ccn_sum: 40, ccn_max: 7, functions: 19}
+notes: >-
+  Source: JDR_Murasaki/JDR_Murasaki.ino (single sketch). Functions copied into logic.cpp; constants and globals
+  declared extern in logic.h. Changes: setup() -> jdr_init() (also resets the globals); loop() -> jdr_loop();
+  selectDice/rollDice/updateMurasakiClock read the pot, the detector and millis() and call twins with those values
+  as arguments (selectDiceWith, rollDiceWith, updateMurasakiClockAt); rollDiceWith stores the result in lastRoll;
+  the roll animation and result pause are scaled by jdr_set_delay_scale() (default 100 %); the debug Serial prints
+  were removed; LCD calls go through wrappers with a shadow buffer. avr8js backend.

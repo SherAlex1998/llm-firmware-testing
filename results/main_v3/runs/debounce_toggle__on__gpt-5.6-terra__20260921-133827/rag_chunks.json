@@ -1,0 +1,46 @@
+{
+ "query": "Unit tests for an Arduino Uno module: Debounced button toggles an LED. Pins: pin 2 INPUT push-button (HIGH = pressed, external pull-down); pin 13 OUTPUT LED. Arduino API used: digitalRead, digitalWrite, millis, pinMode. Libraries: none. Functions to test: void db_init(), void db_update(int reading, unsigned long now_ms), void db_poll(), int db_led_state(), int db_button_state(), void db_set_debounce_delay(unsigned long ms), unsigned long db_debounce_delay(), unsigned long db_last_change_ms().",
+ "context": "[kb/guides/testing_digital_pins.md]\nTesting digital pins on the Arduino Uno / Inputs, buttons and floating pins\n\n## Inputs, buttons and floating pins\nA pin configured as `INPUT` with nothing connected is floating: `digitalRead()` may return `HIGH` or `LOW`, and\nthe value can change at random. A test must not expect a particular value from an input it does not drive.\n\nWith `INPUT_PULLUP` the internal pull-up resistor holds the pin `HIGH`; a button wired to GND reads `LOW` when\npressed. With `INPUT` and an external pull-down resistor, a button wired to 5V reads `HIGH` when pressed.\n\nTo test logic that depends on an input (a button, a sensor), call the function that takes the input value as a\nparameter, for example `update(bool pressed)`, with both values, instead of trying to change the physical pin.\n\n[kb/guides/testing_digital_pins.md]\nTesting digital pins on the Arduino Uno / Covering a function\n\n## Covering a function\n- Call the module's init function at the start of every test so that tests do not depend on each other.\n- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.\n- For functions with an index or a range argument (LED number, state number), test the first value, the last\n  value and one value outside the range.\n\n[kb/examples/Debounce.md]\nDebounce on a Pushbutton\n\n# Debounce on a Pushbutton\n\nPushbuttons often generate spurious open/close transitions when pressed, due to mechanical and physical issues: these transitions may be read as multiple presses in a very short time fooling the program. This example demonstrates how to **debounce** an input, which means checking twice in a short period of time to make sure the pushbutton is definitely pressed. Without debouncing, pressing the button once may cause unpredictable results. This sketch uses the `millis()` function to keep track of the time passed since the button was pressed.\n\n[kb/examples/Button.md]\nHow to Wire and Program a Button\n\n# How to Wire and Program a Button\n\nPushbuttons or switches connect two points in a circuit when you press them.  This example turns on the built-in LED on pin 13 when you press the button.\n\n### Hardware\n\n- [Arduino Board](https://store.arduino.cc/collections/boards-modules)\n\n- Momentary button or Switch\n\n- 10K ohm resistor\n\n- hook-up wires\n\n- breadboard\n\n[kb/examples/Debounce.md]\nDebounce on a Pushbutton / Hardware Required\n\n### Hardware Required\n\n- [Arduino Board](https://store.arduino.cc/collections/boards-modules)\n\n- momentary button or switch\n\n- 10k ohm resistor\n\n- hook-up wires\n\n- breadboard\n\n### Circuit\n\n### Schematic\n\n###  Code\n\nThe sketch below is based on **Limor Fried's version of debounce**, but the logic is inverted from her example. In her example, the switch returns LOW when closed, and HIGH when open.  Here, the switch returns HIGH when pressed and LOW when not pressed.\n\n<iframe src='https://create.arduino.cc/example/builtin/02.Digital%5CDebounce/Debounce/preview?embed&snippet' style='height:510px;width:100%;margin:10px 0' frameborder='0'></iframe>",
+ "chunks": [
+  {
+   "id": "kb/guides/testing_digital_pins.md#1",
+   "title": "Testing digital pins on the Arduino Uno / Inputs, buttons and floating pins",
+   "source_path": "kb/guides/testing_digital_pins.md",
+   "kind": "guide",
+   "similarity": 0.6493,
+   "text": "Testing digital pins on the Arduino Uno / Inputs, buttons and floating pins\n\n## Inputs, buttons and floating pins\nA pin configured as `INPUT` with nothing connected is floating: `digitalRead()` may return `HIGH` or `LOW`, and\nthe value can change at random. A test must not expect a particular value from an input it does not drive.\n\nWith `INPUT_PULLUP` the internal pull-up resistor holds the pin `HIGH`; a button wired to GND reads `LOW` when\npressed. With `INPUT` and an external pull-down resistor, a button wired to 5V reads `HIGH` when pressed.\n\nTo test logic that depends on an input (a button, a sensor), call the function that takes the input value as a\nparameter, for example `update(bool pressed)`, with both values, instead of trying to change the physical pin."
+  },
+  {
+   "id": "kb/guides/testing_digital_pins.md#3",
+   "title": "Testing digital pins on the Arduino Uno / Covering a function",
+   "source_path": "kb/guides/testing_digital_pins.md",
+   "kind": "guide",
+   "similarity": 0.6238,
+   "text": "Testing digital pins on the Arduino Uno / Covering a function\n\n## Covering a function\n- Call the module's init function at the start of every test so that tests do not depend on each other.\n- For every output a function drives, assert each pin it should set and each pin it should leave unchanged.\n- For functions with an index or a range argument (LED number, state number), test the first value, the last\n  value and one value outside the range."
+  },
+  {
+   "id": "kb/examples/Debounce.md#0",
+   "title": "Debounce on a Pushbutton",
+   "source_path": "kb/examples/Debounce.md",
+   "kind": "example",
+   "similarity": 0.5592,
+   "text": "Debounce on a Pushbutton\n\n# Debounce on a Pushbutton\n\nPushbuttons often generate spurious open/close transitions when pressed, due to mechanical and physical issues: these transitions may be read as multiple presses in a very short time fooling the program. This example demonstrates how to **debounce** an input, which means checking twice in a short period of time to make sure the pushbutton is definitely pressed. Without debouncing, pressing the button once may cause unpredictable results. This sketch uses the `millis()` function to keep track of the time passed since the button was pressed."
+  },
+  {
+   "id": "kb/examples/Button.md#0",
+   "title": "How to Wire and Program a Button",
+   "source_path": "kb/examples/Button.md",
+   "kind": "example",
+   "similarity": 0.5485,
+   "text": "How to Wire and Program a Button\n\n# How to Wire and Program a Button\n\nPushbuttons or switches connect two points in a circuit when you press them.  This example turns on the built-in LED on pin 13 when you press the button.\n\n### Hardware\n\n- [Arduino Board](https://store.arduino.cc/collections/boards-modules)\n\n- Momentary button or Switch\n\n- 10K ohm resistor\n\n- hook-up wires\n\n- breadboard"
+  },
+  {
+   "id": "kb/examples/Debounce.md#1",
+   "title": "Debounce on a Pushbutton / Hardware Required",
+   "source_path": "kb/examples/Debounce.md",
+   "kind": "example",
+   "similarity": 0.5437,
+   "text": "Debounce on a Pushbutton / Hardware Required\n\n### Hardware Required\n\n- [Arduino Board](https://store.arduino.cc/collections/boards-modules)\n\n- momentary button or switch\n\n- 10k ohm resistor\n\n- hook-up wires\n\n- breadboard\n\n### Circuit\n\n### Schematic\n\n###  Code\n\nThe sketch below is based on **Limor Fried's version of debounce**, but the logic is inverted from her example. In her example, the switch returns LOW when closed, and HIGH when open.  Here, the switch returns HIGH when pressed and LOW when not pressed.\n\n<iframe src='https://create.arduino.cc/example/builtin/02.Digital%5CDebounce/Debounce/preview?embed&snippet' style='height:510px;width:100%;margin:10px 0' frameborder='0'></iframe>"
+  }
+ ]
+}

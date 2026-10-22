@@ -1,0 +1,98 @@
+{
+ "mutants_total": 10,
+ "killed": 9,
+ "score": 0.9,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "swap_logic",
+   "line": 27,
+   "before": "if (g_prev_pressed && !pressed) {",
+   "after": "if (g_prev_pressed || !pressed) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 2,
+   "operator": "drop_call",
+   "line": 19,
+   "before": "digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 3,
+   "operator": "swap_hilo",
+   "line": 14,
+   "before": "return digitalRead(TOGGLE_PIN_BUTTON) == LOW;",
+   "after": "return digitalRead(TOGGLE_PIN_BUTTON) == HIGH;",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 4,
+   "operator": "drop_call",
+   "line": 28,
+   "before": "toggle_set_led(!g_led);   // released after a press -> toggle",
+   "after": ";   // released after a press -> toggle",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 5,
+   "operator": "swap_hilo",
+   "line": 19,
+   "before": "digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",
+   "after": "digitalWrite(TOGGLE_PIN_LED, on ? HIGH : HIGH);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 6,
+   "operator": "negate_cond",
+   "line": 27,
+   "before": "if (g_prev_pressed && !pressed) {",
+   "after": "if (!(g_prev_pressed && !pressed)) {",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 7,
+   "operator": "drop_call",
+   "line": 34,
+   "before": "toggle_update(toggle_button_pressed());",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false
+  },
+  {
+   "id": 8,
+   "operator": "swap_hilo",
+   "line": 19,
+   "before": "digitalWrite(TOGGLE_PIN_LED, on ? HIGH : LOW);",
+   "after": "digitalWrite(TOGGLE_PIN_LED, on ? LOW : LOW);",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 9,
+   "operator": "drop_call",
+   "line": 10,
+   "before": "toggle_set_led(false);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true
+  },
+  {
+   "id": 10,
+   "operator": "flip_cmp",
+   "line": 14,
+   "before": "return digitalRead(TOGGLE_PIN_BUTTON) == LOW;",
+   "after": "return digitalRead(TOGGLE_PIN_BUTTON) != LOW;",
+   "verdict": "fail",
+   "killed": true
+  }
+ ],
+ "warnings": []
+}

@@ -1,0 +1,108 @@
+{
+ "mutants_total": 10,
+ "killed": 5,
+ "score": 0.5,
+ "per_mutant": [
+  {
+   "id": 1,
+   "operator": "negate_cond",
+   "line": 81,
+   "before": "if (the_b1->Released())",
+   "after": "if (!(the_b1->Released()))",
+   "verdict": "fail",
+   "killed": true,
+   "file": "Pomodoro.cpp"
+  },
+  {
+   "id": 2,
+   "operator": "off_by_one",
+   "line": 73,
+   "before": "if (the_timer < 5)",
+   "after": "if (the_timer < 6)",
+   "verdict": "pass",
+   "killed": false,
+   "file": "UI.cpp"
+  },
+  {
+   "id": 3,
+   "operator": "drop_call",
+   "line": 36,
+   "before": "the_b1.Button_Logic::Update(a_time, b1_down);",
+   "after": ";",
+   "verdict": "fail",
+   "killed": true,
+   "file": "logic.cpp"
+  },
+  {
+   "id": 4,
+   "operator": "const_change",
+   "line": 64,
+   "before": "the_display.Write(1, the_progress);",
+   "after": "the_display.Write(2, the_progress);",
+   "verdict": "pass",
+   "killed": false,
+   "file": "UI.cpp"
+  },
+  {
+   "id": 5,
+   "operator": "negate_cond",
+   "line": 152,
+   "before": "if (the_pomodoros % 4 == 0)",
+   "after": "if (!(the_pomodoros % 4 == 0))",
+   "verdict": "fail",
+   "killed": true,
+   "file": "Pomodoro.cpp"
+  },
+  {
+   "id": 6,
+   "operator": "swap_arith",
+   "line": 38,
+   "before": "uint32_t s = a_ms / 1000;",
+   "after": "uint32_t s = a_ms * 1000;",
+   "verdict": "pass",
+   "killed": false,
+   "file": "Utils.cpp"
+  },
+  {
+   "id": 7,
+   "operator": "off_by_one",
+   "line": 91,
+   "before": "if (the_b2->Duration() > 3000)",
+   "after": "if (the_b2->Duration() > 3001)",
+   "verdict": "fail",
+   "killed": true,
+   "file": "Pomodoro.cpp"
+  },
+  {
+   "id": 8,
+   "operator": "const_change",
+   "line": 42,
+   "before": "the_pin(a_pin), the_cycle(0), the_max_beeps(a_max_beeps)",
+   "after": "the_pin(a_pin), the_cycle(1), the_max_beeps(a_max_beeps)",
+   "verdict": "pass",
+   "killed": false,
+   "file": "Beeper.hpp"
+  },
+  {
+   "id": 9,
+   "operator": "drop_call",
+   "line": 98,
+   "before": "memset(the_buf, 0, BUF_SIZE);",
+   "after": ";",
+   "verdict": "pass",
+   "killed": false,
+   "file": "Display.cpp"
+  },
+  {
+   "id": 10,
+   "operator": "swap_arith",
+   "line": 40,
+   "before": "the_duration = a_time - the_start_time;",
+   "after": "the_duration = a_time + the_start_time;",
+   "verdict": "fail",
+   "killed": true,
+   "file": "Button_Logic.cpp"
+  }
+ ],
+ "warnings": []
+}

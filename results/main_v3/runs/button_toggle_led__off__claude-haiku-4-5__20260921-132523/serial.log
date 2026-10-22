@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_configures_pins PASS
+@TEST button_pressed_reads_pin PASS
+@TEST set_led_controls_output PASS
+@TEST toggle_on_release_edge PASS
+@TEST multiple_toggle_cycles PASS
+@TEST held_button_no_toggle PASS
+@TEST poll_integration PASS
+@RUN_END 7/7

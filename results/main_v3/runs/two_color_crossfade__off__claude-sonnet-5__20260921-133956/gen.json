@@ -1,0 +1,21 @@
+{
+ "module_id": "two_color_crossfade",
+ "model_id": "claude-sonnet-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3896,
+ "tokens_out": 937,
+ "cost_usd": 0.025743,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3896,
+   "tokens_out": 937,
+   "latency_s": 7.1601481437683105,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

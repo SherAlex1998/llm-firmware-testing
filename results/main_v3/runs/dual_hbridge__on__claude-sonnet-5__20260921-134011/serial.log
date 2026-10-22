@@ -1,0 +1,9 @@
+@RUN_BEGIN 7
+@TEST init_stops_all PASS
+@TEST forward_motor_a PASS
+@TEST backward_motor_b PASS
+@TEST stop_single_motor PASS
+@TEST stop_all_motors PASS
+@TEST invalid_motor_rejected PASS
+@TEST max_speed_readback PASS
+@RUN_END 7/7

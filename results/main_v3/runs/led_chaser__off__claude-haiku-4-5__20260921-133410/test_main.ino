@@ -1,0 +1,91 @@
+#include "logic.h"
+#include "test_runner.h"
+
+TEST(init_sets_all_off) {
+  chaser_init();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_direction(), 1);
+  ASSERT_EQ(chaser_count_on(), 0);
+}
+
+TEST(all_off_turns_off_leds) {
+  chaser_init();
+  chaser_light_only(5);
+  ASSERT_EQ(chaser_count_on(), 1);
+  chaser_all_off();
+  ASSERT_EQ(chaser_position(), -1);
+  ASSERT_EQ(chaser_count_on(), 0);
+  for (uint8_t i = 0; i < CHASER_NUM_LEDS; i++) {
+    ASSERT_PIN(CHASER_PINS[i], LOW);
+  }
+}
+
+TEST(light_only_valid_index) {
+  chaser_init();
+  bool result = chaser_light_only(3);
+  ASSERT_TRUE(result);
+  ASSERT_EQ(chaser_position(), 3);
+  ASSERT_EQ(chaser_count_on(), 1);
+  ASSERT_PIN(CHASER_PINS[3], HIGH);
+}
+
+TEST(light_only_invalid_index) {
+  chaser_init();
+  bool result = chaser_light_only(10);
+  ASSERT_FALSE(result);
+}
+
+TEST(light_only_replaces_previous) {
+  chaser_init();
+  chaser_light_only(2);
+  ASSERT_PIN(CHASER_PINS[2], HIGH);
+  chaser_light_only(7);
+  ASSERT_PIN(CHASER_PINS[2], LOW);
+  ASSERT_PIN(CHASER_PINS[7], HIGH);
+  ASSERT_EQ(chaser_count_on(), 1);
+}
+
+TEST(step_forward_direction) {
+  chaser_init();
+  chaser_light_only(0);
+  ASSERT_EQ(chaser_direction(), 1);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 2);
+}
+
+TEST(step_bounces_at_end) {
+  chaser_init();
+  chaser_light_only(9);
+  ASSERT_EQ(chaser_direction(), 1);
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 8);
+  ASSERT_EQ(chaser_direction(), -1);
+}
+
+TEST(step_bounces_at_start) {
+  chaser_init();
+  chaser_light_only(0);
+  chaser_direction(); // just read, no change
+  // Manually set direction to -1 for backward movement
+  // We'll use light_only to set position, then step backward
+  chaser_light_only(1);
+  // Set up by stepping backward from position 1
+  // First go forward to end, then step will bounce
+  chaser_light_only(9);
+  chaser_step(); // now at 8, direction -1
+  chaser_step(); // now at 7
+  chaser_light_only(0); // position 0, direction still -1
+  chaser_step();
+  ASSERT_EQ(chaser_position(), 1);
+  ASSERT_EQ(chaser_direction(), 1);
+}
+
+void setup() {
+  Serial.begin(9600);
+  RUN_ALL_TESTS();
+}
+
+void loop() {}

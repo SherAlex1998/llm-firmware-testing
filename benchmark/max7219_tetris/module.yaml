@@ -1,0 +1,63 @@
+id: max7219_tetris
+name: "Tetris on two MAX7219 LED matrices with an analog joystick"
+source_url: https://github.com/vahidzee/aurdoino-tetris
+license: MIT
+repo_created: 2018-12-29
+experiment: 2
+category: display
+complexity: complex
+backend: wokwi
+sources: [logic.h, logic.cpp]
+libraries:
+  - {name: "LedControl", version: "1.0.6"}
+devices:
+  - part: wokwi-max7219-matrix
+    id: matrix
+    pins: {DIN: 12, CS: 10, CLK: 11}
+    attrs: {chain: "2"}
+    test_visible: "two chained MAX7219 8x8 matrices (write-only; tetris_shown(x, y) returns the last frame)"
+  - part: wokwi-analog-joystick
+    id: joy
+    pins: {HORZ: A0, VERT: A1, SEL: 3, VCC: 5}
+    attrs: {}
+    test_visible: "analog joystick powered from pin 5, at rest for the whole run (A0 and A1 read about 512)"
+interrupts: false
+pins:
+  - {pin: 12, mode: OUTPUT, role: "MAX7219 DIN"}
+  - {pin: 11, mode: OUTPUT, role: "MAX7219 CLK"}
+  - {pin: 10, mode: OUTPUT, role: "MAX7219 CS"}
+  - {pin: 14, mode: INPUT, role: "joystick X (A0): < 500 left, > 520 right"}
+  - {pin: 15, mode: INPUT, role: "joystick Y (A1): < 300 down, > 650 rotate"}
+  - {pin: 5, mode: OUTPUT, role: "joystick VCC (HIGH)"}
+  - {pin: 3, mode: INPUT, role: "joystick button (unused by the game)"}
+entry_functions:
+  - "void tetris_set_delay_scale(uint8_t percent)"
+  - "void tetris_init()"
+  - "void tetris_loop_pass()"
+  - "void tetris_apply_joystick(int x, int y)"
+  - "void init_led_controller()"
+  - "void init_joy_stick()"
+  - "void show_screen_for_map(bool pixels[SCREEN_WIDTH][SCREEN_HEIGHT])"
+  - "void show_game_map()"
+  - "void show_load_screen()"
+  - "bool live_block_reached_bottom_chunck()"
+  - "void register_live_block_to_bottom_chunck()"
+  - "void move_live_block_left()"
+  - "void move_live_block_right()"
+  - "void move_live_block_down()"
+  - "void rotatelive_block()"
+  - "void clear_bottom_chunck()"
+  - "void start_new_game()"
+  - "void generate_new_live_block()"
+  - "void remove_full_bottom_rows()"
+  - "void getAction()"
+  - "bool tetris_shown(uint8_t x, uint8_t y)"
+loc: 335
+metrics: {nloc: 335, ccn_sum: 94, ccn_max: 13, functions: 22}
+notes: >-
+  Source: main/main.ino (single sketch). Game functions copied unchanged into logic.cpp; the globals bottom_chunk,
+  live_block and loop_counter stay global and are declared extern in logic.h. Changes: the display moved from pins
+  0/1/2 to 12/11/10 because pins 0/1 carry Serial (the test protocol); setup()/loop() bodies became tetris_init() and
+  tetris_loop_pass(); getAction() reads the joystick and calls the pure tetris_apply_joystick(x, y); the 5 s load
+  screen and 1 s game-over pauses are scaled by tetris_set_delay_scale() (default 100 %); a frame shadow
+  tetris_shown(x, y) records what show_screen_for_map() sent. Unused #include <time.h> dropped.

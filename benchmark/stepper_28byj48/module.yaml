@@ -1,0 +1,23 @@
+id: stepper_28byj48
+name: "28BYJ-48 stepper full/half-step driver"
+source_url: https://github.com/Moragor/Mora_28BYJ_48
+license: MIT
+category: motor
+complexity: medium
+pins:
+  - {pin: 8, mode: OUTPUT, role: "ULN2003 IN1"}
+  - {pin: 9, mode: OUTPUT, role: "ULN2003 IN2"}
+  - {pin: 10, mode: OUTPUT, role: "ULN2003 IN3"}
+  - {pin: 11, mode: OUTPUT, role: "ULN2003 IN4"}
+entry_functions:
+  - "void stepper_init()"
+  - "void stepper_step_full(int steps)"
+  - "void stepper_step_half(int steps)"
+  - "bool stepper_apply_phase(uint8_t phase)"
+  - "uint8_t stepper_coil_pattern(uint8_t phase)"
+  - "int8_t stepper_phase()"
+  - "long stepper_position()"
+  - "void stepper_set_delay(unsigned int ms)"
+  - "void stepper_release()"
+loc: 125
+notes: "Class Mora_28BYJ_48 converted to free functions with static state (pins fixed to 8..11); original full-step phase arithmetic (odd phases 1,3,5,7) and half-step walk preserved; added a signed half-step position counter, coil-pattern getter and stepper_release(). Default per-step delay 2 ms (library default was 5 ms) so 100 full steps take about 200 ms."

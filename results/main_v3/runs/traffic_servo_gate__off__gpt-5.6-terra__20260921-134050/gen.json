@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_servo_gate",
+ "model_id": "gpt-5.6-terra",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 2582,
+ "tokens_out": 1060,
+ "cost_usd": 0.017884,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 2582,
+   "tokens_out": 1060,
+   "latency_s": 22.23016619682312,
+   "cached": true,
+   "stop_reason": "completed"
+  }
+ ]
+}

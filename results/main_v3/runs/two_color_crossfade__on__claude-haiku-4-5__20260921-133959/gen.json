@@ -1,0 +1,21 @@
+{
+ "module_id": "two_color_crossfade",
+ "model_id": "claude-haiku-4-5",
+ "rag": true,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 4611,
+ "tokens_out": 1267,
+ "cost_usd": 0.010946,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 4611,
+   "tokens_out": 1267,
+   "latency_s": 6.796871900558472,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

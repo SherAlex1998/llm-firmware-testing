@@ -1,0 +1,21 @@
+{
+ "module_id": "traffic_servo_gate",
+ "model_id": "claude-haiku-4-5",
+ "rag": false,
+ "compile_ok": true,
+ "gen_attempts": 1,
+ "tokens_in": 3333,
+ "tokens_out": 1060,
+ "cost_usd": 0.008633,
+ "attempts": [
+  {
+   "kind": "generate",
+   "compile_ok": true,
+   "tokens_in": 3333,
+   "tokens_out": 1060,
+   "latency_s": 5.959107160568237,
+   "cached": true,
+   "stop_reason": "end_turn"
+  }
+ ]
+}

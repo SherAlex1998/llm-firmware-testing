@@ -1,0 +1,8 @@
+{
+  "name": "harness-avr8js",
+  "private": true,
+  "description": "Offline ATmega328P simulator backend for the test harness (avr8js = open-source core of Wokwi)",
+  "dependencies": {
+    "avr8js": "0.21.1"
+  }
+}
